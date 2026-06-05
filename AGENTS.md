@@ -28,7 +28,7 @@ If the working tree is not clean, stop and report what is already changed before
 - Do not add secrets, `.env`, auth, payment, deploy, or production credentials without a separate explicit request.
 - Do not add heavy dependencies without explaining why they are needed.
 - Do not choose or change the final tech stack unless the task explicitly asks for it.
-- Do not push without explicit user permission.
+- Do not push without explicit user permission, except for the current repository bootstrap stage where push is explicitly allowed by the task prompt.
 - Do not touch other projects.
 
 ## Report Format
@@ -43,4 +43,3 @@ After each task, report:
 - Risks;
 - Rollback;
 - Suggested next step.
-

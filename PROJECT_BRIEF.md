@@ -8,6 +8,8 @@ A professional demo online store for bijouterie and jewelry. Planned categories 
 
 Create a small but complete e-commerce MVP that looks credible as a GitHub portfolio project and can later be expanded safely.
 
+The project should feel like professional e-commerce without chaos: clear scope, predictable stages, documented decisions, and no hidden production behavior.
+
 ## MVP
 
 The MVP should include:
@@ -35,5 +37,5 @@ The MVP should include:
 - Project intent and scope are clear.
 - Future coding tasks can be created from the roadmap.
 - Safety and quality expectations are documented.
-- The first Git commit is clean and focused.
-
+- GitHub portfolio reviewers can understand the product direction, constraints, and next steps.
+- Repository history stays clean and focused.

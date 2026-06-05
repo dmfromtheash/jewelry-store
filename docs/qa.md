@@ -8,7 +8,16 @@ For this stage, verify:
 - no application code was added;
 - no dependencies were installed;
 - no `.env` file was created;
-- Git status is clean after commit.
+- Git status is clean after commit and push.
+
+## Future QA Strategy
+
+- Smoke tests for the main user path.
+- Manual user path verification before each release.
+- Accessibility checks for keyboard, focus, labels, contrast, and motion.
+- Performance checks for image weight, layout shift, and responsiveness.
+- Security checks for secrets, checkout, auth, admin, uploads, and price handling.
+- Regression checks before each commit and push.
 
 ## Future Manual Smoke Test
 
@@ -24,14 +33,3 @@ When the app exists, use this path:
 8. Trigger validation.
 9. Complete checkout demo.
 10. Confirm success state.
-
-## Future Test Areas
-
-- product data rendering;
-- cart calculations;
-- checkout validation;
-- keyboard navigation;
-- image performance;
-- SEO metadata;
-- security-sensitive flows.
-

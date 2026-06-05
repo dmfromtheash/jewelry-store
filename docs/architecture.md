@@ -2,7 +2,20 @@
 
 ## Current State
 
-No application architecture has been selected yet. This repository is in the planning and bootstrap stage.
+No final stack has been selected yet. This repository is in the planning and bootstrap stage.
+
+## Future Shape
+
+The project is expected to grow into a small e-commerce demo with:
+
+- public storefront;
+- product catalog;
+- product detail page;
+- wishlist and cart;
+- checkout demo first;
+- account area later;
+- admin area later;
+- SEO, performance, accessibility, and security as baseline requirements.
 
 ## Current Boundaries
 
@@ -11,13 +24,4 @@ No application architecture has been selected yet. This repository is in the pla
 - No package manager files exist.
 - No backend, database, auth, payment, or admin code exists.
 
-## Future Architecture Questions
-
-- Which frontend framework should be used?
-- Will product data be static, CMS-backed, or database-backed?
-- What checkout demo behavior is required?
-- What deployment target should be used?
-- What image storage strategy is acceptable?
-
-These decisions should be made in separate, focused tasks.
-
+The final stack must be selected in a separate phase.

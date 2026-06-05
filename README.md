@@ -55,6 +55,8 @@ One stage equals one task, one report, and one verification step.
 
 See [ROADMAP.md](ROADMAP.md) for the planned phases.
 
+Additional project documentation lives in [docs/](docs/). Source guides and checklists for future stages are grouped in [docs/project_sources/](docs/project_sources/).
+
 ## Current Repository Contents
 
 This bootstrap stage creates:
@@ -72,3 +74,4 @@ This bootstrap stage creates:
 
 Do not add `.env` files, real secrets, real payment credentials, production customer data, or private business data to this repository.
 
+Use `.env.example` only for safe placeholder names. Real payments and production secrets are not connected.

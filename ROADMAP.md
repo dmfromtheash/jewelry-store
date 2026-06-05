@@ -1,5 +1,7 @@
 # Roadmap
 
+Current phase: Phase 1 - GitHub/repository bootstrap
+
 ## Phase 0: Project Memory
 
 - Define product context.
@@ -64,4 +66,3 @@
 - Run smoke tests.
 - Check accessibility, performance, and security baseline.
 - Prepare deployment only after audit.
-
