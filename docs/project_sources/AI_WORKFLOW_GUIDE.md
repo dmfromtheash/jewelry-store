@@ -14,6 +14,10 @@ Codex and Claude Code should not receive a broad "build the whole site" task. Br
 
 Before risky changes, the AI should explain why the change is needed. Risky changes include dependency additions, architecture changes, auth, payment, database, admin, deploy, or broad refactors.
 
+## Reference Rules
+
+Makeup.ua is the primary UX/functionality reference for e-commerce convenience and structure. The project should aim for comparable clarity, navigation, catalog/PDP depth, trust blocks, wishlist/service-page coverage, and checkout simplicity, but must not copy Makeup.ua brand, texts, visual identity, exact layouts, assets, or protected materials. Translate reference patterns into an original jewelry/bijouterie storefront.
+
 ## Context Hygiene
 
 If a ChatGPT Project chat becomes too long, overloaded, or starts losing context, the assistant should tell the user it is time to open a new chat inside the same ChatGPT Project.

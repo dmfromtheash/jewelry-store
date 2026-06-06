@@ -24,6 +24,10 @@ Claude Code is not responsible for product strategy, brand decisions, assortment
 - Do not add payment, auth, database, admin, deploy, or heavy dependencies without a separate explicit task.
 - Keep each change small and easy to verify.
 
+## Reference Rules
+
+Makeup.ua is the primary UX/functionality reference for e-commerce convenience and structure. The project should aim for comparable clarity, navigation, catalog/PDP depth, trust blocks, wishlist/service-page coverage, and checkout simplicity, but must not copy Makeup.ua brand, texts, visual identity, exact layouts, assets, or protected materials. Translate reference patterns into an original jewelry/bijouterie storefront.
+
 ## Context Handoff
 
 If local work starts from a long ChatGPT Project discussion, ask for or use a handoff summary. It should state the current phase, repository link, latest relevant commit when needed, completed work, important documents, accepted decisions, active constraints, and the next micro-step.

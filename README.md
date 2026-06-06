@@ -55,11 +55,11 @@ If a ChatGPT Project chat becomes too long, overloaded, or starts losing context
 
 New chats should continue from the project sources, `ROADMAP.md`, `PROJECT_BRIEF.md`, `AGENTS.md`, `CLAUDE.md`, and the current GitHub repository state. Do not restart from zero when a handoff summary and project sources exist.
 
-## Product / UX Reference
+## Primary Product / UX Reference
 
-Makeup.ua is a product and UX reference only. This project may learn from its e-commerce system thinking: strong navigation, understandable catalog structure, category/subcategory logic, filters, sorting, detailed PDPs, delivery/trust information, wishlist, recently viewed products, cross-sell ideas, reviews, gift selections, service pages, checkout clarity, and SEO-friendly structure.
+Makeup.ua is the primary product and UX reference for convenience, navigation depth, catalog system thinking, and e-commerce completeness. The customer requirement is UX/functionality parity: a comparable level of clarity, predictable shopping flow, catalog/PDP depth, trust coverage, and service-page completeness. This project may learn from its e-commerce mechanics: strong navigation, understandable catalog structure, category/subcategory logic, filters, sorting, detailed PDPs, delivery/trust information, wishlist, recently viewed products, cross-sell ideas, reviews, gift selections, service pages, checkout clarity, and SEO-friendly structure.
 
-The project must not clone Makeup.ua or reuse its brand, text, visual design, assets, or protected materials. The goal is a smaller, polished jewelry/bijouterie store with cleaner, lighter, more premium execution.
+UX parity means matching the level of user clarity and systemic e-commerce coverage, not matching the look. The project must not clone Makeup.ua or reuse its brand, text, visual design, assets, or protected materials. The goal is a smaller, polished jewelry/bijouterie store with cleaner, lighter, more premium execution.
 
 ## Project Roadmap
 

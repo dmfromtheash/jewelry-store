@@ -39,9 +39,11 @@
 - Product photo, name, price, stock, variants, add to cart, delivery/return, and reviews must have clear hierarchy.
 - Forms must be easy to scan and correct.
 
-## Product / UX Reference
+## Primary Product / UX Reference
 
-Makeup.ua is a product and UX reference only, not a clone target. Use it to understand mature e-commerce mechanics, not to reuse brand, text, visual design, assets, or protected materials.
+Makeup.ua is the primary product and UX reference for convenience, navigation depth, catalog system thinking, and e-commerce completeness. The customer requirement is UX/functionality parity: a comparable level of clarity, predictable shopping flow, catalog/PDP depth, trust coverage, wishlist/service-page coverage, and checkout simplicity. It is not a clone target. Use it to understand mature e-commerce mechanics, not to reuse brand, text, visual design, exact layouts, assets, or protected materials.
+
+UX parity means the future store should feel similarly clear, complete, and predictable for shoppers. It does not mean copying layout, brand, typography, colors, texts, images, icons, assets, or protected materials.
 
 Reference patterns that can inform this project:
 

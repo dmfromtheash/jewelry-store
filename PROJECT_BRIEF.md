@@ -10,13 +10,13 @@ Create a small but complete e-commerce MVP that looks credible as a GitHub portf
 
 The project should feel like professional e-commerce without chaos: clear scope, predictable stages, documented decisions, and no hidden production behavior.
 
-## Product / UX Reference
+## Primary Product / UX Reference
 
-Makeup.ua is used as a product and UX reference for e-commerce system thinking, not as a clone target. The project can adapt ideas such as strong navigation, catalog clarity, filters, sorting, PDP structure, trust information, wishlist, recently viewed products, cross-sell patterns, reviews, gift selections, service pages, checkout clarity, and SEO-friendly information architecture.
+Makeup.ua is the primary product and UX reference for convenience, navigation depth, catalog system thinking, and e-commerce completeness. The customer requirement is UX/functionality parity: a comparable level of clarity, predictable shopping flow, catalog/PDP depth, trust coverage, wishlist/service-page coverage, and checkout simplicity. It is not a clone target. The project can adapt ideas such as strong navigation, catalog clarity, filters, sorting, PDP structure, trust information, wishlist, recently viewed products, cross-sell patterns, reviews, gift selections, service pages, checkout clarity, and SEO-friendly information architecture.
 
 The jewelry version should adapt those mechanics to material, coating, metal color, stone or insert type, ring size, chain or bracelet length, sets, gift packaging, jewelry care, scale photos on body, and material/allergy warnings when applicable.
 
-The visual direction should be cleaner, more premium, lighter, and more focused than a broad marketplace. Do not copy Makeup.ua brand, text, design, assets, or protected materials.
+UX parity with Makeup.ua means reaching a comparable level of user clarity and systematic e-commerce behavior. It does not mean visual parity. The visual direction should be cleaner, more premium, lighter, and more focused than a broad marketplace. Do not copy Makeup.ua brand, text, design, assets, or protected materials.
 
 ## MVP
 

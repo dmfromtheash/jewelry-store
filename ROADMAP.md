@@ -1,6 +1,6 @@
 # Roadmap
 
-Current phase: Phase 1C - Document context hygiene, AI roles, and reference rules
+Current phase: Phase 1D - Clarify Makeup.ua UX parity requirement
 
 ## Phase 0: Project Memory
 
@@ -15,6 +15,7 @@ Current phase: Phase 1C - Document context hygiene, AI roles, and reference rule
 - Make first local commit.
 - Prepare GitHub repository when CLI/auth is available.
 - Document context hygiene, AI handoff rules, AI role boundaries, and Makeup.ua product/UX reference rules.
+- Clarify that Makeup.ua is the primary convenience/system reference for UX parity, not a brand, visual, text, asset, or protected-materials clone target.
 
 ## Phase 2: Stack and App Skeleton
 

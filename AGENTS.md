@@ -39,6 +39,10 @@ If the working tree is not clean, stop and report what is already changed before
 - Codex: audit, plan, small engineering tasks, repository/code changes, checks, and reports.
 - Claude Code: local diagnostics, local project runs, environment checks, debugging, and beginner-friendly explanations.
 
+## Reference Rules
+
+Makeup.ua is the primary UX/functionality reference for e-commerce convenience and structure. The project should aim for comparable clarity, navigation, catalog/PDP depth, trust blocks, wishlist/service-page coverage, and checkout simplicity, but must not copy Makeup.ua brand, texts, visual identity, exact layouts, assets, or protected materials. Translate reference patterns into an original jewelry/bijouterie storefront.
+
 ## Context Handoff
 
 If a ChatGPT Project chat becomes too long, overloaded, or starts losing context, tell the user to prepare a handoff summary and continue in a new chat inside the same ChatGPT Project.
