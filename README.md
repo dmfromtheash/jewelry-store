@@ -51,6 +51,16 @@ This project is intended to show practical e-commerce thinking beyond a static l
 
 One stage equals one task, one report, and one verification step.
 
+If a ChatGPT Project chat becomes too long, overloaded, or starts losing context, prepare a handoff summary and continue in a new chat inside the same ChatGPT Project. The handoff summary should include the current phase, repository link when known, latest relevant commit when needed, completed work, important documents, accepted decisions, active constraints, and one next micro-step.
+
+New chats should continue from the project sources, `ROADMAP.md`, `PROJECT_BRIEF.md`, `AGENTS.md`, `CLAUDE.md`, and the current GitHub repository state. Do not restart from zero when a handoff summary and project sources exist.
+
+## Product / UX Reference
+
+Makeup.ua is a product and UX reference only. This project may learn from its e-commerce system thinking: strong navigation, understandable catalog structure, category/subcategory logic, filters, sorting, detailed PDPs, delivery/trust information, wishlist, recently viewed products, cross-sell ideas, reviews, gift selections, service pages, checkout clarity, and SEO-friendly structure.
+
+The project must not clone Makeup.ua or reuse its brand, text, visual design, assets, or protected materials. The goal is a smaller, polished jewelry/bijouterie store with cleaner, lighter, more premium execution.
+
 ## Project Roadmap
 
 See [ROADMAP.md](ROADMAP.md) for the planned phases.

@@ -1,6 +1,6 @@
 # Roadmap
 
-Current phase: Phase 1 - GitHub/repository bootstrap
+Current phase: Phase 1C - Document context hygiene, AI roles, and reference rules
 
 ## Phase 0: Project Memory
 
@@ -14,6 +14,7 @@ Current phase: Phase 1 - GitHub/repository bootstrap
 - Create project documents and checklists.
 - Make first local commit.
 - Prepare GitHub repository when CLI/auth is available.
+- Document context hygiene, AI handoff rules, AI role boundaries, and Makeup.ua product/UX reference rules.
 
 ## Phase 2: Stack and App Skeleton
 
