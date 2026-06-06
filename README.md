@@ -8,9 +8,28 @@ Build a small, polished, portfolio-ready online jewelry store in controlled stag
 
 ## Status
 
-`Planning / Repository Bootstrap`
+`Phase 2A / Minimal Next.js App Skeleton`
 
-The store is not implemented yet. This repository currently contains project documentation only.
+The store is not implemented yet. A minimal technical app skeleton exists with placeholder routes only.
+
+## Stack
+
+- Next.js App Router
+- TypeScript
+- npm
+- ESLint
+- `src/` directory
+- import alias `@/*`
+- no Tailwind, UI kit, database, auth, payment, or admin integration at this stage
+
+## Run Locally
+
+```powershell
+npm.cmd install
+npm.cmd run dev
+```
+
+Then open `http://localhost:3000`.
 
 ## MVP Scope
 

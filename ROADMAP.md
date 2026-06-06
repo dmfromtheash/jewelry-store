@@ -1,6 +1,6 @@
 # Roadmap
 
-Current phase: Phase 1D - Clarify Makeup.ua UX parity requirement
+Current phase: Phase 2A - Minimal Next.js TypeScript app skeleton
 
 ## Phase 0: Project Memory
 
