@@ -17,7 +17,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  min-height: 36px;
+  min-height: 42px; /* +~15% vertical air */
   font-size: 12px;
   color: var(--au-muted);
 }
@@ -49,7 +49,7 @@
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 24px;
-  padding: 22px 0 18px;
+  padding: 25px 0 21px; /* +~15% vertical air */
 }
 .au-search {
   display: flex;
@@ -92,7 +92,7 @@
   color: var(--au-ink);
 }
 .au-logo .tagline {
-  margin-top: 5px;
+  margin-top: 6px;
   font: 600 9px/1 var(--au-font-ui);
   letter-spacing: 0.32em;
   text-indent: 0.32em;
@@ -160,7 +160,7 @@
 }
 .au-nav a {
   flex: none;
-  padding: 14px 14px 12px;
+  padding: 16px 14px 14px; /* +~15% vertical air */
   font: 600 13px/1 var(--au-font-ui);
   letter-spacing: 0.04em;
   color: var(--au-ink-soft);
@@ -182,11 +182,11 @@
    .au-container — only the header chrome breathes more, it is not stretched. */
 @media (min-width: 1800px) {
   .au-topbar-in {
-    min-height: 44px;
+    min-height: 50px;
     font-size: 13px;
   }
   .au-header-in {
-    padding: 30px 0 24px;
+    padding: 34px 0 28px;
   }
   .au-logo .name {
     font-size: 40px;
@@ -198,7 +198,7 @@
     font-size: 14px;
   }
   .au-nav a {
-    padding: 17px 16px 15px;
+    padding: 20px 16px 17px;
     font-size: 14px;
   }
 }
