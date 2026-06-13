@@ -1,15 +1,19 @@
 import type { ReactNode } from 'react'
+import { formatPrice } from '../../lib/catalog'
+import type { Product } from '../../lib/catalog'
 
 /**
  * AURELIA — ProductInfo (server component)
  * Source: docs/design/aurelia-prototype/05 Product Page.html
  *
- * Right-hand product info: brand, title, rating/sku meta, placeholder price,
- * availability status, coating variants, buy row (disabled "Купить" + favorite),
+ * Right-hand product info: brand, title, rating/sku meta, price, availability
+ * status, coating variants, buy row (disabled "Купить" + favorite),
  * "Сообщить о поступлении", and service perks.
  *
- * Everything is visual only — variant buttons and the favorite button have no
- * client state, "Купить" is disabled (no product on sale yet). No backend.
+ * With a `product` it shows that item's data; without one it keeps the generic
+ * coming-soon fallback (used by /product/coming-soon). Visual only — variant
+ * and favorite buttons have no client state and "Купить" stays disabled (no
+ * cart yet). No backend.
  */
 
 const PERKS: { icon: ReactNode; text: string }[] = [
@@ -43,33 +47,45 @@ const PERKS: { icon: ReactNode; text: string }[] = [
   },
 ]
 
-const COATINGS = ['Позолота', 'Родирование', 'Сталь']
+const DEFAULT_COATINGS = ['Позолота', 'Родирование', 'Сталь']
 
-export default function ProductInfo() {
+export default function ProductInfo({ product }: { product?: Product }) {
+  const brand = product?.brand ?? 'AURELIA'
+  const title = product?.name ?? 'Скоро будет добавлено украшение'
+  const sku = product?.sku ?? 'AU-0000'
+  const reviewsCount = product?.reviewsCount ?? 0
+  const coatings = product?.coatings ?? DEFAULT_COATINGS
+  const isAvailable = product?.status === 'available'
+  const hasPrice = typeof product?.price === 'number'
+
   return (
     <div>
-      <p className="au-prod-brand">AURELIA</p>
-      <h1 className="au-prod-title">Скоро будет добавлено украшение</h1>
+      <p className="au-prod-brand">{brand}</p>
+      <h1 className="au-prod-title">{title}</h1>
 
       <div className="au-prod-meta">
         <span className="au-stars" aria-hidden="true">★★★★★</span>
-        <span>0 отзывов</span>
+        <span>{reviewsCount} отзывов</span>
         <span>·</span>
-        <span>Артикул: AU-0000</span>
+        <span>Артикул: {sku}</span>
       </div>
 
       <div className="au-prod-price-row">
-        <span className="au-prod-price dim">— ₽</span>
+        {hasPrice ? (
+          <span className="au-prod-price">{formatPrice(product!.price as number)}</span>
+        ) : (
+          <span className="au-prod-price dim">— ₽</span>
+        )}
       </div>
       <div className="au-prod-status">
         <span className="dot" />
-        Появится в продаже в ближайшее время
+        {isAvailable ? 'В наличии' : 'Появится в продаже в ближайшее время'}
       </div>
 
       <div className="au-variants">
         <div className="lbl">Покрытие</div>
         <div className="au-variant-row">
-          {COATINGS.map((coating, i) => (
+          {coatings.map((coating, i) => (
             <button key={coating} className={`au-variant${i === 0 ? ' is-active' : ''}`} type="button">
               {coating}
             </button>
@@ -87,9 +103,11 @@ export default function ProductInfo() {
           </svg>
         </button>
       </div>
-      <button className="au-btn au-btn--ghost au-btn--block au-prod-notify" type="button">
-        Сообщить о поступлении
-      </button>
+      {!isAvailable && (
+        <button className="au-btn au-btn--ghost au-btn--block au-prod-notify" type="button">
+          Сообщить о поступлении
+        </button>
+      )}
 
       <div className="au-prod-perks">
         {PERKS.map((perk) => (

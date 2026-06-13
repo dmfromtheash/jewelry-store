@@ -6,6 +6,7 @@ import SeoTextBlock from '../home/SeoTextBlock'
 import CategoryFilters from './CategoryFilters'
 import CategoryToolbar from './CategoryToolbar'
 import Pagination from './Pagination'
+import type { ProductStatus } from '../../lib/catalog'
 
 /**
  * AURELIA — CategoryLayout (server component)
@@ -23,6 +24,9 @@ interface CategoryProduct {
   name?: string
   tag?: string
   tagGold?: boolean
+  slug?: string
+  status?: ProductStatus
+  price?: number | null
 }
 
 interface CategoryLayoutProps {
@@ -37,15 +41,30 @@ interface CategoryLayoutProps {
 }
 
 function ProductGrid({ products, keyPrefix }: { products: CategoryProduct[]; keyPrefix: string }) {
+  const renderedProducts: CategoryProduct[] =
+    products.length % 3 === 2
+      ? [
+          ...products,
+          {
+            category: products[products.length - 1]?.category ?? 'AURELIA',
+            status: 'coming-soon',
+            price: null,
+          },
+        ]
+      : products
+
   return (
     <div className="au-cat-grid">
-      {products.map((product, i) => (
+      {renderedProducts.map((product, i) => (
         <ProductCard
           key={`${keyPrefix}-${i}`}
           name={product.name ?? 'Украшение AURELIA'}
           category={product.category}
           tag={product.tag}
           tagGold={product.tagGold}
+          slug={product.slug}
+          status={product.status}
+          price={product.price}
         />
       ))}
     </div>

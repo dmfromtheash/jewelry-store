@@ -19,22 +19,15 @@ import CategoryCircles from '../src/components/home/CategoryCircles'
 import PromoBlocks from '../src/components/home/PromoBlocks'
 import Benefits from '../src/components/home/Benefits'
 import SeoTextBlock from '../src/components/home/SeoTextBlock'
-
-const NEW_ARRIVALS = [
-  { name: 'Украшение AURELIA', category: 'Серьги · позолота', tag: 'New', tagGold: true },
-  { name: 'Украшение AURELIA', category: 'Кольцо · серебрение', tag: 'New', tagGold: true },
-  { name: 'Украшение AURELIA', category: 'Браслет · позолота' },
-  { name: 'Украшение AURELIA', category: 'Цепочка · родирование' },
-]
-
-const BESTSELLERS = [
-  { name: 'Украшение AURELIA', category: 'Кулон · позолота', tag: 'Хит' },
-  { name: 'Украшение AURELIA', category: 'Набор · позолота', tag: 'Хит' },
-  { name: 'Украшение AURELIA', category: 'Серьги · жемчуг' },
-  { name: 'Украшение AURELIA', category: 'Аксессуар · эмаль' },
-]
+import { getAllProducts } from '../src/lib/catalog'
 
 export default function HomePage() {
+  // Home rows are drawn from the shared mock catalog so their cards link to the
+  // real /product/[slug] pages (no backend — just slices of the static data).
+  const ALL_PRODUCTS = getAllProducts()
+  const NEW_ARRIVALS = ALL_PRODUCTS.slice(0, 4)
+  const BESTSELLERS = ALL_PRODUCTS.slice(4, 8)
+
   return (
     <div className="au-home" data-view="customer">
       {/* ===== Hero banner ===== */}
@@ -68,8 +61,17 @@ export default function HomePage() {
             <Link className="au-section-link" href="/category/bijouterie">Смотреть все</Link>
           </div>
           <div className="au-grid">
-            {NEW_ARRIVALS.map((product, i) => (
-              <ProductCard key={`new-${i}`} {...product} />
+            {NEW_ARRIVALS.map((product) => (
+              <ProductCard
+                key={product.slug}
+                name={product.name}
+                category={product.category}
+                slug={product.slug}
+                status={product.status}
+                price={product.price}
+                tag={product.tag}
+                tagGold={product.tagGold}
+              />
             ))}
           </div>
         </div>
@@ -103,8 +105,17 @@ export default function HomePage() {
             <Link className="au-section-link" href="/category/bijouterie">Смотреть все</Link>
           </div>
           <div className="au-grid">
-            {BESTSELLERS.map((product, i) => (
-              <ProductCard key={`best-${i}`} {...product} />
+            {BESTSELLERS.map((product) => (
+              <ProductCard
+                key={product.slug}
+                name={product.name}
+                category={product.category}
+                slug={product.slug}
+                status={product.status}
+                price={product.price}
+                tag={product.tag}
+                tagGold={product.tagGold}
+              />
             ))}
           </div>
         </div>

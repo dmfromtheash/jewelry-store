@@ -13,6 +13,8 @@
  */
 
 import Link from 'next/link'
+import { formatPrice } from '../../lib/catalog'
+import type { ProductStatus } from '../../lib/catalog'
 
 interface ProductCardProps {
   name: string
@@ -20,6 +22,11 @@ interface ProductCardProps {
   tag?: string
   /** gold tag variant (e.g. "New"); otherwise dark (e.g. "Хит") */
   tagGold?: boolean
+  /** real catalog slug → card links to /product/[slug]; absent → coming-soon */
+  slug?: string
+  status?: ProductStatus
+  /** RUB; a number renders a real price, otherwise the "— ₽" placeholder */
+  price?: number | null
 }
 
 const GemIcon = () => (
@@ -29,7 +36,18 @@ const GemIcon = () => (
   </svg>
 )
 
-export default function ProductCard({ name, category, tag, tagGold = false }: ProductCardProps) {
+export default function ProductCard({
+  name,
+  category,
+  tag,
+  tagGold = false,
+  slug,
+  price,
+}: ProductCardProps) {
+  // Real catalog products link to their slug page; placeholder cards (no slug)
+  // keep the existing coming-soon fallback.
+  const href = slug ? `/product/${slug}` : '/product/coming-soon'
+
   return (
     <article className="au-card">
       {tag && (
@@ -63,19 +81,19 @@ export default function ProductCard({ name, category, tag, tagGold = false }: Pr
           <span className="au-card-reviews">0 отзывов</span>
         </div>
         <div className="au-card-price">
-          <span className="dim">— ₽</span>
+          {typeof price === 'number' ? formatPrice(price) : <span className="dim">— ₽</span>}
         </div>
 
         {/* reserved slot keeps layout from jumping when actions appear */}
         <div className="au-card-actions-slot" />
         <div className="au-card-actions">
-          <Link className="au-btn au-btn--primary buy" href="/product/coming-soon">Купить</Link>
+          <Link className="au-btn au-btn--primary buy" href={href}>Купить</Link>
           <button className="au-act-ico" type="button" aria-label="В избранное">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
               <path d="M12 20s-7.5-4.6-9.3-9.2C1.5 7.6 3.6 4.5 6.9 4.5c2 0 3.6 1.1 5.1 3 1.5-1.9 3.1-3 5.1-3 3.3 0 5.4 3.1 4.2 6.3C19.5 15.4 12 20 12 20z" />
             </svg>
           </button>
-          <Link className="au-act-ico" href="/product/coming-soon" aria-label="Быстрый просмотр">
+          <Link className="au-act-ico" href={href} aria-label="Быстрый просмотр">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
               <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" />
               <circle cx="12" cy="12" r="2.8" />

@@ -6,6 +6,7 @@ import ProductGallery from './ProductGallery'
 import ProductInfo from './ProductInfo'
 import ProductTabs from './ProductTabs'
 import ReviewsEmpty from './ReviewsEmpty'
+import type { Product } from '../../lib/catalog'
 
 /**
  * AURELIA — ProductPageLayout (server component)
@@ -20,9 +21,11 @@ import ReviewsEmpty from './ReviewsEmpty'
 interface ProductPageLayoutProps {
   breadcrumbs: Crumb[]
   similar: string[]
+  /** real product → drives info/tabs; absent → generic coming-soon fallback */
+  product?: Product
 }
 
-export default function ProductPageLayout({ breadcrumbs, similar }: ProductPageLayoutProps) {
+export default function ProductPageLayout({ breadcrumbs, similar, product }: ProductPageLayoutProps) {
   return (
     <div className="au-product-page" data-view="customer">
       <div className="au-container">
@@ -30,10 +33,10 @@ export default function ProductPageLayout({ breadcrumbs, similar }: ProductPageL
 
         <div className="au-product">
           <ProductGallery />
-          <ProductInfo />
+          <ProductInfo product={product} />
         </div>
 
-        <ProductTabs />
+        <ProductTabs description={product?.description} specs={product?.specs} />
 
         {/* Reviews */}
         <section className="au-section">

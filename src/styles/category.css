@@ -49,6 +49,23 @@
 .au-cat-content {
   min-width: 0; /* allow grids to shrink inside the layout column */
 }
+/* Category banners share the product grid's column track system (same
+   repeat(3, 1fr) basis), with the placeholder spanning every column. This
+   makes a banner's width derive from the exact same columns as the card row,
+   so its right edge always lines up with the rightmost product card instead
+   of stretching to the full content column. */
+.au-cat-banner,
+.au-cat-midbanner {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.au-cat-banner > .au-ph,
+.au-cat-midbanner > .au-ph {
+  grid-column: 1 / -1;
+  min-width: 0;
+  width: 100%;
+}
 .au-cat-banner {
   margin-bottom: 24px;
 }
