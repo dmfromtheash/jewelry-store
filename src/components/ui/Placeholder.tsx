@@ -12,7 +12,7 @@
  * No client JS — the admin "upload" affordance is visual only for now.
  */
 
-type PlaceholderVariant = 'hero' | 'banner' | 'square'
+type PlaceholderVariant = 'hero' | 'banner' | 'banner-wide' | 'square'
 
 interface PlaceholderProps {
   variant: PlaceholderVariant
@@ -76,6 +76,7 @@ export default function Placeholder({
   const variantClass = {
     hero: 'au-ph--hero',
     banner: 'au-ph--banner-half au-ph--sm',
+    'banner-wide': 'au-ph--banner au-ph--sm',
     square: 'au-ph--square au-ph--sm',
   }[variant]
   const rootClass = ['au-ph', variantClass, adminHint ? 'has-hint' : '']

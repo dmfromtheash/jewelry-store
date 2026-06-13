@@ -12,7 +12,6 @@
  */
 
 import '../src/styles/home.css'
-import '../src/styles/card.css'
 import Placeholder from '../src/components/ui/Placeholder'
 import ProductCard from '../src/components/product/ProductCard'
 import CategoryCircles from '../src/components/home/CategoryCircles'

@@ -7,6 +7,8 @@
 @import './tokens.css';
 @import './header.css';
 @import './footer.css';
+@import './blocks.css';
+@import './card.css';
 
 /* ---- Box model reset ---- */
 *,

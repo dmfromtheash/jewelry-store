@@ -1,20 +1,11 @@
 /* ============================================================
    AURELIA — Home page styles
    Source: docs/design/aurelia-prototype/aurelia.css
-   Scope: section headings, designed placeholders (au-ph),
-   category circles, promo-banner grid, benefits strip.
+   Scope: section headings, category circles, promo grids, benefits.
+   Shared primitives (placeholders au-ph, SEO block, view toggle) live
+   in blocks.css; product cards in card.css — both global.
    Relies on tokens (--au-*) and .au-container (globals.css).
    ============================================================ */
-
-/* ---- View mode (admin / customer) ----
-   The placeholders carry both states in markup; CSS picks one based on
-   the [data-view] attribute on an ancestor. Storefront = customer. */
-[data-view='customer'] .only-admin {
-  display: none !important;
-}
-[data-view='admin'] .only-customer {
-  display: none !important;
-}
 
 /* ============ Section headings ============ */
 .au-section {
@@ -46,124 +37,6 @@
 }
 .au-section-link:hover {
   color: var(--au-gold);
-}
-
-/* ============ Placeholders (admin / customer) ============ */
-.au-ph {
-  position: relative;
-  background: var(--au-surface-2);
-  border: 1px solid var(--au-line);
-  border-radius: var(--au-radius-lg);
-  overflow: hidden;
-}
-.au-ph-zone {
-  position: absolute;
-  inset: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  text-align: center;
-  padding: 16px;
-}
-.au-ph .only-admin.au-ph-zone {
-  border: 1.5px dashed var(--au-line-strong);
-  border-radius: var(--au-radius);
-  cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
-}
-.au-ph .only-admin.au-ph-zone:hover {
-  border-color: var(--au-gold-soft);
-  background: rgba(244, 239, 230, 0.45);
-}
-.au-ph-plus {
-  width: 58px;
-  height: 58px;
-  border: 1px solid var(--au-line-strong);
-  border-radius: 999px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--au-muted);
-  background: #fff;
-  transition: border-color 0.15s, color 0.15s;
-}
-.au-ph .only-admin.au-ph-zone:hover .au-ph-plus {
-  border-color: var(--au-gold);
-  color: var(--au-gold);
-}
-.au-ph-title {
-  font: 600 17px/1.3 var(--au-font-ui);
-  color: var(--au-ink-soft);
-}
-.au-ph-sub {
-  font: 400 12.5px/1.5 var(--au-font-ui);
-  color: var(--au-muted);
-  max-width: 340px;
-}
-.au-ph-rule {
-  width: 56px;
-  height: 1px;
-  background: var(--au-line-strong);
-}
-.au-ph-img-ico {
-  color: var(--au-faint);
-}
-.au-ph-hint {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px;
-  border-top: 1px solid var(--au-line);
-  background: #fff;
-  font: 400 12px/1 var(--au-font-ui);
-  color: var(--au-muted);
-}
-.au-ph.has-hint .au-ph-zone {
-  bottom: 48px;
-}
-
-/* customer zone: calm, no dashes */
-.au-ph .only-customer.au-ph-zone {
-  gap: 10px;
-}
-.au-ph-gem {
-  color: var(--au-gold-soft);
-}
-.au-ph-cust-title {
-  font: 500 18px/1.35 var(--au-font-display);
-  letter-spacing: 0.05em;
-  color: var(--au-ink-soft);
-}
-
-/* placeholder size variants */
-.au-ph--hero {
-  aspect-ratio: 1216 / 380;
-  min-height: 280px;
-}
-.au-ph--banner-half {
-  aspect-ratio: 592 / 250;
-}
-.au-ph--square {
-  aspect-ratio: 1 / 1;
-}
-
-/* small placeholders scale down content gracefully */
-.au-ph--sm .au-ph-plus {
-  width: 42px;
-  height: 42px;
-}
-.au-ph--sm .au-ph-title {
-  font-size: 14px;
-}
-.au-ph--sm .au-ph-sub {
-  font-size: 11.5px;
 }
 
 /* ---- Two promo banners grid ---- */
@@ -247,29 +120,6 @@
   margin: 0;
 }
 
-/* ============ SEO / info text block ============ */
-.au-seo {
-  background: var(--au-surface-2);
-  border-top: 1px solid var(--au-line);
-  margin-top: 56px;
-  padding: 44px 0;
-}
-.au-seo h2 {
-  margin: 0 0 14px;
-  font: 500 22px/1.3 var(--au-font-display);
-  letter-spacing: 0.05em;
-}
-.au-seo-cols {
-  columns: 2;
-  column-gap: 48px;
-  font: 400 13.5px/1.7 var(--au-font-ui);
-  color: var(--au-ink-soft);
-}
-.au-seo-cols p {
-  margin: 0 0 12px;
-  text-wrap: pretty;
-}
-
 /* ============ Responsive ============ */
 /* Large desktops: give the home page a bit more vertical rhythm and a
    slightly taller hero so it reads as composed (not tiny) — content stays
@@ -313,8 +163,5 @@
   }
   .au-benefits {
     grid-template-columns: 1fr;
-  }
-  .au-seo-cols {
-    columns: 1;
   }
 }
