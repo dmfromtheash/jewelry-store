@@ -1,0 +1,231 @@
+/* ============================================================
+   AURELIA — Cart drawer styles (Этап 9A)
+   Right-side cart panel + overlay. Frontend-only cart UI.
+   Relies on tokens (--au-*) and the global .au-btn primitive (blocks.css).
+   Imported globally via globals.css (cart can open on any route).
+   ============================================================ */
+
+.au-cart-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 950;
+  background: rgba(28, 27, 25, 0.45);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.au-cart {
+  width: 100%;
+  max-width: 408px;
+  height: 100%;
+  background: var(--au-bg);
+  box-shadow: var(--au-shadow);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ---- Head ---- */
+.au-cart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 22px 24px;
+  border-bottom: 1px solid var(--au-line);
+}
+.au-cart-title {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font: 500 22px/1 var(--au-font-display);
+  letter-spacing: 0.05em;
+}
+.au-cart-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--au-gold);
+  color: #fff;
+  font: 700 11px/1 var(--au-font-ui);
+}
+.au-cart-close {
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  color: var(--au-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.au-cart-close:hover {
+  background: var(--au-surface);
+  color: var(--au-ink);
+}
+
+/* ---- Empty state ---- */
+.au-cart-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 12px;
+  padding: 40px 28px;
+}
+.au-cart-empty-ico {
+  color: var(--au-gold-soft);
+}
+.au-cart-empty-title {
+  margin: 0;
+  font: 500 18px/1.3 var(--au-font-display);
+  letter-spacing: 0.04em;
+  color: var(--au-ink-soft);
+}
+.au-cart-empty-sub {
+  margin: 0;
+  max-width: 260px;
+  font: 400 13px/1.6 var(--au-font-ui);
+  color: var(--au-muted);
+}
+
+/* ---- Item list ---- */
+.au-cart-list {
+  flex: 1;
+  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+  padding: 8px 24px;
+}
+.au-cart-item {
+  display: flex;
+  gap: 14px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--au-line);
+}
+.au-cart-thumb {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  border: 1px solid var(--au-line);
+  border-radius: var(--au-radius);
+  background: var(--au-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--au-gold-soft);
+}
+.au-cart-item-main {
+  flex: 1;
+  min-width: 0;
+}
+.au-cart-item-name {
+  margin: 0 0 2px;
+  font: 600 13.5px/1.35 var(--au-font-ui);
+  color: var(--au-ink);
+}
+.au-cart-item-cat {
+  margin: 0 0 10px;
+  font: 400 12px/1.4 var(--au-font-ui);
+  color: var(--au-muted);
+}
+
+/* ---- Quantity stepper ---- */
+.au-cart-qty {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--au-line-strong);
+  border-radius: var(--au-radius);
+  overflow: hidden;
+}
+.au-cart-qty-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: #fff;
+  color: var(--au-ink-soft);
+  font: 600 16px/1 var(--au-font-ui);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, color 0.12s;
+}
+.au-cart-qty-btn:hover {
+  background: var(--au-surface);
+  color: var(--au-ink);
+}
+.au-cart-qty-val {
+  min-width: 30px;
+  text-align: center;
+  font: 600 13px/1 var(--au-font-ui);
+  color: var(--au-ink);
+}
+
+/* ---- Item side (price + remove) ---- */
+.au-cart-item-side {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+.au-cart-item-price {
+  font: 700 14px/1 var(--au-font-ui);
+  letter-spacing: 0.02em;
+  color: var(--au-ink);
+}
+.au-cart-remove {
+  border: none;
+  background: transparent;
+  padding: 0;
+  font: 400 12px/1 var(--au-font-ui);
+  color: var(--au-muted);
+  border-bottom: 1px dotted var(--au-line-strong);
+  transition: color 0.15s, border-color 0.15s;
+}
+.au-cart-remove:hover {
+  color: var(--au-danger);
+  border-color: var(--au-danger);
+}
+
+/* ---- Footer ---- */
+.au-cart-foot {
+  border-top: 1px solid var(--au-line);
+  padding: 20px 24px 24px;
+  background: var(--au-surface-2);
+}
+.au-cart-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  font: 500 14px/1 var(--au-font-ui);
+  color: var(--au-ink-soft);
+}
+.au-cart-total-val {
+  font: 700 20px/1 var(--au-font-ui);
+  letter-spacing: 0.02em;
+  color: var(--au-ink);
+}
+.au-cart-note {
+  margin: 12px 0 0;
+  text-align: center;
+  font: 400 11.5px/1.5 var(--au-font-ui);
+  color: var(--au-muted);
+}
+
+/* ============ Responsive ============ */
+@media (max-width: 480px) {
+  .au-cart {
+    max-width: 100%;
+  }
+}

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import ProfileButton from '../auth/ProfileButton'
+import CartButton from '../cart/CartButton'
 
 /**
  * AURELIA — Header (server component)
@@ -78,13 +79,7 @@ export default function Header() {
               </svg>
               <span className="badge">2</span>
             </button>
-            <button className="au-icon-btn" type="button" aria-label="Корзина">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-                <path d="M5 8h14l-1.2 11.2a1.8 1.8 0 0 1-1.8 1.6H8a1.8 1.8 0 0 1-1.8-1.6L5 8z" />
-                <path d="M8.5 10V6.8a3.5 3.5 0 0 1 7 0V10" />
-              </svg>
-              <span className="badge">1</span>
-            </button>
+            <CartButton />
           </div>
         </div>
       </header>

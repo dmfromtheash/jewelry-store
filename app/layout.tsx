@@ -3,6 +3,7 @@ import '../src/styles/globals.css'
 import Header from '../src/components/layout/Header'
 import Footer from '../src/components/layout/Footer'
 import AuthModalProvider from '../src/components/auth/AuthModalProvider'
+import CartProvider from '../src/components/cart/CartProvider'
 
 export const metadata: Metadata = {
   title: 'AURELIA — Bijouterie Without Limits',
@@ -27,12 +28,15 @@ export default function RootLayout({
         />
       </head>
       <body>
-        {/* AuthModalProvider — client-обёртка: даёт контекст модалок входа/
-            регистрации; Header/Footer остаются server-компонентами. */}
+        {/* Client-обёртки контекста: модалки входа/регистрации (AuthModalProvider)
+            и корзина (CartProvider). Header/Footer остаются server-компонентами —
+            интерактив живёт в маленьких client-кнопках внутри них. */}
         <AuthModalProvider>
-          <Header />
-          <main className="au-main">{children}</main>
-          <Footer />
+          <CartProvider>
+            <Header />
+            <main className="au-main">{children}</main>
+            <Footer />
+          </CartProvider>
         </AuthModalProvider>
       </body>
     </html>
