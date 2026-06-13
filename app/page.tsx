@@ -16,7 +16,9 @@ import '../src/styles/card.css'
 import Placeholder from '../src/components/ui/Placeholder'
 import ProductCard from '../src/components/product/ProductCard'
 import CategoryCircles from '../src/components/home/CategoryCircles'
+import PromoBlocks from '../src/components/home/PromoBlocks'
 import Benefits from '../src/components/home/Benefits'
+import SeoTextBlock from '../src/components/home/SeoTextBlock'
 
 const NEW_ARRIVALS = [
   { name: 'Украшение AURELIA', category: 'Серьги · позолота', tag: 'New', tagGold: true },
@@ -108,8 +110,14 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ===== Специальные подборки (промо-квадраты) ===== */}
+      <PromoBlocks />
+
       {/* ===== Benefits ===== */}
       <Benefits />
+
+      {/* ===== SEO / информационный блок ===== */}
+      <SeoTextBlock />
     </div>
   )
 }
