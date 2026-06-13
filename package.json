@@ -4,7 +4,7 @@
   "private": true,
   "description": "AURELIA — Bijouterie Without Limits. Online jewelry store.",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --hostname 127.0.0.1 --port 5000",
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit"
