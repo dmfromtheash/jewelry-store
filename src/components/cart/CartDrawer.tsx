@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import Link from 'next/link'
 import { useCart } from './CartProvider'
 import { formatPrice } from '../../lib/catalog'
 
@@ -122,10 +123,14 @@ export default function CartDrawer() {
                 <span>Итого</span>
                 <span className="au-cart-total-val">{formatPrice(subtotal)}</span>
               </div>
-              <button className="au-btn au-btn--primary au-btn--block" type="button" disabled>
-                Оформление скоро
-              </button>
-              <p className="au-cart-note">Оформление заказа появится в следующих обновлениях.</p>
+              <Link
+                className="au-btn au-btn--primary au-btn--block"
+                href="/checkout"
+                onClick={closeCart}
+              >
+                Оформить заказ
+              </Link>
+              <p className="au-cart-note">Демо-оформление — оплата подключается позже.</p>
             </footer>
           </>
         )}

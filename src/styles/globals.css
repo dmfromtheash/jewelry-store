@@ -11,6 +11,7 @@
 @import './card.css';
 @import './auth.css';
 @import './cart.css';
+@import './checkout.css';
 
 /* ---- Box model reset ---- */
 *,

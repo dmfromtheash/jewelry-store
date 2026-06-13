@@ -1,0 +1,211 @@
+/* ============================================================
+   AURELIA — Checkout page styles (Этап 10A)
+   Frontend-only order page: two-column layout (forms + order summary),
+   empty state. Reuses .au-field (auth.css) for inputs and the global
+   .au-btn primitive. Imported globally via globals.css.
+   ============================================================ */
+
+.au-checkout {
+  padding: 28px 0 64px;
+}
+
+.au-co-title {
+  margin: 0 0 24px;
+  font: 500 34px/1.15 var(--au-font-display);
+  letter-spacing: 0.05em;
+}
+
+/* ---- Layout ---- */
+.au-checkout-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 40px;
+  align-items: start;
+}
+
+/* ---- Form sections ---- */
+.au-co-section {
+  padding: 0 0 24px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--au-line);
+}
+.au-co-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+.au-co-section-title {
+  margin: 0 0 16px;
+  font: 600 14px/1 var(--au-font-ui);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--au-ink);
+}
+.au-co-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.au-co-select {
+  width: 100%;
+  border: 1px solid var(--au-line-strong);
+  border-radius: var(--au-radius);
+  padding: 12px 14px;
+  font: 400 14px/1.3 var(--au-font-ui);
+  color: var(--au-ink);
+  background: #fff;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.au-co-select:focus {
+  border-color: var(--au-gold);
+}
+.au-co-payment-note {
+  border: 1px dashed var(--au-line-strong);
+  border-radius: var(--au-radius);
+  background: var(--au-surface-2);
+  padding: 16px 18px;
+  font: 400 13px/1.6 var(--au-font-ui);
+  color: var(--au-muted);
+}
+
+/* ---- Order summary ---- */
+.au-co-summary {
+  border: 1px solid var(--au-line);
+  border-radius: var(--au-radius-lg);
+  background: var(--au-surface-2);
+  padding: 22px 22px 24px;
+  position: sticky;
+  top: 16px;
+}
+.au-co-summary-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  margin-left: 8px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--au-gold);
+  color: #fff;
+  font: 700 10.5px/1 var(--au-font-ui);
+  vertical-align: middle;
+}
+.au-co-list {
+  list-style: none;
+  margin: 0 0 4px;
+  padding: 0;
+}
+.au-co-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--au-line);
+}
+.au-co-line-thumb {
+  flex: none;
+  width: 52px;
+  height: 52px;
+  border: 1px solid var(--au-line);
+  border-radius: var(--au-radius);
+  background: var(--au-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--au-gold-soft);
+}
+.au-co-line-thumb svg {
+  width: 26px;
+  height: 26px;
+}
+.au-co-line-main {
+  flex: 1;
+  min-width: 0;
+}
+.au-co-line-name {
+  margin: 0 0 2px;
+  font: 600 13px/1.35 var(--au-font-ui);
+  color: var(--au-ink);
+}
+.au-co-line-meta {
+  margin: 0;
+  font: 400 11.5px/1.4 var(--au-font-ui);
+  color: var(--au-muted);
+}
+.au-co-line-price {
+  flex: none;
+  font: 700 13.5px/1 var(--au-font-ui);
+  color: var(--au-ink);
+}
+.au-co-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 16px 0 16px;
+  font: 500 14px/1 var(--au-font-ui);
+  color: var(--au-ink-soft);
+}
+.au-co-total-val {
+  font: 700 20px/1 var(--au-font-ui);
+  letter-spacing: 0.02em;
+  color: var(--au-ink);
+}
+.au-co-submit {
+  margin-top: 4px;
+}
+.au-co-note {
+  margin: 12px 0 0;
+  text-align: center;
+  font: 400 11.5px/1.5 var(--au-font-ui);
+  color: var(--au-muted);
+}
+
+/* ---- Empty state ---- */
+.au-co-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+  padding: 72px 24px 80px;
+}
+.au-co-empty-ico {
+  color: var(--au-gold-soft);
+}
+.au-co-empty-title {
+  margin: 0;
+  font: 500 26px/1.2 var(--au-font-display);
+  letter-spacing: 0.05em;
+}
+.au-co-empty-sub {
+  margin: 0;
+  max-width: 360px;
+  font: 400 14px/1.6 var(--au-font-ui);
+  color: var(--au-muted);
+}
+.au-co-empty-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ============ Responsive ============ */
+@media (max-width: 880px) {
+  .au-checkout-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .au-co-summary {
+    position: static;
+  }
+}
+
+@media (max-width: 520px) {
+  .au-co-row {
+    grid-template-columns: 1fr;
+  }
+}
