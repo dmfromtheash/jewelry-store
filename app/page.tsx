@@ -12,12 +12,12 @@
 
 export default function HomePage() {
   return (
-    <main className="au-container">
+    <div className="au-container">
       <div className="home-stub">
         <div className="home-stub__logo">AURELIA</div>
         <div className="home-stub__tagline">Bijouterie without limits</div>
         <p className="home-stub__note">
-          Проект запущен. Design tokens активны. Следующий этап — Header + Footer.
+          Проект запущен. Header и Footer подключены. Следующий этап — главная страница.
         </p>
       </div>
 
@@ -54,6 +54,6 @@ export default function HomePage() {
           line-height: 1.6;
         }
       `}</style>
-    </main>
+    </div>
   )
 }

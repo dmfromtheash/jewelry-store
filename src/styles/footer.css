@@ -1,0 +1,168 @@
+/* ============================================================
+   AURELIA — Footer styles
+   Source: docs/design/aurelia-prototype/aurelia.css
+   Scope: subscribe block + brand + link columns + bottom bar.
+   Relies on design tokens (--au-*) from tokens.css and on
+   .au-container (globals.css) for centred, max-width content.
+   Outer bars are full-width; inner content is via .au-container.
+   ============================================================ */
+
+.au-footer {
+  margin-top: 64px;
+  border-top: 1px solid var(--au-line);
+  background: var(--au-bg);
+}
+
+/* ---- Subscribe block ---- */
+.au-footer-sub {
+  border-bottom: 1px solid var(--au-line);
+  padding: 34px 0;
+}
+.au-footer-sub-in {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.au-footer-sub .h {
+  font: 500 21px/1.3 var(--au-font-display);
+  letter-spacing: 0.05em;
+  margin: 0 0 4px;
+}
+.au-footer-sub .p {
+  font: 400 13px/1.5 var(--au-font-ui);
+  color: var(--au-muted);
+  margin: 0;
+}
+.au-sub-form {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+  max-width: 460px;
+}
+.au-sub-form input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--au-line-strong);
+  border-radius: var(--au-radius);
+  padding: 12px 14px;
+  font: 400 13.5px/1 var(--au-font-ui);
+  outline: none;
+}
+.au-sub-form input:focus {
+  border-color: var(--au-gold-soft);
+}
+
+/* ---- Brand + link columns ---- */
+.au-footer-cols {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr 1fr;
+  gap: 32px;
+  padding: 40px 0;
+}
+.au-footer-brand .name {
+  font: 600 22px/1 var(--au-font-display);
+  letter-spacing: 0.3em;
+}
+.au-footer-brand .tag {
+  margin-top: 6px;
+  font: 600 8.5px/1 var(--au-font-ui);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--au-muted);
+}
+.au-footer-brand .p {
+  margin: 16px 0 0;
+  font: 400 12.5px/1.6 var(--au-font-ui);
+  color: var(--au-muted);
+  max-width: 260px;
+}
+.au-footer-col .h {
+  font: 700 11.5px/1 var(--au-font-ui);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 4px 0 16px;
+}
+.au-footer-col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.au-footer-col a {
+  font: 400 13px/1.3 var(--au-font-ui);
+  color: var(--au-ink-soft);
+}
+.au-footer-col a:hover {
+  color: var(--au-gold);
+}
+
+/* ---- Bottom bar ---- */
+.au-footer-bottom {
+  border-top: 1px solid var(--au-line);
+  padding: 18px 0;
+}
+.au-footer-bottom-in {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  font: 400 12px/1 var(--au-font-ui);
+  color: var(--au-muted);
+}
+.au-pay {
+  display: flex;
+  gap: 8px;
+}
+.au-pay span {
+  display: inline-block;
+  width: 42px;
+  height: 26px;
+  border: 1px solid var(--au-line);
+  border-radius: 4px;
+  background: var(--au-surface-2);
+}
+
+/* ---- Button (shared primitive) ----
+   Used here by the subscribe button. NOTE: .au-btn is a shared
+   component primitive in the prototype; when buttons are needed
+   elsewhere (cards, product page, etc.) extract these rules into a
+   dedicated shared stylesheet to avoid duplication. */
+.au-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: var(--au-radius);
+  font: 700 13px/1 var(--au-font-ui);
+  letter-spacing: 0.05em;
+  padding: 12px 20px;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, opacity 0.15s;
+}
+.au-btn--primary {
+  background: var(--au-ink);
+  color: #fff;
+}
+.au-btn--primary:hover {
+  background: #000;
+  color: #fff;
+}
+
+/* ============ Responsive ============ */
+@media (max-width: 1024px) {
+  .au-footer-cols {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .au-footer-cols {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}

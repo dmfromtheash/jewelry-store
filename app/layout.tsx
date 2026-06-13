@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import '../src/styles/globals.css'
+import Header from '../src/components/layout/Header'
+import Footer from '../src/components/layout/Footer'
 
 export const metadata: Metadata = {
   title: 'AURELIA — Bijouterie Without Limits',
@@ -24,11 +26,10 @@ export default function RootLayout({
         />
       </head>
       <body>
-        {/*
-          TODO [Этап 2]: добавить <Header /> и <Footer /> здесь
-          как единые компоненты — без копипасты на каждой странице.
-        */}
-        {children}
+        {/* Единые Header / Footer для всех страниц — без копипасты. */}
+        <Header />
+        <main className="au-main">{children}</main>
+        <Footer />
       </body>
     </html>
   )

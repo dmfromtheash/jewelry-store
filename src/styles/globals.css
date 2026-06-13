@@ -5,6 +5,8 @@
    ============================================================ */
 
 @import './tokens.css';
+@import './header.css';
+@import './footer.css';
 
 /* ---- Box model reset ---- */
 *,
@@ -21,9 +23,14 @@ html {
      NOT by hiding it. overflow-x: hidden on html/body is NOT used. */
 }
 
-/* ---- Body ---- */
+/* ---- Body ----
+   App shell is a vertical flex column at full viewport height so the
+   footer is pushed to the bottom when page content is short. */
 body {
   margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   background: var(--au-bg);
   color: var(--au-ink);
   font-family: var(--au-font-ui);
@@ -32,6 +39,13 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---- Main content region ----
+   Takes the free vertical space so the footer sits at the bottom. */
+.au-main {
+  flex: 1 0 auto;
+  min-width: 0;
 }
 
 /* ---- Base elements ---- */
