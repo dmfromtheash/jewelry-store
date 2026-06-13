@@ -1,59 +1,115 @@
 /**
- * AURELIA — Home Page (placeholder)
+ * AURELIA — Home Page (Этап 3A)
+ * Source: docs/design/aurelia-prototype/02 Home Page.html
  *
- * Этап 1 заглушка: подтверждает что проект поднялся и design tokens работают.
- * TODO [Этап 5]: заменить на полноценную главную страницу:
- *   - главный баннер (au-ph--hero)
- *   - категории-кружочки
- *   - подборки товаров
- *   - промо-блоки
- *   - benefits strip
+ * Frontend / static UI only: hero banner placeholder, category circles,
+ * "Новинки" and "Бестселлеры" card grids (empty-state placeholders),
+ * two promo banner placeholders, and the benefits strip.
+ *
+ * data-view="customer" selects the storefront (customer) state of every
+ * placeholder via CSS. The admin ("Добавить ...") state lives in the same
+ * markup and is revealed later when the admin view is wired up.
  */
+
+import '../src/styles/home.css'
+import '../src/styles/card.css'
+import Placeholder from '../src/components/ui/Placeholder'
+import ProductCard from '../src/components/product/ProductCard'
+import CategoryCircles from '../src/components/home/CategoryCircles'
+import Benefits from '../src/components/home/Benefits'
+
+const NEW_ARRIVALS = [
+  { name: 'Украшение AURELIA', category: 'Серьги · позолота', tag: 'New', tagGold: true },
+  { name: 'Украшение AURELIA', category: 'Кольцо · серебрение', tag: 'New', tagGold: true },
+  { name: 'Украшение AURELIA', category: 'Браслет · позолота' },
+  { name: 'Украшение AURELIA', category: 'Цепочка · родирование' },
+]
+
+const BESTSELLERS = [
+  { name: 'Украшение AURELIA', category: 'Кулон · позолота', tag: 'Хит' },
+  { name: 'Украшение AURELIA', category: 'Набор · позолота', tag: 'Хит' },
+  { name: 'Украшение AURELIA', category: 'Серьги · жемчуг' },
+  { name: 'Украшение AURELIA', category: 'Аксессуар · эмаль' },
+]
 
 export default function HomePage() {
   return (
-    <div className="au-container">
-      <div className="home-stub">
-        <div className="home-stub__logo">AURELIA</div>
-        <div className="home-stub__tagline">Bijouterie without limits</div>
-        <p className="home-stub__note">
-          Проект запущен. Header и Footer подключены. Следующий этап — главная страница.
-        </p>
-      </div>
+    <div className="au-home" data-view="customer">
+      {/* ===== Hero banner ===== */}
+      <section className="au-section au-section--hero">
+        <div className="au-container">
+          <Placeholder
+            variant="hero"
+            adminTitle="Добавить главный баннер"
+            adminSub="Для пользователей: скоро появится главный баннер"
+            adminHint="Нажмите, чтобы загрузить обложку баннера"
+            customerTitle="Скоро появится главный баннер"
+            customerSub="Мы готовим для вас новую коллекцию"
+            withRule
+            showImageIcon
+          />
+        </div>
+      </section>
 
-      <style>{`
-        .home-stub {
-          padding: 80px 0;
-          text-align: center;
-        }
-        .home-stub__logo {
-          font-family: var(--au-font-display);
-          font-size: 44px;
-          font-weight: 600;
-          letter-spacing: 0.34em;
-          text-indent: 0.34em;
-          color: var(--au-ink);
-          margin-bottom: 10px;
-        }
-        .home-stub__tagline {
-          font-family: var(--au-font-ui);
-          font-size: 10px;
-          font-weight: 600;
-          letter-spacing: 0.32em;
-          text-indent: 0.32em;
-          text-transform: uppercase;
-          color: var(--au-muted);
-          margin-bottom: 32px;
-        }
-        .home-stub__note {
-          font-family: var(--au-font-ui);
-          font-size: 14px;
-          color: var(--au-muted);
-          margin: 0 auto;
-          max-width: 400px;
-          line-height: 1.6;
-        }
-      `}</style>
+      {/* ===== Category circles ===== */}
+      <section className="au-section au-section--cats">
+        <div className="au-container">
+          <CategoryCircles />
+        </div>
+      </section>
+
+      {/* ===== Новинки ===== */}
+      <section className="au-section">
+        <div className="au-container">
+          <div className="au-section-head">
+            <h2 className="au-section-title">Новинки</h2>
+            <a className="au-section-link" href="#">Смотреть все</a>
+          </div>
+          <div className="au-grid">
+            {NEW_ARRIVALS.map((product, i) => (
+              <ProductCard key={`new-${i}`} {...product} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== Promo banners ===== */}
+      <section className="au-section">
+        <div className="au-container au-home-banners">
+          <Placeholder
+            variant="banner"
+            adminTitle="Добавить баннер"
+            adminSub="Для пользователей скоро будет добавлен баннер"
+            adminHint="Нажмите, чтобы загрузить изображение баннера"
+            customerTitle="Скоро появится новая акция"
+          />
+          <Placeholder
+            variant="banner"
+            adminTitle="Добавить баннер"
+            adminSub="Для пользователей скоро будет добавлен баннер"
+            adminHint="Нажмите, чтобы загрузить изображение баннера"
+            customerTitle="Скоро появится подборка недели"
+          />
+        </div>
+      </section>
+
+      {/* ===== Бестселлеры ===== */}
+      <section className="au-section">
+        <div className="au-container">
+          <div className="au-section-head">
+            <h2 className="au-section-title">Бестселлеры</h2>
+            <a className="au-section-link" href="#">Смотреть все</a>
+          </div>
+          <div className="au-grid">
+            {BESTSELLERS.map((product, i) => (
+              <ProductCard key={`best-${i}`} {...product} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== Benefits ===== */}
+      <Benefits />
     </div>
   )
 }
