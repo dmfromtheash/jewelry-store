@@ -12,6 +12,7 @@
  */
 
 import '../src/styles/home.css'
+import Link from 'next/link'
 import Placeholder from '../src/components/ui/Placeholder'
 import ProductCard from '../src/components/product/ProductCard'
 import CategoryCircles from '../src/components/home/CategoryCircles'
@@ -64,7 +65,7 @@ export default function HomePage() {
         <div className="au-container">
           <div className="au-section-head">
             <h2 className="au-section-title">Новинки</h2>
-            <a className="au-section-link" href="#">Смотреть все</a>
+            <Link className="au-section-link" href="/category/bijouterie">Смотреть все</Link>
           </div>
           <div className="au-grid">
             {NEW_ARRIVALS.map((product, i) => (
@@ -99,7 +100,7 @@ export default function HomePage() {
         <div className="au-container">
           <div className="au-section-head">
             <h2 className="au-section-title">Бестселлеры</h2>
-            <a className="au-section-link" href="#">Смотреть все</a>
+            <Link className="au-section-link" href="/category/bijouterie">Смотреть все</Link>
           </div>
           <div className="au-grid">
             {BESTSELLERS.map((product, i) => (

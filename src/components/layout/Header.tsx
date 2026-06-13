@@ -18,17 +18,19 @@ const TOPBAR_LINKS = [
   { label: 'Помощь', href: '#' },
 ]
 
-const NAV_CATEGORIES = [
-  'Бижутерия',
-  'Серьги',
-  'Кольца',
-  'Браслеты',
-  'Цепочки',
-  'Кулоны',
-  'Наборы',
-  'Аксессуары',
-  'Подарки',
-  'Бренды',
+// Only categories with a real route link to a page; the rest stay on "#"
+// until their pages exist (no fake routes).
+const NAV_CATEGORIES: { label: string; href: string }[] = [
+  { label: 'Бижутерия', href: '/category/bijouterie' },
+  { label: 'Серьги', href: '#' },
+  { label: 'Кольца', href: '#' },
+  { label: 'Браслеты', href: '#' },
+  { label: 'Цепочки', href: '#' },
+  { label: 'Кулоны', href: '#' },
+  { label: 'Наборы', href: '#' },
+  { label: 'Аксессуары', href: '#' },
+  { label: 'Подарки', href: '/category/gifts' },
+  { label: 'Бренды', href: '#' },
 ]
 
 export default function Header() {
@@ -94,11 +96,17 @@ export default function Header() {
       {/* ---- Category nav ---- */}
       <nav className="au-nav" aria-label="Категории">
         <div className="au-container au-nav-in">
-          {NAV_CATEGORIES.map((category) => (
-            <a key={category} href="#">
-              {category}
-            </a>
-          ))}
+          {NAV_CATEGORIES.map((category) =>
+            category.href === '#' ? (
+              <a key={category.label} href="#">
+                {category.label}
+              </a>
+            ) : (
+              <Link key={category.label} href={category.href}>
+                {category.label}
+              </Link>
+            ),
+          )}
         </div>
       </nav>
     </>
