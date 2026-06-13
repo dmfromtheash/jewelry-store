@@ -1,0 +1,111 @@
+// AURELIA — Prisma schema (Этап 15A: backend catalog foundation)
+//
+// Catalog foundation ONLY. Models here mirror the mock catalog in
+// src/data/products.ts and the agreed spec in docs/backend/DATA_MODEL.md.
+// User / Order / Cart / Payment / Admin models are intentionally NOT here yet
+// (later stages) so the backend stays small and focused.
+//
+// Conventions (see DATA_MODEL.md):
+//   - id: cuid; every entity has createdAt / updatedAt
+//   - money: integer MINOR units (kopecks) — never float; currency RUB for now
+//   - slug: unique, latin only (matches the storefront URLs)
+//
+// NOTE: 15A does NOT switch the frontend to the DB. The storefront keeps
+// reading from src/data/products.ts via src/lib/catalog/*.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Top-level catalog grouping. Today only `bijouterie` and `gifts`.
+model Category {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  sortOrder Int      @default(0)
+  products  Product[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Product status — mirrors the mock `'available' | 'coming-soon'` union.
+enum ProductStatus {
+  available
+  coming_soon
+}
+
+/// Core catalog item. Price is server-authoritative and stored in minor units.
+model Product {
+  id          String        @id @default(cuid())
+  slug        String        @unique
+  name        String
+  /// Storefront caption, e.g. "Серьги · позолота" (mock `category` field).
+  categoryLabel String
+  status      ProductStatus @default(available)
+  currency    String        @default("RUB")
+  /// Integer MINOR units (kopecks); null for coming-soon products.
+  price       Int?
+  sku         String?
+  brand       String?
+  description String?
+  /// Card badge, e.g. "New" / "Хит".
+  tag         String?
+  /// Gold badge variant (otherwise dark).
+  tagGold     Boolean       @default(false)
+  rating      Float         @default(0)
+  reviewsCount Int          @default(0)
+
+  categoryId  String
+  category    Category      @relation(fields: [categoryId], references: [id])
+  variants    ProductVariant[]
+  images      ProductImage[]
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([categoryId])
+  @@index([status])
+}
+
+/// Selectable option. Today: coating (Позолота / Родирование / Сталь),
+/// sourced from the mock `Product.coatings: string[]`.
+model ProductVariant {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  /// Attribute name, e.g. "coating".
+  name      String
+  /// Attribute value, e.g. "Позолота".
+  value     String
+  sortOrder Int      @default(0)
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Keeps the seed idempotent (one row per product+name+value).
+  @@unique([productId, name, value])
+  @@index([productId])
+}
+
+/// Image slot. No real images yet (UI renders a gem placeholder); `url` stays
+/// null until real assets exist. `position` reserves the ordered slot.
+model ProductImage {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  position  Int
+  url       String?
+  alt       String?
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Keeps the seed idempotent (one row per product+position).
+  @@unique([productId, position])
+  @@index([productId])
+}
