@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>06–07 Auth Modals — AURELIA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Cormorant+Garamond:wght@500;600&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles/aurelia.css">
+<style>
+  .am-stage {
+    background: rgba(28, 27, 25, 0.45);
+    border-radius: 10px;
+    padding: 40px 24px;
+    display: flex;
+    justify-content: center;
+  }
+  .am-stage .au-modal { transform: none; }
+  .am-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  @media (max-width: 900px) { .am-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body data-view="admin" data-screen-label="06–07 Модалки авторизации">
+<div class="au-showcase">
+  <div class="au-container">
+    <div class="au-showcase-head">
+      <h1>06–07 · Модалки входа и регистрации</h1>
+      <p>Статичные макеты на затемнении — и живые модалки: они открываются по иконке профиля на любой странице прототипа.</p>
+      <div style="display: flex; gap: 12px; margin-top: 16px;">
+        <button class="au-btn au-btn--primary" type="button" data-open-login>Открыть живую модалку входа</button>
+        <button class="au-btn au-btn--ghost" type="button" data-open-register>Открыть регистрацию</button>
+      </div>
+      <p style="margin-top: 12px;"><a href="index.html" style="font-weight: 700; color: var(--au-gold);">← Ко всем страницам</a></p>
+    </div>
+
+    <div class="am-grid">
+      <div class="au-frame">
+        <p class="au-frame-label">06 · Вход в личный кабинет</p>
+        <div class="am-stage">
+          <div class="au-modal" role="dialog" aria-label="Вход в личный кабинет (макет)">
+            <button class="au-modal-close" type="button" aria-label="Закрыть">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3l10 10M13 3L3 13"></path></svg>
+            </button>
+            <div class="au-modal-brand">AURELIA</div>
+            <h2>Вход в личный кабинет</h2>
+            <form onsubmit="return false;">
+              <div class="au-field"><label for="m-login-email">E-mail</label>
+                <input id="m-login-email" type="email" placeholder="you@example.com"></div>
+              <div class="au-field"><label for="m-login-pass">Пароль</label>
+                <input id="m-login-pass" type="password" placeholder="••••••••"></div>
+              <button class="au-btn au-btn--primary au-btn--block" type="submit">Войти</button>
+            </form>
+            <div class="au-modal-aux"><a href="#" onclick="return false;">Забыли пароль?</a></div>
+            <div class="au-modal-switch">Нет аккаунта? <a href="#" onclick="return false;">Зарегистрироваться</a></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="au-frame">
+        <p class="au-frame-label">07 · Регистрация</p>
+        <div class="am-stage">
+          <div class="au-modal" role="dialog" aria-label="Регистрация (макет)">
+            <button class="au-modal-close" type="button" aria-label="Закрыть">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3l10 10M13 3L3 13"></path></svg>
+            </button>
+            <div class="au-modal-brand">AURELIA</div>
+            <h2>Регистрация</h2>
+            <form onsubmit="return false;">
+              <div class="au-field"><label for="m-reg-name">Имя</label>
+                <input id="m-reg-name" type="text" placeholder="Как к вам обращаться"></div>
+              <div class="au-field"><label for="m-reg-email">E-mail</label>
+                <input id="m-reg-email" type="email" placeholder="you@example.com"></div>
+              <div class="au-field"><label for="m-reg-pass">Пароль</label>
+                <input id="m-reg-pass" type="password" placeholder="Минимум 8 символов"></div>
+              <div class="au-field"><label for="m-reg-pass2">Повторите пароль</label>
+                <input id="m-reg-pass2" type="password" placeholder="Ещё раз"></div>
+              <button class="au-btn au-btn--primary au-btn--block" type="submit">Зарегистрироваться</button>
+            </form>
+            <div class="au-modal-switch">Уже есть аккаунт? <a href="#" onclick="return false;">Войти</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="scripts/aurelia.js"></script>
+<style id="__om-edit-overrides"></style>
+</body>
+</html>

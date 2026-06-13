@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>00 Design System — AURELIA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Cormorant+Garamond:wght@500;600&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles/aurelia.css">
+<style>
+  .ds-swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .ds-swatch .chip { height: 84px; border-radius: 8px; border: 1px solid var(--au-line); margin-bottom: 8px; }
+  .ds-swatch .nm { font: 700 12.5px/1.3 var(--au-font-ui); }
+  .ds-swatch .hex { font: 400 11.5px/1.3 var(--au-font-ui); color: var(--au-muted); }
+  .ds-type-row { display: flex; align-items: baseline; gap: 24px; padding: 14px 0; border-bottom: 1px solid var(--au-line); }
+  .ds-type-row:last-child { border-bottom: none; }
+  .ds-type-row .meta { flex: none; width: 220px; font: 400 11.5px/1.4 var(--au-font-ui); color: var(--au-muted); }
+  @media (max-width: 640px) { .ds-swatches { grid-template-columns: repeat(2, 1fr); } .ds-type-row { flex-direction: column; gap: 6px; } }
+</style>
+</head>
+<body data-view="admin" data-screen-label="00 Дизайн-система">
+<div class="au-showcase">
+  <div class="au-container">
+    <div class="au-showcase-head">
+      <h1>00 · Дизайн-система AURELIA</h1>
+      <p>Токены цвета, типографика и базовые элементы. Композиция страниц следует референсам, визуальный язык — собственный: белый фон, воздух, тонкие линии, тёплый золотисто-бежевый акцент.</p>
+      <p style="margin-top: 10px;"><a href="index.html" style="font-weight: 700; color: var(--au-gold);">← Ко всем страницам</a></p>
+    </div>
+
+    <div class="au-frame">
+      <p class="au-frame-label">Цвета <span class="note">фон · текст · линии · акцент</span></p>
+      <div class="au-frame-card">
+        <div class="ds-swatches">
+          <div class="ds-swatch"><div class="chip" style="background: #FFFFFF;"></div><div class="nm">Фон</div><div class="hex">#FFFFFF</div></div>
+          <div class="ds-swatch"><div class="chip" style="background: #F7F5F2;"></div><div class="nm">Поверхность</div><div class="hex">#F7F5F2</div></div>
+          <div class="ds-swatch"><div class="chip" style="background: #1C1B19;"></div><div class="nm">Текст / графит</div><div class="hex">#1C1B19</div></div>
+          <div class="ds-swatch"><div class="chip" style="background: #8A867F;"></div><div class="nm">Вторичный текст</div><div class="hex">#8A867F</div></div>
+          <div class="ds-swatch"><div class="chip" style="background: #E8E5E0;"></div><div class="nm">Линии</div><div class="hex">#E8E5E0</div></div>
+          <div class="ds-swatch"><div class="chip" style="background: #A88A58;"></div><div class="nm">Акцент · золото</div><div class="hex">#A88A58</div></div>
+          <div class="ds-swatch"><div class="chip" style="background: #C7B695;"></div><div class="nm">Золото мягкое</div><div class="hex">#C7B695</div></div>
+          <div class="ds-swatch"><div class="chip" style="background: #F4EFE6;"></div><div class="nm">Золотая подложка</div><div class="hex">#F4EFE6</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="au-frame">
+      <p class="au-frame-label">Типографика <span class="note">Manrope — UI · Cormorant Garamond — логотип и заголовки разделов</span></p>
+      <div class="au-frame-card">
+        <div class="ds-type-row">
+          <span class="meta">Логотип · Cormorant 600 · трекинг 0.34em</span>
+          <span style="font: 600 34px/1 var(--au-font-display); letter-spacing: 0.34em;">AURELIA</span>
+        </div>
+        <div class="ds-type-row">
+          <span class="meta">H1 страницы · Cormorant 500 · 34px</span>
+          <span style="font: 500 34px/1.15 var(--au-font-display); letter-spacing: 0.05em;">Бижутерия без границ</span>
+        </div>
+        <div class="ds-type-row">
+          <span class="meta">Заголовок секции · Cormorant 500 · 26px</span>
+          <span style="font: 500 26px/1.2 var(--au-font-display); letter-spacing: 0.06em;">Новинки недели</span>
+        </div>
+        <div class="ds-type-row">
+          <span class="meta">Название товара · Manrope 600 · 14px</span>
+          <span style="font: 600 14px/1.35 var(--au-font-ui);">Серьги-кольца с жемчужной подвеской</span>
+        </div>
+        <div class="ds-type-row">
+          <span class="meta">Текст · Manrope 400 · 15px</span>
+          <span style="font: 400 15px/1.55 var(--au-font-ui); max-width: 480px;">Основной текст интерфейса хорошо читается на русском языке и не утомляет при длинном чтении.</span>
+        </div>
+        <div class="ds-type-row">
+          <span class="meta">Подпись · Manrope 400 · 12px · серый</span>
+          <span style="font: 400 12px/1.4 var(--au-font-ui); color: var(--au-muted);">Вторичный текст: категории, подсказки, сноски</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="au-frame">
+      <p class="au-frame-label">Кнопки и элементы форм</p>
+      <div class="au-frame-card">
+        <div style="display: flex; gap: 14px; flex-wrap: wrap; align-items: center;">
+          <button class="au-btn au-btn--primary" type="button">Купить</button>
+          <button class="au-btn au-btn--gold" type="button">В корзину</button>
+          <button class="au-btn au-btn--ghost" type="button">Подробнее</button>
+          <button class="au-btn au-btn--primary" type="button" disabled>Недоступно</button>
+          <button class="au-chip" type="button">Чип-фильтр</button>
+          <button class="au-chip is-active" type="button">Активный чип</button>
+          <button class="au-act-ico" type="button" aria-label="Избранное"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20s-7.5-4.6-9.3-9.2C1.5 7.6 3.6 4.5 6.9 4.5c2 0 3.6 1.1 5.1 3 1.5-1.9 3.1-3 5.1-3 3.3 0 5.4 3.1 4.2 6.3C19.5 15.4 12 20 12 20z"></path></svg></button>
+        </div>
+        <div style="display: flex; gap: 14px; margin-top: 22px; max-width: 560px;">
+          <div class="au-field" style="flex: 1; margin: 0;">
+            <label for="ds-input">Поле ввода</label>
+            <input id="ds-input" type="text" placeholder="Например, e-mail">
+          </div>
+          <label class="au-check" style="align-self: end; padding-bottom: 12px;"><input type="checkbox" checked><span class="box"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12l5 5L20 7"></path></svg></span>Чекбокс</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="au-frame">
+      <p class="au-frame-label">Принципы placeholders <span class="note">правило двух режимов</span></p>
+      <div class="au-frame-card" style="font: 400 14px/1.7 var(--au-font-ui); color: var(--au-ink-soft); max-width: 760px;">
+        <p style="margin: 0 0 10px;"><strong>Админ</strong> видит зону загрузки: пунктирную рамку, круг с плюсом, действие («Добавить товар») и подсказку «Нажмите, чтобы загрузить изображение».</p>
+        <p style="margin: 0;"><strong>Покупатель</strong> видит спокойное состояние без служебного текста: знак-гемму и сообщение «Скоро будет добавлен товар» / «Скоро появится украшение». Переключатель режимов — в левом нижнем углу каждой страницы.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="scripts/aurelia.js"></script>
+<style id="__om-edit-overrides"></style>
+</body>
+</html>

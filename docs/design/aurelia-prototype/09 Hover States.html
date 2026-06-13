@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>09 Hover States — AURELIA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Cormorant+Garamond:wght@500;600&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles/aurelia.css">
+<style>
+  .hv-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 290px)); gap: 28px; }
+  .hv-pair .col-label {
+    font: 700 11px/1 var(--au-font-ui);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--au-gold);
+    margin: 0 0 10px;
+  }
+</style>
+</head>
+<body data-view="customer" data-screen-label="09 Hover-состояния">
+<div class="au-showcase">
+  <div class="au-container">
+    <div class="au-showcase-head">
+      <h1>09 · Hover-состояние карточки товара</h1>
+      <p>В покое карточка спокойная. При наведении действия «Купить», «В избранное» и «Быстрый просмотр» выплывают в зарезервированной нижней зоне карточки — изображение и placeholder никогда не перекрываются, сетка не прыгает.</p>
+      <p style="margin-top: 10px;"><a href="index.html" style="font-weight: 700; color: var(--au-gold);">← Ко всем страницам</a></p>
+    </div>
+
+    <div class="au-frame">
+      <p class="au-frame-label">Состояния рядом <span class="note">второе зафиксировано в hover для сравнения</span></p>
+      <div class="au-frame-card">
+        <div class="hv-pair">
+          <div>
+            <p class="col-label">Обычное состояние</p>
+            <article class="au-card">
+              <span class="au-card-tag au-card-tag--gold">New</span>
+              <div class="au-card-media">
+                <span class="dash only-admin"></span>
+                <div class="only-admin">
+                  <span class="au-ph-plus"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 5v14M5 12h14"></path></svg></span>
+                  <span class="t">Добавить товар</span>
+                  <span class="s">Нажмите, чтобы загрузить изображение</span>
+                </div>
+                <div class="only-customer">
+                  <span class="au-ph-gem"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M7 4h10l4 5-9 11L3 9l4-5z"></path><path d="M3 9h18"></path></svg></span>
+                  <span class="t-cust">Скоро будет добавлен товар</span>
+                </div>
+              </div>
+              <div class="au-card-body">
+                <h3 class="au-card-name">Украшение AURELIA</h3>
+                <p class="au-card-cat">Серьги · позолота</p>
+                <div class="au-card-meta"><span class="au-stars">★★★★★</span><span class="au-card-reviews">0 отзывов</span></div>
+                <div class="au-card-price"><span class="dim">— ₽</span></div>
+                <div class="au-card-actions-slot"></div>
+                <div class="au-card-actions">
+                  <a class="au-btn au-btn--primary buy" href="05 Product Page.html">Купить</a>
+                  <button class="au-act-ico" type="button" data-fav aria-label="В избранное"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20s-7.5-4.6-9.3-9.2C1.5 7.6 3.6 4.5 6.9 4.5c2 0 3.6 1.1 5.1 3 1.5-1.9 3.1-3 5.1-3 3.3 0 5.4 3.1 4.2 6.3C19.5 15.4 12 20 12 20z"></path></svg></button>
+                  <a class="au-act-ico" href="05 Product Page.html" aria-label="Быстрый просмотр"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"></path><circle cx="12" cy="12" r="2.8"></circle></svg></a>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div>
+            <p class="col-label">Hover (зафиксировано)</p>
+            <article class="au-card is-hover-demo">
+              <span class="au-card-tag au-card-tag--gold">New</span>
+              <div class="au-card-media">
+                <span class="dash only-admin"></span>
+                <div class="only-admin">
+                  <span class="au-ph-plus"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 5v14M5 12h14"></path></svg></span>
+                  <span class="t">Добавить товар</span>
+                  <span class="s">Нажмите, чтобы загрузить изображение</span>
+                </div>
+                <div class="only-customer">
+                  <span class="au-ph-gem"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M7 4h10l4 5-9 11L3 9l4-5z"></path><path d="M3 9h18"></path></svg></span>
+                  <span class="t-cust">Скоро будет добавлен товар</span>
+                </div>
+              </div>
+              <div class="au-card-body">
+                <h3 class="au-card-name">Украшение AURELIA</h3>
+                <p class="au-card-cat">Серьги · позолота</p>
+                <div class="au-card-meta"><span class="au-stars">★★★★★</span><span class="au-card-reviews">0 отзывов</span></div>
+                <div class="au-card-price"><span class="dim">— ₽</span></div>
+                <div class="au-card-actions-slot"></div>
+                <div class="au-card-actions">
+                  <a class="au-btn au-btn--primary buy" href="05 Product Page.html">Купить</a>
+                  <button class="au-act-ico is-active" type="button" data-fav aria-label="В избранное"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20s-7.5-4.6-9.3-9.2C1.5 7.6 3.6 4.5 6.9 4.5c2 0 3.6 1.1 5.1 3 1.5-1.9 3.1-3 5.1-3 3.3 0 5.4 3.1 4.2 6.3C19.5 15.4 12 20 12 20z"></path></svg></button>
+                  <a class="au-act-ico" href="05 Product Page.html" aria-label="Быстрый просмотр"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"></path><circle cx="12" cy="12" r="2.8"></circle></svg></a>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div>
+            <p class="col-label">Живая карточка — наведите</p>
+            <article class="au-card">
+              <div class="au-card-media">
+                <span class="dash only-admin"></span>
+                <div class="only-admin">
+                  <span class="au-ph-plus"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 5v14M5 12h14"></path></svg></span>
+                  <span class="t">Добавить товар</span>
+                  <span class="s">Нажмите, чтобы загрузить изображение</span>
+                </div>
+                <div class="only-customer">
+                  <span class="au-ph-gem"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M7 4h10l4 5-9 11L3 9l4-5z"></path><path d="M3 9h18"></path></svg></span>
+                  <span class="t-cust">Скоро будет добавлен товар</span>
+                </div>
+              </div>
+              <div class="au-card-body">
+                <h3 class="au-card-name">Украшение AURELIA</h3>
+                <p class="au-card-cat">Кольцо · родирование</p>
+                <div class="au-card-meta"><span class="au-stars">★★★★★</span><span class="au-card-reviews">0 отзывов</span></div>
+                <div class="au-card-price"><span class="dim">— ₽</span></div>
+                <div class="au-card-actions-slot"></div>
+                <div class="au-card-actions">
+                  <a class="au-btn au-btn--primary buy" href="05 Product Page.html">Купить</a>
+                  <button class="au-act-ico" type="button" data-fav aria-label="В избранное"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20s-7.5-4.6-9.3-9.2C1.5 7.6 3.6 4.5 6.9 4.5c2 0 3.6 1.1 5.1 3 1.5-1.9 3.1-3 5.1-3 3.3 0 5.4 3.1 4.2 6.3C19.5 15.4 12 20 12 20z"></path></svg></button>
+                  <a class="au-act-ico" href="05 Product Page.html" aria-label="Быстрый просмотр"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"></path><circle cx="12" cy="12" r="2.8"></circle></svg></a>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="au-frame">
+      <p class="au-frame-label">Логика</p>
+      <div class="au-frame-card" style="font: 400 14px/1.7 var(--au-font-ui); color: var(--au-ink-soft); max-width: 760px;">
+        <p style="margin: 0 0 10px;">Под ценой в карточке зарезервирована постоянная зона высотой 48px. Действия выплывают в неё с лёгким сдвигом вверх (180 мс), карточка получает тень. Изображение/placeholder остаётся полностью видимым, высота карточки не меняется, соседние карточки не сдвигаются.</p>
+        <p style="margin: 0;">На тач-устройствах (мобильная версия) hover недоступен — действия показаны всегда.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="scripts/aurelia.js"></script>
+<style id="__om-edit-overrides"></style>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>08 Empty States — AURELIA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Cormorant+Garamond:wght@500;600&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles/aurelia.css">
+<style>
+  .es-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .es-pair .col-label {
+    font: 700 11px/1 var(--au-font-ui);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--au-gold);
+    margin: 0 0 10px;
+  }
+  .es-pair .force-admin .only-customer { display: none !important; }
+  .es-pair .force-admin .only-admin { display: flex !important; }
+  .es-pair .force-customer .only-admin { display: none !important; }
+  .es-pair .force-customer .only-customer { display: flex !important; }
+  @media (max-width: 900px) { .es-pair { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body data-view="admin" data-screen-label="08 Пустые состояния">
+<div class="au-showcase">
+  <div class="au-container">
+    <div class="au-showcase-head">
+      <h1>08 · Пустые состояния и add-placeholders</h1>
+      <p>Каждый placeholder показан в двух режимах сразу: слева — то, что видит админ, справа — то, что видит покупатель.</p>
+      <p style="margin-top: 10px;"><a href="index.html" style="font-weight: 700; color: var(--au-gold);">← Ко всем страницам</a></p>
+    </div>
+
+    <div class="au-frame">
+      <p class="au-frame-label">Добавить главный баннер <span class="note">крупный баннер страницы</span></p>
+      <div class="au-frame-card">
+        <div class="es-pair">
+          <div class="force-admin">
+            <p class="col-label">Admin view</p>
+            <div class="au-ph au-ph--hero has-hint" style="min-height: 240px;">
+              <div class="au-ph-zone only-admin">
+                <span class="au-ph-plus"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 5v14M5 12h14"></path></svg></span>
+                <span class="au-ph-title">Добавить главный баннер</span>
+                <span class="au-ph-rule"></span>
+                <span class="au-ph-sub">Для пользователей: скоро появится главный баннер</span>
+                <span class="au-ph-img-ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3" y="4" width="18" height="15" rx="2"></rect><circle cx="9" cy="9.5" r="1.6"></circle><path d="M3 16.5l5-4.5 4 3.5 3.5-3 5.5 4.5"></path></svg></span>
+              </div>
+              <div class="au-ph-hint only-admin">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8v.2"></path></svg>
+                Нажмите, чтобы загрузить обложку баннера
+              </div>
+            </div>
+          </div>
+          <div class="force-customer">
+            <p class="col-label">Customer view</p>
+            <div class="au-ph au-ph--hero" style="min-height: 240px;">
+              <div class="au-ph-zone only-customer">
+                <span class="au-ph-gem"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M7 4h10l4 5-9 11L3 9l4-5z"></path><path d="M3 9h18M9.5 9L12 20 14.5 9"></path></svg></span>
+                <span class="au-ph-cust-title">Скоро появится главный баннер</span>
+                <span class="au-ph-sub">Мы готовим для вас новую коллекцию</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="au-frame">
+      <p class="au-frame-label">Добавить баннер <span class="note">широкий горизонтальный</span></p>
+      <div class="au-frame-card">
+        <div class="es-pair">
+          <div class="force-admin">
+            <p class="col-label">Admin view</p>
+            <div class="au-ph au-ph--banner has-hint au-ph--sm">
+              <div class="au-ph-zone only-admin">
+                <span class="au-ph-plus"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 5v14M5 12h14"></path></svg></span>
+                <span class="au-ph-title">Добавить баннер</span>
+                <span class="au-ph-sub">Для пользователей скоро будет добавлен баннер</span>
+              </div>
+              <div class="au-ph-hint only-admin">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8v.2"></path></svg>
+                Нажмите, чтобы загрузить изображение баннера
+              </div>
+            </div>
+          </div>
+          <div class="force-customer">
+            <p class="col-label">Customer view</p>
+            <div class="au-ph au-ph--banner au-ph--sm">
+              <div class="au-ph-zone only-customer">
+                <span class="au-ph-gem"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M7 4h10l4 5-9 11L3 9l4-5z"></path><path d="M3 9h18"></path></svg></span>
+                <span class="au-ph-cust-title">Скоро будет добавлен баннер</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="au-frame">
+      <p class="au-frame-label">Добавить промо-блок <span class="note">квадратный формат</span></p>
+      <div class="au-frame-card">
+        <div class="es-pair" style="max-width: 880px;">
+          <div class="force-admin">
+            <p class="col-label">Admin view</p>
+            <div class="au-ph au-ph--square has-hint au-ph--sm">
+              <div class="au-ph-zone only-admin">
+                <span class="au-ph-plus"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 5v14M5 12h14"></path></svg></span>
+                <span class="au-ph-title">Добавить промо-блок</span>
+                <span class="au-ph-rule"></span>
+                <span class="au-ph-sub">Для пользователей: скоро появится контент</span>
+              </div>
+              <div class="au-ph-hint only-admin">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8v.2"></path></svg>
+                Нажмите, чтобы загрузить квадратное изображение
+              </div>
+            </div>
+          </div>
+          <div class="force-customer">
+            <p class="col-label">Customer view</p>
+            <div class="au-ph au-ph--square au-ph--sm">
+              <div class="au-ph-zone only-customer">
+                <span class="au-ph-gem"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M7 4h10l4 5-9 11L3 9l4-5z"></path><path d="M3 9h18"></path></svg></span>
+                <span class="au-ph-cust-title">Скоро появится контент</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="au-frame">
+      <p class="au-frame-label">Добавить товар <span class="note">вертикальная карточка товарной сетки</span></p>
+      <div class="au-frame-card">
+        <div class="es-pair" style="max-width: 700px;">
+          <div class="force-admin">
+            <p class="col-label">Admin view</p>
+            <article class="au-card" style="max-width: 280px;">
+              <div class="au-card-media">
+                <span class="dash only-admin"></span>
+                <div class="only-admin">
+                  <span class="au-ph-plus"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 5v14M5 12h14"></path></svg></span>
+                  <span class="t">Добавить товар</span>
+                  <span class="s">Нажмите, чтобы загрузить изображение</span>
+                </div>
+              </div>
+              <div class="au-card-body">
+                <h3 class="au-card-name">Украшение AURELIA</h3>
+                <p class="au-card-cat">Категория · покрытие</p>
+                <div class="au-card-meta"><span class="au-stars">★★★★★</span><span class="au-card-reviews">0 отзывов</span></div>
+                <div class="au-card-price"><span class="dim">— ₽</span></div>
+              </div>
+            </article>
+          </div>
+          <div class="force-customer">
+            <p class="col-label">Customer view</p>
+            <article class="au-card" style="max-width: 280px;">
+              <div class="au-card-media">
+                <div class="only-customer">
+                  <span class="au-ph-gem"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M7 4h10l4 5-9 11L3 9l4-5z"></path><path d="M3 9h18"></path></svg></span>
+                  <span class="t-cust">Скоро будет добавлен товар</span>
+                </div>
+              </div>
+              <div class="au-card-body">
+                <h3 class="au-card-name">Украшение AURELIA</h3>
+                <p class="au-card-cat">Категория · покрытие</p>
+                <div class="au-card-meta"><span class="au-stars">★★★★★</span><span class="au-card-reviews">0 отзывов</span></div>
+                <div class="au-card-price"><span class="dim">— ₽</span></div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="au-frame">
+      <p class="au-frame-label">Скоро появится украшение <span class="note">пользовательское состояние страницы товара</span></p>
+      <div class="au-frame-card">
+        <div style="max-width: 480px;">
+          <div class="au-ph au-ph--gallery">
+            <div class="au-ph-zone" style="position: absolute;">
+              <span class="au-ph-gem"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M7 4h10l4 5-9 11L3 9l4-5z"></path><path d="M3 9h18M9.5 9L12 20 14.5 9M7 4l2.5 5L12 4l2.5 5L17 4"></path></svg></span>
+              <span class="au-ph-cust-title">Скоро появится украшение</span>
+              <span class="au-ph-sub">Фотографии будут добавлены в ближайшее время</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="scripts/aurelia.js"></script>
+<style id="__om-edit-overrides"></style>
+</body>
+</html>

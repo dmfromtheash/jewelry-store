@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AURELIA — дизайн-прототип</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Cormorant+Garamond:wght@500;600&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles/aurelia.css">
+<style>
+  .ix-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .ix-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: #fff;
+    border: 1px solid var(--au-line);
+    border-radius: 12px;
+    padding: 22px 22px 20px;
+    box-shadow: var(--au-shadow-soft);
+    transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s;
+  }
+  .ix-card:hover { border-color: var(--au-gold-soft); box-shadow: var(--au-shadow); transform: translateY(-2px); color: inherit; }
+  .ix-card .num {
+    font: 700 11px/1 var(--au-font-ui);
+    letter-spacing: 0.12em;
+    color: var(--au-gold);
+  }
+  .ix-card .nm { font: 700 16px/1.3 var(--au-font-ui); color: var(--au-ink); }
+  .ix-card .ds { font: 400 12.5px/1.5 var(--au-font-ui); color: var(--au-muted); }
+  @media (max-width: 900px) { .ix-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .ix-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body data-view="admin" data-screen-label="Обзор прототипа">
+<div class="au-showcase">
+  <div class="au-container" style="max-width: 1060px;">
+    <div class="au-showcase-head" style="text-align: center; margin-bottom: 36px;">
+      <div style="font: 600 44px/1 var(--au-font-display); letter-spacing: 0.34em; text-indent: 0.34em; margin-bottom: 10px;">AURELIA</div>
+      <div style="font: 600 10px/1 var(--au-font-ui); letter-spacing: 0.32em; text-indent: 0.32em; text-transform: uppercase; color: var(--au-muted); margin-bottom: 22px;">Bijouterie without limits</div>
+      <p style="margin: 0 auto; max-width: 620px;">High-fidelity прототип интернет-магазина бижутерии. Структура страниц повторяет референсы, визуальный язык — собственный. Внизу слева на каждой странице — переключатель «Админ / Покупатель», который меняет вид всех placeholders.</p>
+    </div>
+
+    <div class="ix-grid">
+      <a class="ix-card" href="00 Design System.html">
+        <span class="num">00</span>
+        <span class="nm">Дизайн-система</span>
+        <span class="ds">Цвета, типографика, кнопки, правила placeholders</span>
+      </a>
+      <a class="ix-card" href="01 Components.html">
+        <span class="num">01</span>
+        <span class="nm">Компоненты</span>
+        <span class="ds">Header, карточка, фильтры, пагинация, footer</span>
+      </a>
+      <a class="ix-card" href="02 Home Page.html">
+        <span class="num">02</span>
+        <span class="nm">Главная страница</span>
+        <span class="ds">Главный баннер, категории, подборки, промо-блоки</span>
+      </a>
+      <a class="ix-card" href="03 Category Gifts.html">
+        <span class="num">03</span>
+        <span class="nm">Категория «Подарки»</span>
+        <span class="ds">Фильтры, баннер, сетка, пагинация, SEO-текст</span>
+      </a>
+      <a class="ix-card" href="04 Category Bijouterie.html">
+        <span class="num">04</span>
+        <span class="nm">Категория «Бижутерия»</span>
+        <span class="ds">Общая категория с собственными фильтрами</span>
+      </a>
+      <a class="ix-card" href="05 Product Page.html">
+        <span class="num">05</span>
+        <span class="nm">Страница товара</span>
+        <span class="ds">Галерея-заглушка, варианты, табы, отзывы, похожие</span>
+      </a>
+      <a class="ix-card" href="06-07 Auth Modals.html">
+        <span class="num">06–07</span>
+        <span class="nm">Модалки входа и регистрации</span>
+        <span class="ds">Статичные макеты + живые модалки</span>
+      </a>
+      <a class="ix-card" href="08 Empty States.html">
+        <span class="num">08</span>
+        <span class="nm">Пустые состояния</span>
+        <span class="ds">Все placeholders: админ и покупатель рядом</span>
+      </a>
+      <a class="ix-card" href="09 Hover States.html">
+        <span class="num">09</span>
+        <span class="nm">Hover-состояния</span>
+        <span class="ds">Карточка: покой, hover, живой пример</span>
+      </a>
+      <a class="ix-card" href="10 Responsive Mobile.html">
+        <span class="num">10</span>
+        <span class="nm">Адаптивность</span>
+        <span class="ds">Desktop 1440 · Tablet 768 · Mobile 390 в живых iframes</span>
+      </a>
+    </div>
+  </div>
+</div>
+<script src="scripts/aurelia.js"></script>
+<style id="__om-edit-overrides"></style>
+</body>
+</html>
