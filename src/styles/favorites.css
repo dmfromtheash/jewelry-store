@@ -1,0 +1,102 @@
+/* ============================================================
+   AURELIA — Favorites & store-interaction styles (Этап 11A)
+   Card favorite heart, /favorites page, product-page favorite toggle,
+   "recently viewed" strip. Reuses .au-grid / .au-card / .au-btn primitives.
+   Imported globally via globals.css.
+   ============================================================ */
+
+/* ---- Card favorite heart (corner, always visible) ---- */
+.au-card-fav {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--au-line);
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--au-muted);
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.au-card-fav:hover {
+  color: var(--au-gold);
+  border-color: var(--au-gold-soft);
+}
+.au-card-fav.is-active {
+  color: var(--au-gold);
+  border-color: var(--au-gold-soft);
+  background: var(--au-gold-tint);
+}
+
+/* ---- Product-page favorite toggle (active state on .au-act-ico) ---- */
+.au-fav-toggle.is-active {
+  border-color: var(--au-gold);
+  color: var(--au-gold);
+}
+
+/* ---- /favorites page ---- */
+.au-fav-page {
+  padding: 28px 0 64px;
+}
+.au-fav-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.au-fav-title {
+  margin: 0;
+  font: 500 34px/1.15 var(--au-font-display);
+  letter-spacing: 0.05em;
+}
+.au-fav-count {
+  font: 400 14px/1 var(--au-font-ui);
+  color: var(--au-muted);
+}
+.au-fav-clear {
+  padding: 10px 18px;
+  font-size: 12px;
+}
+
+/* ---- /favorites empty state ---- */
+.au-fav-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+  padding: 72px 24px 80px;
+}
+.au-fav-empty-ico {
+  color: var(--au-gold-soft);
+}
+.au-fav-empty-title {
+  margin: 0;
+  font: 500 26px/1.2 var(--au-font-display);
+  letter-spacing: 0.05em;
+}
+.au-fav-empty-sub {
+  margin: 0;
+  max-width: 360px;
+  font: 400 14px/1.6 var(--au-font-ui);
+  color: var(--au-muted);
+}
+.au-fav-empty-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ---- "Вы недавно смотрели" strip ---- */
+.au-recent {
+  border-top: 1px solid var(--au-line);
+  margin-top: 8px;
+}

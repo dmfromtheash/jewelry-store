@@ -1,0 +1,250 @@
+/* ============================================================
+   AURELIA — Header styles
+   Source: docs/design/aurelia-prototype/aurelia.css
+   Scope: top service bar + main header + category nav.
+   Relies on design tokens (--au-*) from tokens.css and on
+   .au-container (globals.css) for centred, max-width content.
+   Outer bars are full-width; inner content is via .au-container.
+   ============================================================ */
+
+/* ---- Top service bar ---- */
+.au-topbar {
+  border-bottom: 1px solid var(--au-line);
+  background: var(--au-bg);
+}
+.au-topbar-in {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 42px; /* +~15% vertical air */
+  font-size: 12px;
+  color: var(--au-muted);
+}
+.au-topbar-links {
+  display: flex;
+  gap: 20px;
+}
+.au-topbar-links a:hover {
+  color: var(--au-ink);
+}
+.au-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.au-topbar-right .phone {
+  color: var(--au-ink-soft);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* ---- Main header ---- */
+.au-header {
+  position: relative;
+  background: var(--au-bg);
+}
+.au-header-in {
+  --au-logo-nav-gap: 8px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 24px;
+}
+/* .au-container is declared later, so this selector keeps the logo-to-nav
+   divider gap stable without changing the container's horizontal gutters. */
+.au-container.au-header-in {
+  padding-bottom: var(--au-logo-nav-gap);
+}
+.au-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 320px;
+  border-bottom: 1px solid var(--au-line-strong);
+  padding: 6px 2px;
+  color: var(--au-muted);
+  min-width: 0;
+}
+.au-search svg {
+  flex: none;
+}
+.au-search input {
+  border: none;
+  outline: none;
+  width: 100%;
+  min-width: 0;
+  font: 400 13px/1.4 var(--au-font-ui);
+  color: var(--au-ink);
+  background: transparent;
+}
+.au-search input::placeholder {
+  color: var(--au-faint);
+}
+
+.au-logo {
+  text-align: center;
+  display: block;
+}
+.au-logo .name,
+.au-logo .tagline {
+  display: block;
+}
+.au-logo .name {
+  font: 600 34px/1 var(--au-font-display);
+  letter-spacing: 0.34em;
+  text-indent: 0.34em; /* optically center letterspaced caps */
+  color: var(--au-ink);
+}
+.au-logo .tagline {
+  margin-top: 6px;
+  font: 600 9px/1 var(--au-font-ui);
+  letter-spacing: 0.32em;
+  text-indent: 0.32em;
+  color: var(--au-muted);
+  text-transform: uppercase;
+}
+.au-logo:hover .name {
+  color: var(--au-ink);
+}
+
+.au-header-icons {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+.au-icon-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  color: var(--au-ink);
+  transition: background 0.15s;
+}
+.au-icon-btn:hover {
+  background: var(--au-surface);
+}
+.au-icon-btn .badge {
+  position: absolute;
+  top: 4px;
+  right: 2px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--au-gold);
+  color: #fff;
+  font: 700 9.5px/15px var(--au-font-ui);
+  text-align: center;
+}
+
+/* ---- Category nav ---- */
+.au-nav {
+  border-top: 1px solid var(--au-line);
+  border-bottom: 1px solid var(--au-line);
+  background: var(--au-bg);
+  position: sticky;
+  top: 0;
+  z-index: 400;
+}
+.au-nav-in {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.au-nav-in::-webkit-scrollbar {
+  display: none;
+}
+.au-nav a {
+  flex: none;
+  padding: 15px 14px 15px; /* ~15px air on both sides of the nav divider lines */
+  font: 600 13px/1 var(--au-font-ui);
+  letter-spacing: 0.04em;
+  color: var(--au-ink-soft);
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+}
+.au-nav a:hover {
+  color: var(--au-ink);
+}
+.au-nav a.is-active {
+  color: var(--au-ink);
+  border-bottom-color: var(--au-gold);
+}
+
+/* ============ Responsive ============ */
+/* Large desktops (2560×1440 etc.): scale up header typography & vertical
+   padding so the bar doesn't look microscopic. Content stays centred via
+   .au-container — only the header chrome breathes more, it is not stretched. */
+@media (min-width: 1800px) {
+  .au-topbar-in {
+    min-height: 50px;
+    font-size: 13px;
+  }
+  .au-logo .name {
+    font-size: 40px;
+  }
+  .au-logo .tagline {
+    font-size: 10px;
+  }
+  .au-search input {
+    font-size: 14px;
+  }
+  .au-nav a {
+    padding: 20px 16px 17px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .au-header-in {
+    grid-template-columns: auto 1fr auto;
+  }
+  .au-search {
+    max-width: 200px;
+  }
+}
+
+@media (max-width: 640px) {
+  .au-topbar-links {
+    display: none;
+  }
+  .au-topbar-in {
+    justify-content: center;
+  }
+  .au-header-in {
+    grid-template-columns: 40px 1fr auto;
+    gap: 8px;
+  }
+  .au-search {
+    max-width: 40px;
+    border-bottom: none;
+    justify-content: center;
+  }
+  .au-search input {
+    display: none;
+  }
+  .au-logo .name {
+    font-size: 24px;
+  }
+  .au-logo .tagline {
+    font-size: 7px;
+  }
+  .au-header-icons {
+    gap: 0;
+  }
+  /* On narrow screens the nav scrolls horizontally from the start
+     so the first items are never clipped by center justification. */
+  .au-nav-in {
+    justify-content: flex-start;
+  }
+}

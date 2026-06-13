@@ -1,0 +1,274 @@
+/* ============================================================
+   AURELIA — Product page styles
+   Source: docs/design/aurelia-prototype/aurelia.css
+   Scope: product layout (gallery + info), variants, buy row, perks,
+   tabs, specs, reviews empty state.
+   Shared primitives (au-ph gallery, au-card/au-grid, au-btn, au-section,
+   view toggle) come from blocks.css / card.css (global).
+   ============================================================ */
+
+/* ============ Product layout ============ */
+.au-product {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 48px;
+  align-items: start;
+  padding-top: 16px;
+}
+
+/* ---- Gallery thumbnails ---- */
+.au-gallery-thumbs {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+.au-gallery-thumbs .thumb {
+  width: 72px;
+  height: 72px;
+  border: 1px solid var(--au-line);
+  border-radius: var(--au-radius);
+  background: var(--au-surface-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--au-faint);
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.au-gallery-thumbs .thumb:hover,
+.au-gallery-thumbs .thumb.is-active {
+  border-color: var(--au-gold-soft);
+}
+
+/* ---- Info ---- */
+.au-prod-brand {
+  font: 600 12px/1 var(--au-font-ui);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--au-gold);
+  margin: 4px 0 10px;
+}
+.au-prod-title {
+  margin: 0 0 14px;
+  font: 500 30px/1.25 var(--au-font-display);
+  letter-spacing: 0.03em;
+}
+.au-prod-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--au-line);
+  margin-bottom: 18px;
+  font: 400 12.5px/1 var(--au-font-ui);
+  color: var(--au-muted);
+}
+.au-prod-meta .au-stars {
+  color: var(--au-line-strong);
+}
+.au-prod-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+.au-prod-price {
+  font: 700 28px/1 var(--au-font-ui);
+  letter-spacing: 0.01em;
+}
+.au-prod-price.dim {
+  color: var(--au-faint);
+  font-weight: 600;
+}
+.au-prod-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font: 600 12.5px/1 var(--au-font-ui);
+  color: var(--au-muted);
+  margin-bottom: 20px;
+}
+.au-prod-status .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--au-gold-soft);
+}
+
+/* ---- Variants ---- */
+.au-variants {
+  margin-bottom: 22px;
+}
+.au-variants .lbl {
+  font: 600 11.5px/1 var(--au-font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--au-muted);
+  margin-bottom: 9px;
+}
+.au-variant-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.au-variant {
+  border: 1px solid var(--au-line-strong);
+  border-radius: var(--au-radius);
+  background: #fff;
+  padding: 10px 16px;
+  font: 600 13px/1 var(--au-font-ui);
+  color: var(--au-ink-soft);
+  transition: border-color 0.15s, color 0.15s;
+}
+.au-variant:hover {
+  border-color: var(--au-ink);
+  color: var(--au-ink);
+}
+.au-variant.is-active {
+  border-color: var(--au-ink);
+  color: var(--au-ink);
+  background: var(--au-surface-2);
+}
+
+/* ---- Buy row + notify ---- */
+.au-buy-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.au-buy-row .au-btn--primary {
+  flex: 1;
+  padding: 15px;
+  font-size: 14px;
+}
+.au-buy-row .au-act-ico {
+  width: 50px;
+  height: 50px;
+}
+.au-prod-notify {
+  margin: -12px 0 24px;
+}
+
+/* ---- Perks ---- */
+.au-prod-perks {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px solid var(--au-line);
+  padding-top: 18px;
+}
+.au-prod-perk {
+  display: flex;
+  gap: 11px;
+  align-items: center;
+  font: 400 13px/1.4 var(--au-font-ui);
+  color: var(--au-ink-soft);
+}
+.au-prod-perk svg {
+  color: var(--au-gold);
+  flex: none;
+}
+
+/* ============ Tabs ============ */
+.au-tabs {
+  border-bottom: 1px solid var(--au-line);
+  display: flex;
+  gap: 4px;
+  margin-top: 52px;
+}
+.au-tab {
+  border: none;
+  background: transparent;
+  padding: 15px 18px; /* ~15px air above the tabs divider line */
+  font: 600 13.5px/1 var(--au-font-ui);
+  letter-spacing: 0.03em;
+  color: var(--au-muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.au-tab:hover {
+  color: var(--au-ink);
+}
+.au-tab.is-active {
+  color: var(--au-ink);
+  border-bottom-color: var(--au-gold);
+}
+.au-tab-panel {
+  padding: 24px 2px;
+  font: 400 14px/1.7 var(--au-font-ui);
+  color: var(--au-ink-soft);
+  max-width: 760px;
+}
+.au-tab-panel[hidden] {
+  display: none;
+}
+.au-spec {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 8px 24px;
+  font-size: 13.5px;
+}
+.au-spec dt {
+  color: var(--au-muted);
+}
+.au-spec dd {
+  margin: 0;
+  color: var(--au-ink-soft);
+}
+
+/* ============ Reviews empty state ============ */
+.au-reviews-empty {
+  border: 1px solid var(--au-line);
+  border-radius: var(--au-radius-lg);
+  padding: 44px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.au-reviews-empty-ico {
+  color: var(--au-gold-soft);
+}
+.au-reviews-empty .h {
+  font: 500 20px/1.3 var(--au-font-display);
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+.au-reviews-empty .p {
+  font: 400 13px/1.6 var(--au-font-ui);
+  color: var(--au-muted);
+  margin: 0;
+  max-width: 380px;
+}
+
+/* ============ Responsive ============ */
+@media (max-width: 1024px) {
+  .au-product {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  .au-prod-title {
+    font-size: 24px;
+  }
+  /* Tabs scroll horizontally instead of forcing page overflow. */
+  .au-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-top: 36px;
+  }
+  .au-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .au-tab {
+    flex: none;
+  }
+  .au-spec {
+    grid-template-columns: 120px 1fr;
+  }
+}

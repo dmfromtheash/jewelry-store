@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 Components — AURELIA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Cormorant+Garamond:wght@500;600&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles/aurelia.css">
+</head>
+<body data-view="admin" data-screen-label="01 Компоненты">
+<div class="au-showcase">
+  <div class="au-container">
+    <div class="au-showcase-head">
+      <h1>01 · Компоненты</h1>
+      <p>Header, навигация, карточка товара, фильтры, хлебные крошки и footer — в изоляции. Переключатель «Админ / Покупатель» внизу слева меняет состояние placeholders.</p>
+      <p style="margin-top: 10px;"><a href="index.html" style="font-weight: 700; color: var(--au-gold);">← Ко всем страницам</a></p>
+    </div>
+
+    <div class="au-frame">
+      <p class="au-frame-label">Header <span class="note">top bar + логотип + поиск + иконки + меню категорий</span></p>
+      <div class="au-frame-card" style="padding: 0; overflow: hidden;">
+        <div class="au-topbar">
+          <div class="au-container au-topbar-in">
+            <nav class="au-topbar-links">
+              <a href="#">Доставка и оплата</a>
+              <a href="#">Возврат</a>
+              <a href="#">Магазины</a>
+              <a href="#">Помощь</a>
+            </nav>
+            <div class="au-topbar-right">
+              <span class="phone">8 800 600-20-26</span>
+              <a href="#">RU</a>
+            </div>
+          </div>
+        </div>
+        <header class="au-header">
+          <div class="au-container au-header-in">
+            <div class="au-search">
+              <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="9" r="6.5"></circle><path d="M14 14l4.5 4.5"></path></svg>
+              <input type="search" placeholder="Поиск украшений" aria-label="Поиск">
+            </div>
+            <a class="au-logo" href="02 Home Page.html">
+              <span class="name">AURELIA</span>
+              <span class="tagline">Bijouterie without limits</span>
+            </a>
+            <div class="au-header-icons">
+              <button class="au-icon-btn" type="button" data-open-login aria-label="Профиль">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="3.6"></circle><path d="M4.5 20c1.4-3.4 4.2-5 7.5-5s6.1 1.6 7.5 5"></path></svg>
+              </button>
+              <button class="au-icon-btn" type="button" aria-label="Избранное">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20s-7.5-4.6-9.3-9.2C1.5 7.6 3.6 4.5 6.9 4.5c2 0 3.6 1.1 5.1 3 1.5-1.9 3.1-3 5.1-3 3.3 0 5.4 3.1 4.2 6.3C19.5 15.4 12 20 12 20z"></path></svg>
+                <span class="badge">2</span>
+              </button>
+              <button class="au-icon-btn" type="button" aria-label="Корзина">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 8h14l-1.2 11.2a1.8 1.8 0 0 1-1.8 1.6H8a1.8 1.8 0 0 1-1.8-1.6L5 8z"></path><path d="M8.5 10V6.8a3.5 3.5 0 0 1 7 0V10"></path></svg>
+                <span class="badge">1</span>
+              </button>
+            </div>
+          </div>
+        </header>
+        <nav class="au-nav" style="position: static;" aria-label="Категории">
+          <div class="au-container au-nav-in">
+            <a href="04 Category Bijouterie.html" class="is-active">Бижутерия</a>
+            <a href="#">Серьги</a>
+            <a href="#">Кольца</a>
+            <a href="#">Браслеты</a>
+            <a href="#">Цепочки</a>
+            <a href="#">Кулоны</a>
+            <a href="#">Наборы</a>
+            <a href="#">Аксессуары</a>
+            <a href="03 Category Gifts.html">Подарки</a>
+            <a href="#">Бренды</a>
+          </div>
+        </nav>
+      </div>
+    </div>
+
+    <div class="au-frame">
+      <p class="au-frame-label">Карточка товара <span class="note">пустая · наведите курсор, чтобы увидеть действия</span></p>
+      <div class="au-frame-card">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 270px)); gap: 20px;">
+          <article class="au-card">
+            <span class="au-card-tag au-card-tag--gold">New</span>
+            <div class="au-card-media">
+              <span class="dash only-admin"></span>
+              <div class="only-admin">
+                <span class="au-ph-plus"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 5v14M5 12h14"></path></svg></span>
+                <span class="t">Добавить товар</span>
+                <span class="s">Нажмите, чтобы загрузить изображение</span>
+              </div>
+              <div class="only-customer">
+                <span class="au-ph-gem"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M7 4h10l4 5-9 11L3 9l4-5z"></path><path d="M3 9h18"></path></svg></span>
+                <span class="t-cust">Скоро будет добавлен товар</span>
+              </div>
+            </div>
+            <div class="au-card-body">
+              <h3 class="au-card-name">Украшение AURELIA</h3>
+              <p class="au-card-cat">Серьги · позолота</p>
+              <div class="au-card-meta"><span class="au-stars">★★★★★</span><span class="au-card-reviews">0 отзывов</span></div>
+              <div class="au-card-price"><span class="dim">— ₽</span></div>
+              <div class="au-card-actions-slot"></div>
+              <div class="au-card-actions">
+                <a class="au-btn au-btn--primary buy" href="05 Product Page.html">Купить</a>
+                <button class="au-act-ico" type="button" data-fav aria-label="В избранное"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20s-7.5-4.6-9.3-9.2C1.5 7.6 3.6 4.5 6.9 4.5c2 0 3.6 1.1 5.1 3 1.5-1.9 3.1-3 5.1-3 3.3 0 5.4 3.1 4.2 6.3C19.5 15.4 12 20 12 20z"></path></svg></button>
+                <a class="au-act-ico" href="05 Product Page.html" aria-label="Быстрый просмотр"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"></path><circle cx="12" cy="12" r="2.8"></circle></svg></a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="au-frame">
+      <p class="au-frame-label">Фильтры категории + хлебные крошки + пагинация</p>
+      <div class="au-frame-card">
+        <nav class="au-crumbs" style="padding-top: 0;" aria-label="Хлебные крошки">
+          <a href="02 Home Page.html">Главная</a>
+          <span class="sep">/</span>
+          <a href="03 Category Gifts.html">Подарки</a>
+          <span class="sep">/</span>
+          <span class="current">Наборы</span>
+        </nav>
+        <div style="display: grid; grid-template-columns: 232px 1fr; gap: 36px; margin-top: 12px;">
+          <aside class="au-filters" style="display: block;">
+            <div class="au-filter-group">
+              <div class="au-filter-head">Цена, ₽ <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg></div>
+              <div class="au-filter-body">
+                <div class="au-price-inputs">
+                  <input type="text" placeholder="от 0" aria-label="Цена от">
+                  <span class="dash">—</span>
+                  <input type="text" placeholder="до 10 000" aria-label="Цена до">
+                </div>
+              </div>
+            </div>
+            <div class="au-filter-group">
+              <div class="au-filter-head">Покрытие <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg></div>
+              <div class="au-filter-body">
+                <label class="au-check"><input type="checkbox" checked><span class="box"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12l5 5L20 7"></path></svg></span>Позолота<span class="n">0</span></label>
+                <label class="au-check"><input type="checkbox"><span class="box"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12l5 5L20 7"></path></svg></span>Родирование<span class="n">0</span></label>
+                <label class="au-check"><input type="checkbox"><span class="box"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12l5 5L20 7"></path></svg></span>Сталь<span class="n">0</span></label>
+              </div>
+            </div>
+            <button class="au-btn au-btn--ghost au-filter-apply" type="button">Применить фильтры</button>
+          </aside>
+          <div>
+            <div class="au-toolbar" style="margin-top: 0;">
+              <div class="au-sort">
+                <span>Сортировка:</span>
+                <select aria-label="Сортировка">
+                  <option>По популярности</option>
+                  <option>Сначала новинки</option>
+                </select>
+              </div>
+            </div>
+            <nav class="au-pagination" style="padding-top: 8px;" aria-label="Страницы">
+              <button class="au-page-btn" type="button" aria-label="Назад"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"></path></svg></button>
+              <button class="au-page-btn is-active" type="button">1</button>
+              <button class="au-page-btn" type="button">2</button>
+              <button class="au-page-btn" type="button">3</button>
+              <button class="au-page-btn dots" type="button">…</button>
+              <button class="au-page-btn" type="button">12</button>
+              <button class="au-page-btn" type="button" aria-label="Вперёд"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"></path></svg></button>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="au-frame">
+      <p class="au-frame-label">Footer</p>
+      <div class="au-frame-card" style="padding: 0; overflow: hidden;">
+        <footer class="au-footer" style="margin-top: 0; border-top: none;">
+          <div class="au-footer-sub">
+            <div class="au-container au-footer-sub-in">
+              <div>
+                <p class="h">Будьте первыми</p>
+                <p class="p">Новые коллекции, закрытые распродажи и идеи подарков — раз в неделю</p>
+              </div>
+              <form class="au-sub-form" onsubmit="return false;">
+                <input type="email" placeholder="Ваш e-mail" aria-label="E-mail для рассылки">
+                <button class="au-btn au-btn--primary" type="submit">Подписаться</button>
+              </form>
+            </div>
+          </div>
+          <div class="au-container au-footer-cols">
+            <div class="au-footer-brand">
+              <div class="name">AURELIA</div>
+              <div class="tag">Bijouterie without limits</div>
+              <p class="p">Современная бижутерия и аксессуары. Дизайн-прототип интернет-магазина.</p>
+            </div>
+            <div class="au-footer-col">
+              <p class="h">Покупателям</p>
+              <ul>
+                <li><a href="#">Доставка и оплата</a></li>
+                <li><a href="#">Возврат и обмен</a></li>
+                <li><a href="#">Бонусная программа</a></li>
+              </ul>
+            </div>
+            <div class="au-footer-col">
+              <p class="h">Компания</p>
+              <ul>
+                <li><a href="#">О бренде</a></li>
+                <li><a href="#">Магазины</a></li>
+                <li><a href="#">Контакты</a></li>
+              </ul>
+            </div>
+            <div class="au-footer-col">
+              <p class="h">Помощь</p>
+              <ul>
+                <li><a href="#">Вопросы и ответы</a></li>
+                <li><a href="#">Уход за украшениями</a></li>
+                <li><a href="#" data-open-login>Личный кабинет</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="au-footer-bottom">
+            <div class="au-container au-footer-bottom-in">
+              <span>© 2026 AURELIA. Дизайн-прототип.</span>
+              <div class="au-pay" aria-label="Способы оплаты"><span></span><span></span><span></span><span></span></div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="scripts/aurelia.js"></script>
+<style id="__om-edit-overrides"></style>
+</body>
+</html>

@@ -1,0 +1,46 @@
+/* ============================================================
+   AURELIA — Design tokens
+   Source: docs/design/aurelia-prototype/aurelia.css
+   Transferred: base variables only (colors, type, layout).
+   Components (header, footer, cards, modals etc.) are added
+   in subsequent stages — see plan in docs/.
+   ============================================================ */
+
+:root {
+  /* ---- Colors ---- */
+  --au-bg: #FFFFFF;
+  --au-surface: #F7F5F2;        /* soft warm panel */
+  --au-surface-2: #FBFAF8;      /* near-white warm */
+  --au-ink: #1C1B19;            /* deep graphite */
+  --au-ink-soft: #55524C;
+  --au-muted: #8A867F;          /* secondary text */
+  --au-faint: #B5B1A9;
+  --au-line: #E8E5E0;           /* light dividers */
+  --au-line-strong: #D8D4CD;
+  --au-gold: #A88A58;           /* warm gold-beige accent */
+  --au-gold-soft: #C7B695;
+  --au-gold-tint: #F4EFE6;
+  --au-danger: #B0563E;
+
+  /* ---- Typography ---- */
+  --au-font-ui: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --au-font-display: "Cormorant Garamond", Georgia, serif;
+
+  /* ---- Layout ---- */
+  /*
+   * TODO [Responsive Polish]:
+   * Проверить на 2560×1440 и 1920×1080.
+   * При необходимости поднять --au-max до 1360–1440px.
+   * Контент ВСЕГДА центрирован и НЕ растягивается на всю ширину.
+   * Подробнее — см. Responsive/Overflow plan в docs/design/.
+   */
+  --au-max: 1280px;
+
+  /* ---- Radii ---- */
+  --au-radius: 6px;
+  --au-radius-lg: 10px;
+
+  /* ---- Shadows ---- */
+  --au-shadow: 0 10px 32px rgba(28, 27, 25, 0.10);
+  --au-shadow-soft: 0 4px 16px rgba(28, 27, 25, 0.06);
+}

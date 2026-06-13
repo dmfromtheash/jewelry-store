@@ -1,0 +1,307 @@
+/* ============================================================
+   AURELIA — Category page styles
+   Source: docs/design/aurelia-prototype/aurelia.css
+   Scope: breadcrumbs, page title, two-column category layout, sidebar
+   filters, quick chips, toolbar, product grid, pagination.
+   Shared primitives (au-ph, au-card, au-seo, view toggle) come from
+   blocks.css / card.css (global). Relies on tokens + .au-container.
+   ============================================================ */
+
+/* ============ Breadcrumbs ============ */
+.au-crumbs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 18px 0 6px;
+  font: 400 12px/1 var(--au-font-ui);
+  color: var(--au-muted);
+}
+.au-crumbs .sep {
+  color: var(--au-line-strong);
+}
+.au-crumbs a:hover {
+  color: var(--au-ink);
+}
+.au-crumbs .current {
+  color: var(--au-ink-soft);
+}
+
+/* ============ Page title ============ */
+.au-page-title {
+  margin: 10px 0 4px;
+  font: 500 34px/1.15 var(--au-font-display);
+  letter-spacing: 0.05em;
+}
+.au-page-count {
+  font: 400 12.5px/1 var(--au-font-ui);
+  color: var(--au-muted);
+}
+
+/* ============ Layout ============ */
+.au-cat-layout {
+  display: grid;
+  grid-template-columns: 232px 1fr;
+  gap: 36px;
+  align-items: start;
+  padding-top: 8px;
+}
+.au-cat-content {
+  min-width: 0; /* allow grids to shrink inside the layout column */
+}
+/* Category banners share the product grid's column track system (same
+   repeat(3, 1fr) basis), with the placeholder spanning every column. This
+   makes a banner's width derive from the exact same columns as the card row,
+   so its right edge always lines up with the rightmost product card instead
+   of stretching to the full content column. */
+.au-cat-banner,
+.au-cat-midbanner {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.au-cat-banner > .au-ph,
+.au-cat-midbanner > .au-ph {
+  grid-column: 1 / -1;
+  min-width: 0;
+  width: 100%;
+}
+.au-cat-banner {
+  margin-bottom: 24px;
+}
+.au-cat-midbanner {
+  margin: 20px 0;
+}
+
+/* ============ Sidebar filters ============ */
+.au-filters {
+  font-size: 13px;
+}
+.au-filter-group {
+  border-bottom: 1px solid var(--au-line);
+  padding: 16px 0;
+}
+.au-filter-group:first-child {
+  padding-top: 4px;
+}
+.au-filter-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font: 700 12px/1 var(--au-font-ui);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--au-ink);
+  padding: 4px 0;
+}
+.au-filter-head svg {
+  color: var(--au-muted);
+}
+.au-filter-body {
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.au-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--au-ink-soft);
+  cursor: pointer;
+}
+.au-check:hover {
+  color: var(--au-ink);
+}
+.au-check input {
+  display: none;
+}
+.au-check .box {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--au-line-strong);
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+  background: #fff;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+.au-check input:checked + .box {
+  background: var(--au-ink);
+  border-color: var(--au-ink);
+  color: #fff;
+}
+.au-check .n {
+  color: var(--au-faint);
+  font-size: 11.5px;
+  margin-left: auto;
+}
+.au-price-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.au-price-inputs input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--au-line-strong);
+  border-radius: var(--au-radius);
+  padding: 8px 10px;
+  font: 400 12.5px/1 var(--au-font-ui);
+  color: var(--au-ink);
+  outline: none;
+}
+.au-price-inputs input:focus {
+  border-color: var(--au-gold-soft);
+}
+.au-price-inputs .dash {
+  color: var(--au-faint);
+}
+.au-filter-apply {
+  margin-top: 14px;
+  width: 100%;
+  padding: 11px;
+}
+
+/* ============ Quick chips ============ */
+.au-chip-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+.au-chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--au-line-strong);
+  background: #fff;
+  border-radius: 999px;
+  padding: 7px 14px;
+  font: 600 12px/1 var(--au-font-ui);
+  color: var(--au-ink-soft);
+  white-space: nowrap;
+  transition: border-color 0.15s, color 0.15s;
+}
+.au-chip:hover,
+.au-chip.is-active {
+  border-color: var(--au-ink);
+  color: var(--au-ink);
+}
+
+/* ============ Toolbar ============ */
+.au-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 15px 0; /* ~15px air above the toolbar divider line */
+  border-bottom: 1px solid var(--au-line);
+  margin-bottom: 22px;
+}
+.au-sort {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 400 13px/1 var(--au-font-ui);
+  color: var(--au-muted);
+}
+.au-sort select {
+  border: none;
+  background: transparent;
+  font: 600 13px/1.2 var(--au-font-ui);
+  color: var(--au-ink);
+  outline: none;
+  cursor: pointer;
+}
+/* "Фильтры" jump link is mobile-only (filters live in the sidebar on
+   desktop, and stack below products on small screens). */
+.au-filters-jump {
+  display: none;
+  padding: 9px 16px;
+  font-size: 12px;
+}
+
+/* ============ Product grid ============ */
+.au-cat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* ============ Pagination ============ */
+.au-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 36px 0 8px;
+}
+.au-page-btn {
+  min-width: 38px;
+  height: 38px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: var(--au-radius);
+  font: 600 13px/1 var(--au-font-ui);
+  color: var(--au-ink-soft);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, color 0.15s;
+}
+.au-page-btn:hover {
+  border-color: var(--au-line-strong);
+}
+.au-page-btn.is-active {
+  border-color: var(--au-ink);
+  color: var(--au-ink);
+}
+.au-page-btn.dots {
+  pointer-events: none;
+  color: var(--au-faint);
+}
+
+/* ============ Responsive ============ */
+@media (max-width: 1024px) {
+  /* Single column: products first, filters stacked below and fully
+     accessible; the toolbar "Фильтры" link jumps down to #filters. */
+  .au-cat-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .au-cat-content {
+    order: 1;
+  }
+  .au-filters {
+    order: 2;
+    border-top: 1px solid var(--au-line);
+    padding-top: 8px;
+  }
+  .au-filters-jump {
+    display: inline-flex;
+  }
+}
+
+@media (max-width: 640px) {
+  .au-page-title {
+    font-size: 26px;
+  }
+  .au-cat-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  /* Chips scroll horizontally instead of wrapping on narrow screens. */
+  .au-chip-row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .au-chip-row::-webkit-scrollbar {
+    display: none;
+  }
+}

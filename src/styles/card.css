@@ -1,0 +1,210 @@
+/* ============================================================
+   AURELIA — Product card styles
+   Source: docs/design/aurelia-prototype/aurelia.css
+   Scope: card grid + .au-card (media placeholder, body, hover
+   actions). Relies on tokens (--au-*); the .au-btn primitive used
+   by the "Купить" button is defined in footer.css (global).
+   ============================================================ */
+
+/* ---- Card grid ---- */
+.au-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+/* ---- Card ---- */
+.au-card {
+  position: relative;
+  background: var(--au-bg);
+  border: 1px solid var(--au-line);
+  border-radius: var(--au-radius-lg);
+  padding: 14px 14px 16px;
+  transition: box-shadow 0.18s, border-color 0.18s;
+}
+.au-card:hover {
+  border-color: var(--au-line-strong);
+  box-shadow: var(--au-shadow);
+  z-index: 5;
+}
+.au-card-media {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--au-radius);
+  background: var(--au-surface);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  padding: 14px;
+  overflow: hidden;
+}
+.au-card-media .only-admin,
+.au-card-media .only-customer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.au-card-media .dash {
+  position: absolute;
+  inset: 8px;
+  border: 1.5px dashed var(--au-line-strong);
+  border-radius: 4px;
+  pointer-events: none;
+  transition: border-color 0.15s;
+}
+.au-card:hover .au-card-media .dash {
+  border-color: var(--au-gold-soft);
+}
+.au-card-media .au-ph-plus {
+  width: 40px;
+  height: 40px;
+  background: #fff;
+}
+.au-card-media .t {
+  font: 600 13.5px/1.3 var(--au-font-ui);
+  color: var(--au-ink-soft);
+}
+.au-card-media .s {
+  font: 400 11px/1.45 var(--au-font-ui);
+  color: var(--au-muted);
+  max-width: 170px;
+}
+.au-card-media .t-cust {
+  font: 500 14.5px/1.4 var(--au-font-display);
+  letter-spacing: 0.04em;
+  color: var(--au-ink-soft);
+  max-width: 180px;
+}
+
+.au-card-tag {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  background: var(--au-ink);
+  color: #fff;
+  font: 700 9.5px/1 var(--au-font-ui);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 5px 8px;
+  border-radius: 3px;
+}
+.au-card-tag--gold {
+  background: var(--au-gold);
+}
+
+.au-card-body {
+  padding-top: 12px;
+}
+.au-card-name {
+  font: 600 14px/1.35 var(--au-font-ui);
+  color: var(--au-ink);
+  margin: 0 0 3px;
+}
+.au-card-cat {
+  font: 400 12px/1.4 var(--au-font-ui);
+  color: var(--au-muted);
+  margin: 0 0 10px;
+}
+.au-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.au-stars {
+  display: inline-flex;
+  gap: 2px;
+  color: var(--au-line-strong);
+}
+.au-card-reviews {
+  font: 400 11.5px/1 var(--au-font-ui);
+  color: var(--au-faint);
+}
+.au-card-price {
+  margin-top: 9px;
+  font: 700 15px/1 var(--au-font-ui);
+  letter-spacing: 0.02em;
+}
+.au-card-price .dim {
+  color: var(--au-faint);
+  font-weight: 500;
+}
+
+/* ---- Hover actions ----
+   Slide into a reserved slot BELOW the body so the media/placeholder is
+   never covered; the slot reserves height so layout never jumps. */
+.au-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  opacity: 0;
+  transform: translateY(4px);
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.au-card:hover .au-card-actions {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.au-card-actions-slot {
+  height: 48px;
+  margin-bottom: -48px;
+}
+.au-card-actions .buy {
+  flex: 1;
+  padding: 12px 10px;
+}
+.au-act-ico {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--au-line-strong);
+  border-radius: var(--au-radius);
+  background: #fff;
+  color: var(--au-ink-soft);
+  transition: border-color 0.15s, color 0.15s;
+}
+.au-act-ico:hover {
+  border-color: var(--au-gold);
+  color: var(--au-gold);
+}
+
+/* ============ Responsive ============ */
+@media (max-width: 1024px) {
+  .au-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .au-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .au-card {
+    padding: 10px 10px 12px;
+  }
+  /* On touch screens actions are always visible (no hover) and the
+     reserved slot is removed so cards stay compact. */
+  .au-card-actions-slot {
+    display: none;
+  }
+  .au-card-actions {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+  .au-card-actions .buy {
+    padding: 11px 8px;
+    font-size: 12px;
+  }
+}

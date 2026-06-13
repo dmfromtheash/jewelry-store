@@ -1,0 +1,144 @@
+/* ============================================================
+   AURELIA — Home page styles
+   Source: docs/design/aurelia-prototype/aurelia.css
+   Scope: section headings, category circles, promo grids, benefits.
+   Shared primitives (placeholders au-ph, SEO block, view toggle) live
+   in blocks.css; product cards in card.css — both global.
+   Relies on tokens (--au-*) and .au-container (globals.css).
+   ============================================================ */
+
+/* ============ Section heading modifiers (home) ============
+   Base .au-section / -head / -title / -link live in blocks.css (global). */
+.au-section--hero {
+  padding-top: 28px;
+}
+.au-section--cats {
+  padding-top: 36px;
+}
+
+/* ---- Two promo banners grid ---- */
+.au-home-banners {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* ---- Three square promo blocks grid ---- */
+.au-home-squares {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* ============ Category circles ============ */
+.au-cats {
+  display: flex;
+  justify-content: center;
+  gap: 26px;
+  flex-wrap: wrap;
+}
+.au-cat-circle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 84px;
+  text-align: center;
+}
+.au-cat-circle .disc {
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  background: var(--au-surface);
+  border: 1px solid var(--au-line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--au-gold-soft);
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.au-cat-circle:hover .disc {
+  border-color: var(--au-gold-soft);
+  color: var(--au-gold);
+  background: var(--au-gold-tint);
+}
+.au-cat-circle .lbl {
+  font: 600 11.5px/1.3 var(--au-font-ui);
+  color: var(--au-ink-soft);
+}
+
+/* ============ Benefits strip ============ */
+.au-benefits {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  padding: 40px 0 8px;
+}
+.au-benefit {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 18px;
+  border: 1px solid var(--au-line);
+  border-radius: var(--au-radius-lg);
+}
+.au-benefit .ico {
+  color: var(--au-gold);
+  flex: none;
+  margin-top: 2px;
+}
+.au-benefit .h {
+  font: 700 13.5px/1.3 var(--au-font-ui);
+  margin: 0 0 3px;
+}
+.au-benefit .p {
+  font: 400 12.5px/1.5 var(--au-font-ui);
+  color: var(--au-muted);
+  margin: 0;
+}
+
+/* ============ Responsive ============ */
+/* Large desktops: give the home page a bit more vertical rhythm and a
+   slightly taller hero so it reads as composed (not tiny) — content stays
+   centred within .au-container, it is not stretched. */
+@media (min-width: 1800px) {
+  .au-section {
+    padding: 56px 0 8px;
+  }
+  .au-section--hero {
+    padding-top: 36px;
+  }
+  .au-section-title {
+    font-size: 30px;
+  }
+  .au-ph--hero {
+    min-height: 340px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .au-benefits {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .au-section {
+    padding: 32px 0 4px;
+  }
+  .au-section-title {
+    font-size: 21px;
+  }
+  .au-cats {
+    gap: 16px;
+  }
+  .au-home-banners {
+    grid-template-columns: 1fr;
+  }
+  .au-home-squares {
+    grid-template-columns: 1fr;
+  }
+  .au-benefits {
+    grid-template-columns: 1fr;
+  }
+}
