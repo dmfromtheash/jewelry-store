@@ -1,0 +1,132 @@
+/* ============================================================
+   AURELIA — Auth modal styles
+   Source: docs/design/aurelia-prototype/aurelia.css
+   Scope: login / register modal overlay + window + form fields.
+   Relies on tokens (--au-*) and the global .au-btn primitive (blocks.css).
+   Imported globally via globals.css (modals can open on any route).
+   ============================================================ */
+
+.au-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  background: rgba(28, 27, 25, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  overflow-y: auto;
+}
+.au-modal-overlay.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.au-modal {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: var(--au-radius-lg);
+  box-shadow: var(--au-shadow);
+  padding: 36px 36px 32px;
+  position: relative;
+  transform: translateY(10px) scale(0.985);
+  transition: transform 0.2s ease;
+}
+.au-modal-overlay.is-open .au-modal {
+  transform: translateY(0) scale(1);
+}
+.au-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  color: var(--au-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.au-modal-close:hover {
+  background: var(--au-surface);
+  color: var(--au-ink);
+}
+.au-modal-brand {
+  text-align: center;
+  font: 600 17px/1 var(--au-font-display);
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+  color: var(--au-gold);
+  margin-bottom: 14px;
+}
+.au-modal h2 {
+  margin: 0 0 22px;
+  text-align: center;
+  font: 600 21px/1.3 var(--au-font-ui);
+  letter-spacing: 0.01em;
+}
+.au-field {
+  margin-bottom: 14px;
+}
+.au-field label {
+  display: block;
+  font: 600 11.5px/1 var(--au-font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--au-muted);
+  margin-bottom: 7px;
+}
+.au-field input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--au-line-strong);
+  border-radius: var(--au-radius);
+  padding: 12px 14px;
+  font: 400 14px/1.3 var(--au-font-ui);
+  color: var(--au-ink);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.au-field input:focus {
+  border-color: var(--au-gold);
+}
+.au-modal .au-btn--block {
+  margin-top: 6px;
+  padding: 14px;
+}
+.au-modal-aux {
+  display: flex;
+  justify-content: center;
+  margin-top: 14px;
+}
+.au-modal-aux a {
+  font: 400 12.5px/1 var(--au-font-ui);
+  color: var(--au-muted);
+  border-bottom: 1px dotted var(--au-line-strong);
+  padding-bottom: 1px;
+}
+.au-modal-aux a:hover {
+  color: var(--au-gold);
+  border-color: var(--au-gold-soft);
+}
+.au-modal-switch {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--au-line);
+  text-align: center;
+  font: 400 13px/1.4 var(--au-font-ui);
+  color: var(--au-muted);
+}
+.au-modal-switch a {
+  color: var(--au-ink);
+  font-weight: 700;
+}
+.au-modal-switch a:hover {
+  color: var(--au-gold);
+}

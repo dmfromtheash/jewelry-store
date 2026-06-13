@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import ProfileButton from '../auth/ProfileButton'
 
 /**
  * AURELIA — Header (server component)
@@ -70,12 +71,7 @@ export default function Header() {
           </Link>
 
           <div className="au-header-icons">
-            <button className="au-icon-btn" type="button" aria-label="Профиль">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-                <circle cx="12" cy="8" r="3.6" />
-                <path d="M4.5 20c1.4-3.4 4.2-5 7.5-5s6.1 1.6 7.5 5" />
-              </svg>
-            </button>
+            <ProfileButton />
             <button className="au-icon-btn" type="button" aria-label="Избранное">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
                 <path d="M12 20s-7.5-4.6-9.3-9.2C1.5 7.6 3.6 4.5 6.9 4.5c2 0 3.6 1.1 5.1 3 1.5-1.9 3.1-3 5.1-3 3.3 0 5.4 3.1 4.2 6.3C19.5 15.4 12 20 12 20z" />

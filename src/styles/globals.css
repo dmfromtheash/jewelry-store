@@ -9,6 +9,7 @@
 @import './footer.css';
 @import './blocks.css';
 @import './card.css';
+@import './auth.css';
 
 /* ---- Box model reset ---- */
 *,

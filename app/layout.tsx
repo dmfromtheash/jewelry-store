@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import '../src/styles/globals.css'
 import Header from '../src/components/layout/Header'
 import Footer from '../src/components/layout/Footer'
+import AuthModalProvider from '../src/components/auth/AuthModalProvider'
 
 export const metadata: Metadata = {
   title: 'AURELIA — Bijouterie Without Limits',
@@ -26,10 +27,13 @@ export default function RootLayout({
         />
       </head>
       <body>
-        {/* Единые Header / Footer для всех страниц — без копипасты. */}
-        <Header />
-        <main className="au-main">{children}</main>
-        <Footer />
+        {/* AuthModalProvider — client-обёртка: даёт контекст модалок входа/
+            регистрации; Header/Footer остаются server-компонентами. */}
+        <AuthModalProvider>
+          <Header />
+          <main className="au-main">{children}</main>
+          <Footer />
+        </AuthModalProvider>
       </body>
     </html>
   )
