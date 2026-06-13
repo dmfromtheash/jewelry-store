@@ -136,6 +136,9 @@ export default function CheckoutPageClient() {
           <p className="au-co-note">
             Демо-режим: данные не отправляются, корзина не очищается.
           </p>
+          <p className="au-co-info-link">
+            <Link href="/delivery">Подробнее о доставке и оплате</Link>
+          </p>
         </aside>
       </div>
     </div>

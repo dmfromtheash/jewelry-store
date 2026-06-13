@@ -1,0 +1,149 @@
+/* ============================================================
+   AURELIA — Commercial info page styles (Этап 13A)
+   Calm luxury/minimal content pages: light surface, thin lines,
+   section cards, serif headings. Imported globally via globals.css.
+   ============================================================ */
+
+.au-info-page {
+  padding: 8px 0 64px;
+}
+.au-info-inner {
+  max-width: 880px;
+}
+
+.au-info-title {
+  margin: 12px 0 0;
+  font: 500 38px/1.15 var(--au-font-display);
+  letter-spacing: 0.04em;
+}
+.au-info-intro {
+  margin: 14px 0 0;
+  max-width: 660px;
+  font: 400 15px/1.7 var(--au-font-ui);
+  color: var(--au-ink-soft);
+}
+
+/* ---- Pre-launch notice ---- */
+.au-info-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 24px;
+  padding: 14px 18px;
+  border: 1px solid var(--au-gold-soft);
+  border-radius: var(--au-radius);
+  background: var(--au-gold-tint);
+  font: 400 13.5px/1.55 var(--au-font-ui);
+  color: var(--au-ink-soft);
+}
+.au-info-notice-ico {
+  flex: none;
+  margin-top: 1px;
+  color: var(--au-gold);
+}
+
+/* ---- Sections ---- */
+.au-info-sections {
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.au-info-section {
+  border: 1px solid var(--au-line);
+  border-radius: var(--au-radius-lg);
+  background: var(--au-surface-2);
+  padding: 26px 28px;
+}
+.au-info-section-title {
+  margin: 0 0 14px;
+  font: 500 22px/1.3 var(--au-font-display);
+  letter-spacing: 0.04em;
+  color: var(--au-ink);
+}
+.au-info-p {
+  margin: 0 0 12px;
+  font: 400 14.5px/1.75 var(--au-font-ui);
+  color: var(--au-ink-soft);
+  text-wrap: pretty;
+}
+.au-info-p:last-child {
+  margin-bottom: 0;
+}
+
+.au-info-list {
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.au-info-list li {
+  position: relative;
+  padding-left: 22px;
+  font: 400 14px/1.6 var(--au-font-ui);
+  color: var(--au-ink-soft);
+}
+.au-info-list li::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 9px;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--au-gold-soft);
+}
+
+/* ---- FAQ ---- */
+.au-info-faq {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.au-info-faq-item {
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--au-line);
+}
+.au-info-faq-item:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.au-info-faq-q {
+  margin: 0 0 6px;
+  font: 600 14.5px/1.4 var(--au-font-ui);
+  color: var(--au-ink);
+}
+.au-info-faq-a {
+  margin: 0;
+  font: 400 14px/1.7 var(--au-font-ui);
+  color: var(--au-muted);
+}
+
+/* ---- Checkout cross-link ---- */
+.au-co-info-link {
+  margin: 12px 0 0;
+  text-align: center;
+  font: 400 12.5px/1.5 var(--au-font-ui);
+  color: var(--au-muted);
+}
+.au-co-info-link a {
+  color: var(--au-ink-soft);
+  border-bottom: 1px dotted var(--au-line-strong);
+  padding-bottom: 1px;
+}
+.au-co-info-link a:hover {
+  color: var(--au-gold);
+  border-color: var(--au-gold-soft);
+}
+
+/* ============ Responsive ============ */
+@media (max-width: 640px) {
+  .au-info-title {
+    font-size: 30px;
+  }
+  .au-info-section {
+    padding: 20px 18px;
+  }
+}

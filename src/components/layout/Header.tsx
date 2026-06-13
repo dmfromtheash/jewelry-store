@@ -16,10 +16,10 @@ import HeaderSearch from '../search/HeaderSearch'
  */
 
 const TOPBAR_LINKS = [
-  { label: 'Доставка и оплата', href: '#' },
-  { label: 'Возврат', href: '#' },
-  { label: 'Магазины', href: '#' },
-  { label: 'Помощь', href: '#' },
+  { label: 'Доставка и оплата', href: '/delivery' },
+  { label: 'Возврат', href: '/returns' },
+  { label: 'Магазины', href: '/stores' },
+  { label: 'Помощь', href: '/help' },
 ]
 
 // Only categories with a real route link to a page; the rest stay on "#"
@@ -45,9 +45,9 @@ export default function Header() {
         <div className="au-container au-topbar-in">
           <nav className="au-topbar-links" aria-label="Сервис">
             {TOPBAR_LINKS.map((link) => (
-              <a key={link.label} href={link.href}>
+              <Link key={link.label} href={link.href}>
                 {link.label}
-              </a>
+              </Link>
             ))}
           </nav>
           <div className="au-topbar-right">

@@ -9,18 +9,36 @@
  * page reload on Enter. A real handler is wired up in a later stage.
  */
 
-const FOOTER_COLUMNS = [
+import Link from 'next/link'
+
+// Links with a real route navigate via next/link; the rest stay on "#"
+// (their pages do not exist yet — no fake routes).
+const FOOTER_COLUMNS: { heading: string; links: { label: string; href: string }[] }[] = [
   {
     heading: 'Покупателям',
-    links: ['Доставка и оплата', 'Возврат и обмен', 'Бонусная программа'],
+    links: [
+      { label: 'Доставка и оплата', href: '/delivery' },
+      { label: 'Возврат и обмен', href: '/returns' },
+      { label: 'Помощь', href: '/help' },
+    ],
   },
   {
     heading: 'Компания',
-    links: ['О бренде', 'Магазины', 'Контакты'],
+    links: [
+      { label: 'О бренде', href: '/about' },
+      { label: 'Магазины', href: '/stores' },
+      { label: 'Контакты', href: '/contacts' },
+    ],
   },
   {
     heading: 'Каталог',
-    links: ['Бижутерия', 'Серьги', 'Кольца', 'Подарки', 'Бренды'],
+    links: [
+      { label: 'Бижутерия', href: '/category/bijouterie' },
+      { label: 'Серьги', href: '#' },
+      { label: 'Кольца', href: '#' },
+      { label: 'Подарки', href: '/category/gifts' },
+      { label: 'Бренды', href: '#' },
+    ],
   },
 ]
 
@@ -59,11 +77,17 @@ export default function Footer() {
           <div className="au-footer-col" key={column.heading}>
             <p className="h">{column.heading}</p>
             <ul>
-              {column.links.map((link) => (
-                <li key={link}>
-                  <a href="#">{link}</a>
-                </li>
-              ))}
+              {column.links.map((link) =>
+                link.href === '#' ? (
+                  <li key={link.label}>
+                    <a href="#">{link.label}</a>
+                  </li>
+                ) : (
+                  <li key={link.label}>
+                    <Link href={link.href}>{link.label}</Link>
+                  </li>
+                ),
+              )}
             </ul>
           </div>
         ))}
