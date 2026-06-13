@@ -1,83 +1,37 @@
+import { Suspense } from 'react'
 import '../../styles/category.css'
 import Breadcrumbs, { type Crumb } from '../ui/Breadcrumbs'
 import Placeholder from '../ui/Placeholder'
-import ProductCard from '../product/ProductCard'
 import SeoTextBlock from '../home/SeoTextBlock'
 import CategoryFilters from './CategoryFilters'
-import CategoryToolbar from './CategoryToolbar'
-import Pagination from './Pagination'
-import type { ProductStatus } from '../../lib/catalog'
+import CategoryBrowser from './CategoryBrowser'
+import type { Product } from '../../lib/catalog'
 
 /**
  * AURELIA — CategoryLayout (server component)
  * Source: docs/design/aurelia-prototype/04 Category Bijouterie.html
  *
- * Reusable category page shell: breadcrumbs, title + count, filters sidebar,
- * category banner, quick chips, toolbar, two product grids with a mid-grid
- * promo banner, pagination, and an SEO block. Frontend / static only.
+ * Reusable category page shell: breadcrumbs, title, filters sidebar, category
+ * banner, quick chips, and the interactive product browser (sort/filter + grid,
+ * Этап 12A). Frontend / static only.
  *
  * data-view="customer" selects the storefront state of every placeholder.
  */
 
-interface CategoryProduct {
-  category: string
-  name?: string
-  tag?: string
-  tagGold?: boolean
-  slug?: string
-  status?: ProductStatus
-  price?: number | null
-}
-
 interface CategoryLayoutProps {
   breadcrumbs: Crumb[]
   title: string
-  count?: string
   chips: { label: string; active?: boolean }[]
-  productsTop: CategoryProduct[]
-  productsBottom: CategoryProduct[]
+  products: Product[]
   seoTitle: string
   seoParagraphs: string[]
-}
-
-function ProductGrid({ products, keyPrefix }: { products: CategoryProduct[]; keyPrefix: string }) {
-  const renderedProducts: CategoryProduct[] =
-    products.length % 3 === 2
-      ? [
-          ...products,
-          {
-            category: products[products.length - 1]?.category ?? 'AURELIA',
-            status: 'coming-soon',
-            price: null,
-          },
-        ]
-      : products
-
-  return (
-    <div className="au-cat-grid">
-      {renderedProducts.map((product, i) => (
-        <ProductCard
-          key={`${keyPrefix}-${i}`}
-          name={product.name ?? 'Украшение AURELIA'}
-          category={product.category}
-          tag={product.tag}
-          tagGold={product.tagGold}
-          slug={product.slug}
-          status={product.status}
-          price={product.price}
-        />
-      ))}
-    </div>
-  )
 }
 
 export default function CategoryLayout({
   breadcrumbs,
   title,
-  count,
   chips,
-  productsTop,
-  productsBottom,
+  products,
   seoTitle,
   seoParagraphs,
 }: CategoryLayoutProps) {
@@ -86,9 +40,7 @@ export default function CategoryLayout({
       <div className="au-container">
         <Breadcrumbs items={breadcrumbs} />
 
-        <h1 className="au-page-title">
-          {title} {count && <span className="au-page-count">{count}</span>}
-        </h1>
+        <h1 className="au-page-title">{title}</h1>
 
         <div className="au-cat-layout">
           <CategoryFilters />
@@ -105,7 +57,7 @@ export default function CategoryLayout({
               />
             </div>
 
-            {/* Quick chips */}
+            {/* Quick chips (decorative quick links) */}
             <div className="au-chip-row">
               {chips.map((chip) => (
                 <button
@@ -118,23 +70,10 @@ export default function CategoryLayout({
               ))}
             </div>
 
-            <CategoryToolbar />
-
-            <ProductGrid products={productsTop} keyPrefix="top" />
-
-            {/* Mid-grid promo banner */}
-            <div className="au-cat-midbanner">
-              <Placeholder
-                variant="banner-wide"
-                adminTitle="Добавить баннер"
-                adminSub="Промо-вставка между рядами товаров"
-                customerTitle="Скоро появится подборка недели"
-              />
-            </div>
-
-            <ProductGrid products={productsBottom} keyPrefix="bottom" />
-
-            <Pagination />
+            {/* Interactive browser (sort / status filter + grid) */}
+            <Suspense fallback={<div className="au-cat-browser" />}>
+              <CategoryBrowser products={products} />
+            </Suspense>
           </div>
         </div>
       </div>

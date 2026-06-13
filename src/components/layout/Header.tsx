@@ -2,6 +2,7 @@ import Link from 'next/link'
 import ProfileButton from '../auth/ProfileButton'
 import CartButton from '../cart/CartButton'
 import FavoritesButton from '../favorites/FavoritesButton'
+import HeaderSearch from '../search/HeaderSearch'
 
 /**
  * AURELIA — Header (server component)
@@ -59,13 +60,7 @@ export default function Header() {
       {/* ---- Main header: search / logo / icons ---- */}
       <header className="au-header">
         <div className="au-container au-header-in">
-          <div className="au-search">
-            <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-              <circle cx="9" cy="9" r="6.5" />
-              <path d="M14 14l4.5 4.5" />
-            </svg>
-            <input type="search" placeholder="Поиск украшений" aria-label="Поиск украшений" />
-          </div>
+          <HeaderSearch />
 
           <Link className="au-logo" href="/">
             <span className="name">AURELIA</span>

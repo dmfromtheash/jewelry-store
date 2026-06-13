@@ -9,6 +9,7 @@ import { products } from '../../data/products'
 import type { CategorySlug, Product, ProductStatus, ProductSpec } from './types'
 
 export type { CategorySlug, Product, ProductStatus, ProductSpec }
+export * from './search'
 
 export function getAllProducts(): Product[] {
   return products

@@ -13,6 +13,7 @@
 @import './cart.css';
 @import './checkout.css';
 @import './favorites.css';
+@import './search.css';
 
 /* ---- Box model reset ---- */
 *,

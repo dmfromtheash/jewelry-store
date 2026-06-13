@@ -1,0 +1,193 @@
+/* ============================================================
+   AURELIA — Search & catalog discovery styles (Этап 12A)
+   Header search suggestions, /search page, and the shared discovery
+   controls (sort + status) used by the category browser and search.
+   Imported globally via globals.css.
+   ============================================================ */
+
+/* ---- Header search (augments .au-search from header.css) ---- */
+.au-search {
+  position: relative;
+}
+.au-search-submit {
+  flex: none;
+  border: none;
+  background: transparent;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--au-muted);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.au-search-submit:hover {
+  color: var(--au-ink);
+}
+
+.au-search-suggest {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  right: 0;
+  z-index: 500;
+  background: #fff;
+  border: 1px solid var(--au-line);
+  border-radius: var(--au-radius-lg);
+  box-shadow: var(--au-shadow);
+  overflow: hidden;
+  min-width: 280px;
+}
+.au-search-suggest-list {
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+}
+.au-search-suggest-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px 12px;
+  border-radius: var(--au-radius);
+  transition: background 0.12s;
+}
+.au-search-suggest-item:hover {
+  background: var(--au-surface);
+  color: var(--au-ink);
+}
+.au-search-suggest-name {
+  font: 600 13px/1.3 var(--au-font-ui);
+  color: var(--au-ink);
+}
+.au-search-suggest-meta {
+  font: 400 11.5px/1.3 var(--au-font-ui);
+  color: var(--au-muted);
+}
+.au-search-suggest-all {
+  width: 100%;
+  border: none;
+  border-top: 1px solid var(--au-line);
+  background: var(--au-surface-2);
+  padding: 11px;
+  font: 600 12px/1 var(--au-font-ui);
+  letter-spacing: 0.04em;
+  color: var(--au-ink-soft);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.au-search-suggest-all:hover {
+  color: var(--au-gold);
+}
+.au-search-suggest-empty {
+  margin: 0;
+  padding: 16px;
+  text-align: center;
+  font: 400 13px/1.4 var(--au-font-ui);
+  color: var(--au-muted);
+}
+
+/* ---- Shared discovery controls (sort + status) ---- */
+.au-discovery {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--au-line);
+  margin-bottom: 22px;
+}
+.au-discovery-status {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.au-discovery-chip {
+  border: 1px solid var(--au-line-strong);
+  background: #fff;
+  border-radius: 999px;
+  padding: 7px 14px;
+  font: 600 12px/1 var(--au-font-ui);
+  color: var(--au-ink-soft);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.au-discovery-chip:hover {
+  border-color: var(--au-ink);
+  color: var(--au-ink);
+}
+.au-discovery-chip.is-active {
+  border-color: var(--au-ink);
+  background: var(--au-ink);
+  color: #fff;
+}
+.au-discovery-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.au-discovery-count {
+  font: 400 12.5px/1 var(--au-font-ui);
+  color: var(--au-muted);
+  white-space: nowrap;
+}
+
+/* ---- Discovery / filtered-empty state ---- */
+.au-discovery-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 56px 24px 64px;
+}
+.au-discovery-empty-title {
+  margin: 0;
+  font: 500 20px/1.2 var(--au-font-display);
+  letter-spacing: 0.04em;
+}
+.au-discovery-empty-sub {
+  margin: 0 0 6px;
+  max-width: 340px;
+  font: 400 13px/1.6 var(--au-font-ui);
+  color: var(--au-muted);
+}
+
+/* ---- /search page ---- */
+.au-search-page {
+  padding: 28px 0 64px;
+}
+.au-search-title {
+  margin: 0 0 20px;
+  font: 500 32px/1.15 var(--au-font-display);
+  letter-spacing: 0.05em;
+}
+.au-search-q {
+  color: var(--au-gold);
+}
+.au-search-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 64px 24px 72px;
+}
+.au-search-state-title {
+  margin: 0;
+  font: 500 24px/1.2 var(--au-font-display);
+  letter-spacing: 0.04em;
+}
+.au-search-state-sub {
+  margin: 0;
+  max-width: 380px;
+  font: 400 14px/1.6 var(--au-font-ui);
+  color: var(--au-muted);
+}
+.au-search-state-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}

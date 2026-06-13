@@ -6,7 +6,7 @@
 
 import type { Metadata } from 'next'
 import CategoryLayout from '../../../src/components/category/CategoryLayout'
-import { getProductsByCategorySlug, productCountLabel } from '../../../src/lib/catalog'
+import { getProductsByCategorySlug } from '../../../src/lib/catalog'
 
 export const metadata: Metadata = {
   title: 'Подарки — AURELIA',
@@ -29,18 +29,13 @@ const SEO_PARAGRAPHS = [
 
 export default function GiftsCategoryPage() {
   const PRODUCTS = getProductsByCategorySlug('gifts')
-  const SPLIT = Math.ceil(PRODUCTS.length / 2)
-  const PRODUCTS_TOP = PRODUCTS.slice(0, SPLIT)
-  const PRODUCTS_BOTTOM = PRODUCTS.slice(SPLIT)
 
   return (
     <CategoryLayout
       breadcrumbs={[{ label: 'Главная', href: '/' }, { label: 'Подарки' }]}
       title="Подарки"
-      count={`· ${productCountLabel(PRODUCTS.length)}`}
       chips={CHIPS}
-      productsTop={PRODUCTS_TOP}
-      productsBottom={PRODUCTS_BOTTOM}
+      products={PRODUCTS}
       seoTitle="Подарки от AURELIA"
       seoParagraphs={SEO_PARAGRAPHS}
     />
