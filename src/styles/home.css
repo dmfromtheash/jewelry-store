@@ -7,36 +7,13 @@
    Relies on tokens (--au-*) and .au-container (globals.css).
    ============================================================ */
 
-/* ============ Section headings ============ */
-.au-section {
-  padding: 44px 0 8px;
-}
+/* ============ Section heading modifiers (home) ============
+   Base .au-section / -head / -title / -link live in blocks.css (global). */
 .au-section--hero {
   padding-top: 28px;
 }
 .au-section--cats {
   padding-top: 36px;
-}
-.au-section-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 22px;
-}
-.au-section-title {
-  margin: 0;
-  font: 500 26px/1.2 var(--au-font-display);
-  letter-spacing: 0.06em;
-}
-.au-section-link {
-  font: 600 12px/1 var(--au-font-ui);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--au-muted);
-}
-.au-section-link:hover {
-  color: var(--au-gold);
 }
 
 /* ---- Two promo banners grid ---- */

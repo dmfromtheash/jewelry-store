@@ -12,7 +12,7 @@
  * No client JS — the admin "upload" affordance is visual only for now.
  */
 
-type PlaceholderVariant = 'hero' | 'banner' | 'banner-wide' | 'square'
+type PlaceholderVariant = 'hero' | 'banner' | 'banner-wide' | 'square' | 'gallery'
 
 interface PlaceholderProps {
   variant: PlaceholderVariant
@@ -33,8 +33,8 @@ const PlusIcon = ({ size }: { size: number }) => (
   </svg>
 )
 
-const HeroGemIcon = () => (
-  <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden="true">
+const RichGemIcon = ({ size }: { size: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden="true">
     <path d="M7 4h10l4 5-9 11L3 9l4-5z" />
     <path d="M3 9h18M9.5 9L12 20 14.5 9M7 4l2.5 5L12 4l2.5 5L17 4" />
   </svg>
@@ -72,12 +72,14 @@ export default function Placeholder({
   withRule = false,
   showImageIcon = false,
 }: PlaceholderProps) {
-  const isHero = variant === 'hero'
+  // hero/gallery get the larger "rich" plus + gem treatment (no au-ph--sm)
+  const isRich = variant === 'hero' || variant === 'gallery'
   const variantClass = {
     hero: 'au-ph--hero',
     banner: 'au-ph--banner-half au-ph--sm',
     'banner-wide': 'au-ph--banner au-ph--sm',
     square: 'au-ph--square au-ph--sm',
+    gallery: 'au-ph--gallery',
   }[variant]
   const rootClass = ['au-ph', variantClass, adminHint ? 'has-hint' : '']
     .filter(Boolean)
@@ -88,7 +90,7 @@ export default function Placeholder({
       {/* Admin: upload affordance */}
       <div className="au-ph-zone only-admin">
         <span className="au-ph-plus">
-          <PlusIcon size={isHero ? 22 : 18} />
+          <PlusIcon size={isRich ? 22 : 18} />
         </span>
         <span className="au-ph-title">{adminTitle}</span>
         {withRule && <span className="au-ph-rule" />}
@@ -102,7 +104,9 @@ export default function Placeholder({
 
       {/* Customer: storefront message */}
       <div className="au-ph-zone only-customer">
-        <span className="au-ph-gem">{isHero ? <HeroGemIcon /> : <BannerGemIcon />}</span>
+        <span className="au-ph-gem">
+          {isRich ? <RichGemIcon size={variant === 'gallery' ? 38 : 34} /> : <BannerGemIcon />}
+        </span>
         <span className="au-ph-cust-title">{customerTitle}</span>
         {customerSub && <span className="au-ph-sub">{customerSub}</span>}
       </div>

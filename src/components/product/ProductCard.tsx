@@ -8,9 +8,11 @@
  *
  * Hover actions (Купить / в избранное / быстрый просмотр) are structured
  * and styled (slide into a reserved slot BELOW the body so the media is
- * never covered; always visible on mobile). They are visual only for now —
- * links point to "#" because product/cart routes do not exist yet.
+ * never covered; always visible on mobile). "Купить" and quick-view link to
+ * the placeholder product page; the favorite button is visual only.
  */
+
+import Link from 'next/link'
 
 interface ProductCardProps {
   name: string
@@ -67,18 +69,18 @@ export default function ProductCard({ name, category, tag, tagGold = false }: Pr
         {/* reserved slot keeps layout from jumping when actions appear */}
         <div className="au-card-actions-slot" />
         <div className="au-card-actions">
-          <a className="au-btn au-btn--primary buy" href="#">Купить</a>
+          <Link className="au-btn au-btn--primary buy" href="/product/coming-soon">Купить</Link>
           <button className="au-act-ico" type="button" aria-label="В избранное">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
               <path d="M12 20s-7.5-4.6-9.3-9.2C1.5 7.6 3.6 4.5 6.9 4.5c2 0 3.6 1.1 5.1 3 1.5-1.9 3.1-3 5.1-3 3.3 0 5.4 3.1 4.2 6.3C19.5 15.4 12 20 12 20z" />
             </svg>
           </button>
-          <a className="au-act-ico" href="#" aria-label="Быстрый просмотр">
+          <Link className="au-act-ico" href="/product/coming-soon" aria-label="Быстрый просмотр">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
               <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" />
               <circle cx="12" cy="12" r="2.8" />
             </svg>
-          </a>
+          </Link>
         </div>
       </div>
     </article>

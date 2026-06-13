@@ -127,31 +127,8 @@
   background: var(--au-surface-2);
 }
 
-/* ---- Button (shared primitive) ----
-   Used here by the subscribe button. NOTE: .au-btn is a shared
-   component primitive in the prototype; when buttons are needed
-   elsewhere (cards, product page, etc.) extract these rules into a
-   dedicated shared stylesheet to avoid duplication. */
-.au-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  border: none;
-  border-radius: var(--au-radius);
-  font: 700 13px/1 var(--au-font-ui);
-  letter-spacing: 0.05em;
-  padding: 12px 20px;
-  transition: background 0.15s, color 0.15s, border-color 0.15s, opacity 0.15s;
-}
-.au-btn--primary {
-  background: var(--au-ink);
-  color: #fff;
-}
-.au-btn--primary:hover {
-  background: #000;
-  color: #fff;
-}
+/* The .au-btn family (used here by the subscribe button) now lives in
+   blocks.css as a shared global primitive. */
 
 /* ============ Responsive ============ */
 @media (max-width: 1024px) {

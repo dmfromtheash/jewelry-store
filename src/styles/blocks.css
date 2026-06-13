@@ -7,6 +7,44 @@
    that renders <Placeholder>, cards or the SEO block is styled.
    ============================================================ */
 
+/* ============ Buttons (shared primitive) ============ */
+.au-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: var(--au-radius);
+  font: 700 13px/1 var(--au-font-ui);
+  letter-spacing: 0.05em;
+  padding: 12px 20px;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, opacity 0.15s;
+}
+.au-btn--primary {
+  background: var(--au-ink);
+  color: #fff;
+}
+.au-btn--primary:hover {
+  background: #000;
+  color: #fff;
+}
+.au-btn--ghost {
+  background: transparent;
+  color: var(--au-ink);
+  border: 1px solid var(--au-line-strong);
+}
+.au-btn--ghost:hover {
+  border-color: var(--au-ink);
+  color: var(--au-ink);
+}
+.au-btn--block {
+  width: 100%;
+}
+.au-btn[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 /* ---- View mode (admin / customer) ----
    Placeholders/cards carry both states in markup; CSS picks one based on
    the [data-view] attribute on an ancestor. Storefront = customer. */
@@ -15,6 +53,32 @@
 }
 [data-view='admin'] .only-customer {
   display: none !important;
+}
+
+/* ============ Section headings ============ */
+.au-section {
+  padding: 44px 0 8px;
+}
+.au-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+.au-section-title {
+  margin: 0;
+  font: 500 26px/1.2 var(--au-font-display);
+  letter-spacing: 0.06em;
+}
+.au-section-link {
+  font: 600 12px/1 var(--au-font-ui);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--au-muted);
+}
+.au-section-link:hover {
+  color: var(--au-gold);
 }
 
 /* ============ Placeholders (admin / customer) ============ */
@@ -124,6 +188,9 @@
   aspect-ratio: 592 / 250;
 }
 .au-ph--square {
+  aspect-ratio: 1 / 1;
+}
+.au-ph--gallery {
   aspect-ratio: 1 / 1;
 }
 
