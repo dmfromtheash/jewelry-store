@@ -112,3 +112,61 @@ model ProductImage {
   @@unique([productId, position])
   @@index([productId])
 }
+
+/// Order lifecycle. 16A only creates `submitted` guest drafts (no payment yet);
+/// `draft`/`cancelled` reserved for later flows.
+enum OrderStatus {
+  draft
+  submitted
+  cancelled
+}
+
+/// A guest checkout order (Этап 16A). Amounts are server-authoritative integer
+/// MINOR units (kopecks), recomputed from the catalog — never trusted from the
+/// client. No payment / auth / shipping yet.
+model Order {
+  id             String      @id @default(cuid())
+  /// Human-readable code shown to the customer, e.g. "AUR-LX9K2P".
+  orderCode      String      @unique
+  status         OrderStatus @default(submitted)
+
+  customerName   String
+  customerPhone  String
+  customerEmail  String?
+  deliveryCity   String
+  /// Placeholder method labels (pickup/courier/post) — no real logistics yet.
+  deliveryMethod String
+  /// Placeholder — payment is not connected in 16A.
+  paymentMethod  String
+
+  subtotalAmount Int         // minor units (kopecks)
+  totalAmount    Int         // minor units (kopecks)
+  currency       String      @default("RUB")
+
+  items          OrderItem[]
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@index([status])
+}
+
+/// Immutable line snapshot captured at order time (name/price/sku copied so the
+/// order is stable even if the product later changes). `productId` is nullable
+/// so the order survives product deletion.
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  productId   String?
+  productSlug String
+  productName String
+  productSku  String?
+  unitPrice   Int      // minor units (kopecks) snapshot
+  quantity    Int
+  lineTotal   Int      // minor units (kopecks) = unitPrice * quantity
+
+  createdAt   DateTime @default(now())
+
+  @@index([orderId])
+}

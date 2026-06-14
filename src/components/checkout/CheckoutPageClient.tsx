@@ -1,16 +1,22 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useCart } from '../cart/CartProvider'
 import { formatPrice } from '../../lib/catalog'
+import { createOrderDraft } from '../../lib/orders/actions'
+import { validateOrderDraftFields, hasErrors } from '../../lib/orders/validate'
+import type { OrderDraftInput, OrderFieldErrors } from '../../lib/orders/types'
 
 /**
- * AURELIA — CheckoutPageClient (client) — Этап 10A
+ * AURELIA — CheckoutPageClient (client) — Этапы 10A → 16A
  *
- * Frontend-only checkout. Reads the cart via useCart() (data resolved from the
- * mock catalog — never duplicated here). Shows an order summary plus contact /
- * delivery / payment blocks as a static demo: nothing is submitted anywhere, no
- * backend/API/payment, and the cart is NOT cleared.
+ * Reads the cart via useCart() and submits a guest order DRAFT to the server
+ * action (createOrderDraft). The server recomputes every price from the DB, so
+ * the client only sends slugs + quantities + contact fields. On success the
+ * cart is cleared and we navigate to /checkout/success?order=<code>. Payment is
+ * still not connected — the order is a non-paid draft.
  */
 
 const GemIcon = () => (
@@ -20,8 +26,76 @@ const GemIcon = () => (
   </svg>
 )
 
+const DELIVERY_LABELS: Record<string, string> = {
+  pickup: 'Самовывоз — скоро',
+  courier: 'Курьер — скоро',
+  post: 'Почта — скоро',
+}
+
 export default function CheckoutPageClient() {
-  const { lines, count, subtotal } = useCart()
+  const router = useRouter()
+  const { entries, lines, count, subtotal, clear } = useCart()
+
+  const [form, setForm] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    city: '',
+    delivery: 'pickup',
+  })
+  const [errors, setErrors] = useState<OrderFieldErrors>({})
+  const [generalError, setGeneralError] = useState<string | null>(null)
+  const [pending, setPending] = useState(false)
+
+  const set = (key: keyof typeof form) => (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => setForm((prev) => ({ ...prev, [key]: e.target.value }))
+
+  const canSubmit =
+    lines.length > 0 &&
+    form.name.trim().length > 0 &&
+    form.phone.trim().length > 0 &&
+    form.city.trim().length > 0 &&
+    !pending
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setGeneralError(null)
+
+    const payload: OrderDraftInput = {
+      customerName: form.name,
+      customerPhone: form.phone,
+      customerEmail: form.email || undefined,
+      deliveryCity: form.city,
+      deliveryMethod: DELIVERY_LABELS[form.delivery] ?? form.delivery,
+      paymentMethod: 'not_connected',
+      items: entries.map((entry) => ({ slug: entry.slug, qty: entry.qty })),
+    }
+
+    // Instant UX feedback using the SAME rules the server enforces.
+    const clientErrors = validateOrderDraftFields(payload)
+    if (hasErrors(clientErrors)) {
+      setErrors(clientErrors)
+      return
+    }
+    setErrors({})
+    setPending(true)
+
+    try {
+      const result = await createOrderDraft(payload)
+      if (result.ok) {
+        clear() // order is persisted server-side; safe to empty the local cart
+        router.push(`/checkout/success?order=${encodeURIComponent(result.orderCode)}`)
+        return // keep the pending state while navigating away
+      }
+      setErrors(result.fieldErrors ?? {})
+      setGeneralError(result.error)
+      setPending(false)
+    } catch {
+      setGeneralError('Не удалось отправить заказ. Попробуйте ещё раз.')
+      setPending(false)
+    }
+  }
 
   if (lines.length === 0) {
     return (
@@ -53,22 +127,49 @@ export default function CheckoutPageClient() {
 
       <div className="au-checkout-grid">
         {/* ---- Left: forms ---- */}
-        <form className="au-co-form" onSubmit={(e) => e.preventDefault()}>
+        <form id="au-checkout-form" className="au-co-form" onSubmit={handleSubmit} noValidate>
           {/* Contacts */}
           <section className="au-co-section">
             <h2 className="au-co-section-title">Контакты</h2>
             <div className="au-field">
               <label htmlFor="co-name">Имя</label>
-              <input id="co-name" type="text" placeholder="Как к вам обращаться" autoComplete="name" />
+              <input
+                id="co-name"
+                type="text"
+                placeholder="Как к вам обращаться"
+                autoComplete="name"
+                value={form.name}
+                onChange={set('name')}
+                aria-invalid={!!errors.customerName}
+              />
+              {errors.customerName && <p className="au-field-error">{errors.customerName}</p>}
             </div>
             <div className="au-co-row">
               <div className="au-field">
                 <label htmlFor="co-phone">Телефон</label>
-                <input id="co-phone" type="tel" placeholder="+7 ___ ___-__-__" autoComplete="tel" />
+                <input
+                  id="co-phone"
+                  type="tel"
+                  placeholder="+7 ___ ___-__-__"
+                  autoComplete="tel"
+                  value={form.phone}
+                  onChange={set('phone')}
+                  aria-invalid={!!errors.customerPhone}
+                />
+                {errors.customerPhone && <p className="au-field-error">{errors.customerPhone}</p>}
               </div>
               <div className="au-field">
                 <label htmlFor="co-email">E-mail</label>
-                <input id="co-email" type="email" placeholder="you@example.com" autoComplete="email" />
+                <input
+                  id="co-email"
+                  type="email"
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                  value={form.email}
+                  onChange={set('email')}
+                  aria-invalid={!!errors.customerEmail}
+                />
+                {errors.customerEmail && <p className="au-field-error">{errors.customerEmail}</p>}
               </div>
             </div>
           </section>
@@ -78,11 +179,25 @@ export default function CheckoutPageClient() {
             <h2 className="au-co-section-title">Доставка</h2>
             <div className="au-field">
               <label htmlFor="co-city">Город</label>
-              <input id="co-city" type="text" placeholder="Город доставки" autoComplete="address-level2" />
+              <input
+                id="co-city"
+                type="text"
+                placeholder="Город доставки"
+                autoComplete="address-level2"
+                value={form.city}
+                onChange={set('city')}
+                aria-invalid={!!errors.deliveryCity}
+              />
+              {errors.deliveryCity && <p className="au-field-error">{errors.deliveryCity}</p>}
             </div>
             <div className="au-field">
               <label htmlFor="co-delivery">Способ доставки</label>
-              <select id="co-delivery" className="au-co-select" defaultValue="pickup">
+              <select
+                id="co-delivery"
+                className="au-co-select"
+                value={form.delivery}
+                onChange={set('delivery')}
+              >
                 <option value="pickup">Самовывоз — скоро</option>
                 <option value="courier">Курьер — скоро</option>
                 <option value="post">Почта — скоро</option>
@@ -94,8 +209,8 @@ export default function CheckoutPageClient() {
           <section className="au-co-section">
             <h2 className="au-co-section-title">Оплата</h2>
             <div className="au-co-payment-note">
-              Оплата будет подключена позже. Сейчас оформление работает в демо-режиме —
-              заказ никуда не отправляется.
+              Оплата будет подключена позже. Заказ создаётся как черновик —
+              с вас сейчас ничего не списывается.
             </div>
           </section>
         </form>
@@ -130,11 +245,22 @@ export default function CheckoutPageClient() {
             <span className="au-co-total-val">{formatPrice(subtotal)}</span>
           </div>
 
-          <button className="au-btn au-btn--primary au-btn--block au-co-submit" type="button" disabled>
-            Оформить заказ (демо)
+          {(generalError || errors.items) && (
+            <p className="au-field-error" role="alert">
+              {generalError ?? errors.items}
+            </p>
+          )}
+
+          <button
+            className="au-btn au-btn--primary au-btn--block au-co-submit"
+            type="submit"
+            form="au-checkout-form"
+            disabled={!canSubmit}
+          >
+            {pending ? 'Создаём заказ…' : 'Оформить заказ'}
           </button>
           <p className="au-co-note">
-            Демо-режим: данные не отправляются, корзина не очищается.
+            Демо-режим: заказ сохраняется, оплата подключается позже.
           </p>
           <p className="au-co-info-link">
             <Link href="/delivery">Подробнее о доставке и оплате</Link>

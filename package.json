@@ -14,6 +14,7 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:verify": "tsx prisma/verify-catalog.ts",
     "db:verify:runtime": "tsx prisma/verify-runtime-catalog.ts",
+    "db:verify:orders": "tsx prisma/verify-orders.ts",
     "db:studio": "prisma studio",
     "db:start": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/db/aurelia-db-start.ps1",
     "db:stop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/db/aurelia-db-stop.ps1",

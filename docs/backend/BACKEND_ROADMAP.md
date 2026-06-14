@@ -10,6 +10,24 @@ PostgreSQL** (see `BACKEND_SPEC.md`). Dev port stays **5000**.
 
 ---
 
+## Implementation status (actual stages shipped)
+
+The roadmap below is the original spec; the executed work is tracked as 15A–16A:
+
+- **15A** — backend catalog foundation (Prisma 6, schema, seed, client helper).
+- **15B** — local DB migration + seed runtime (isolated Postgres on **6700**).
+- **15C** — local DB operations scripts (`db:start/stop/status/health/backup`).
+- **15D** — storefront catalog now reads from PostgreSQL (this roadmap's 15B+15C).
+- **16A** — **checkout order drafts** (this roadmap's "15E"): server-priced guest
+  order creation. Models `Order` + `OrderItem`; server action
+  `createOrderDraft`; success page; `npm run db:verify:orders`. **No payment /
+  auth / admin.** See `ORDER_DRAFT_FLOW.md`.
+
+Still ahead: payment (placeholder → real), customer auth + order history, admin
+order tools.
+
+---
+
 ## 15A — Backend Foundation setup
 - **Goal:** install/configure the backend toolchain without changing runtime UI.
 - **Scope:** add Prisma + Postgres deps; `prisma/schema.prisma` (empty/baseline);
