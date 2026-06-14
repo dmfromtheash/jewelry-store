@@ -1,9 +1,13 @@
 /**
- * AURELIA — Mock product catalog (Этап 8A)
+ * AURELIA — Product catalog SEED SOURCE (Этапы 8A → 15D)
  *
- * Frontend-only placeholder data. These are NOT real products: names, prices
- * and specs are mock content for building the catalog UI. The only brand used
- * is AURELIA (the store's own placeholder brand). No backend / API / DB.
+ * As of 15D this file is the **seed source / reference**, NOT the runtime
+ * catalog. The storefront now reads products from PostgreSQL via Prisma
+ * (src/lib/catalog/server.ts); `prisma/seed.ts` imports this array to populate
+ * the DB. Keep it in sync if you change seeded products, then re-run db:seed.
+ *
+ * These are placeholder products: names, prices and specs are mock content. The
+ * only brand is AURELIA (the store's own placeholder brand).
  *
  * Rules:
  *   - slug: latin only, unique;

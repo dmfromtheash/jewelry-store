@@ -6,7 +6,7 @@
 
 import type { Metadata } from 'next'
 import CategoryLayout from '../../../src/components/category/CategoryLayout'
-import { getProductsByCategorySlug } from '../../../src/lib/catalog'
+import { getProductsByCategorySlugFromDb } from '../../../src/lib/catalog/server'
 
 export const metadata: Metadata = {
   title: 'Подарки — AURELIA',
@@ -27,8 +27,8 @@ const SEO_PARAGRAPHS = [
   'Не знаете, с чего начать? Отфильтруйте подборку по поводу, бюджету или получателю — а консультанты в чате помогут выбрать размер и покрытие.',
 ]
 
-export default function GiftsCategoryPage() {
-  const PRODUCTS = getProductsByCategorySlug('gifts')
+export default async function GiftsCategoryPage() {
+  const PRODUCTS = await getProductsByCategorySlugFromDb('gifts')
 
   return (
     <CategoryLayout

@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getProductBySlug, type Product } from '../../lib/catalog'
+import { type Product } from '../../lib/catalog'
+import { useCatalog } from '../../lib/catalog/CatalogProvider'
 import ProductCard from './ProductCard'
 
 /**
@@ -18,6 +19,7 @@ const MAX_STORED = 8
 const MAX_SHOWN = 4
 
 export default function RecentlyViewed({ currentSlug }: { currentSlug: string }) {
+  const { getBySlug } = useCatalog()
   const [products, setProducts] = useState<Product[]>([])
 
   useEffect(() => {
@@ -43,11 +45,11 @@ export default function RecentlyViewed({ currentSlug }: { currentSlug: string })
 
     setProducts(
       previous
-        .map((slug) => getProductBySlug(slug))
+        .map((slug) => getBySlug(slug))
         .filter((p): p is Product => Boolean(p))
         .slice(0, MAX_SHOWN),
     )
-  }, [currentSlug])
+  }, [currentSlug, getBySlug])
 
   if (products.length === 0) return null
 

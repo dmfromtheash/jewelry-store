@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { searchProducts, formatPrice } from '../../lib/catalog'
+import { useCatalog } from '../../lib/catalog/CatalogProvider'
 
 /**
  * AURELIA — HeaderSearch (client) — Этап 12A
@@ -17,11 +18,12 @@ const MAX_SUGGESTIONS = 6
 
 export default function HeaderSearch() {
   const router = useRouter()
+  const { products } = useCatalog()
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
 
   const trimmed = query.trim()
-  const suggestions = trimmed ? searchProducts(trimmed).slice(0, MAX_SUGGESTIONS) : []
+  const suggestions = trimmed ? searchProducts(trimmed, products).slice(0, MAX_SUGGESTIONS) : []
 
   const goToSearch = () => {
     if (!trimmed) return

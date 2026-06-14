@@ -19,12 +19,12 @@ import CategoryCircles from '../src/components/home/CategoryCircles'
 import PromoBlocks from '../src/components/home/PromoBlocks'
 import Benefits from '../src/components/home/Benefits'
 import SeoTextBlock from '../src/components/home/SeoTextBlock'
-import { getAllProducts } from '../src/lib/catalog'
+import { getAllProductsFromDb } from '../src/lib/catalog/server'
 
-export default function HomePage() {
-  // Home rows are drawn from the shared mock catalog so their cards link to the
-  // real /product/[slug] pages (no backend — just slices of the static data).
-  const ALL_PRODUCTS = getAllProducts()
+export default async function HomePage() {
+  // Home rows are drawn from the DB-backed catalog so their cards link to the
+  // real /product/[slug] pages.
+  const ALL_PRODUCTS = await getAllProductsFromDb()
   const NEW_ARRIVALS = ALL_PRODUCTS.slice(0, 4)
   const BESTSELLERS = ALL_PRODUCTS.slice(4, 8)
 

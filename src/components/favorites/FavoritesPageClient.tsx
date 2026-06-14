@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import { useFavorites } from './FavoritesProvider'
-import { getProductBySlug, type Product } from '../../lib/catalog'
+import { type Product } from '../../lib/catalog'
+import { useCatalog } from '../../lib/catalog/CatalogProvider'
 import ProductCard from '../product/ProductCard'
 
 /**
@@ -22,9 +23,10 @@ const GemIcon = () => (
 
 export default function FavoritesPageClient() {
   const { slugs, count, clearFavorites } = useFavorites()
+  const { getBySlug } = useCatalog()
 
   const products = slugs
-    .map((slug) => getProductBySlug(slug))
+    .map((slug) => getBySlug(slug))
     .filter((p): p is Product => Boolean(p))
 
   if (products.length === 0) {

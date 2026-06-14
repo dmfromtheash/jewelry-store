@@ -65,6 +65,40 @@ npm run db:backup
 Writes a timestamped custom-format dump to `backups/db/aurelia-<timestamp>.dump`.
 `backups/` is gitignored. The dump holds catalog data only — no role passwords.
 
+## Running the site — the DB must be up (since 15D)
+
+As of **15D** the storefront reads its catalog from PostgreSQL (not the mock
+file). So `npm run dev` and `npm run build` need the AURELIA DB **running on
+6700** — otherwise pages that read the catalog (home, category, product, and the
+catalog snapshot in the root layout) fail with a clear Prisma connection error.
+There is no silent fallback to mock, on purpose (it would hide sync problems).
+
+Typical flow:
+
+```bash
+npm run db:start      # start AURELIA PostgreSQL on 6700
+npm run db:health     # confirm it answers and the catalog verifies
+npm run dev           # site on http://localhost:5000
+```
+
+Before a build:
+
+```bash
+npm run db:start
+npm run db:health
+npm run build
+```
+
+Verify the **runtime** catalog (DB → the exact shape the UI renders: price in RUB,
+coming-soon mapping, coatings/specs):
+
+```bash
+npm run db:verify:runtime
+```
+
+> The mock in `src/data/products.ts` is now only the **seed source** — edit it,
+> then `npm run db:seed` to push changes into the DB.
+
 ## Restore (intentionally NOT automated)
 
 There is **no `db:restore` script on purpose** — an automated restore is the

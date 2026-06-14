@@ -5,6 +5,8 @@ import Footer from '../src/components/layout/Footer'
 import AuthModalProvider from '../src/components/auth/AuthModalProvider'
 import CartProvider from '../src/components/cart/CartProvider'
 import FavoritesProvider from '../src/components/favorites/FavoritesProvider'
+import CatalogProvider from '../src/lib/catalog/CatalogProvider'
+import { getCatalogSnapshotForClient } from '../src/lib/catalog/server'
 
 export const metadata: Metadata = {
   title: 'AURELIA — Bijouterie Without Limits',
@@ -12,11 +14,15 @@ export const metadata: Metadata = {
   keywords: ['бижутерия', 'украшения', 'кольца', 'серьги', 'браслеты', 'aurelia'],
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  // DB-backed catalog snapshot, fetched on the server and handed to the client
+  // CatalogProvider as plain data (no Prisma reaches the client bundle).
+  const catalog = await getCatalogSnapshotForClient()
+
   return (
     <html lang="ru">
       <head>
@@ -32,15 +38,17 @@ export default function RootLayout({
         {/* Client-обёртки контекста: модалки входа/регистрации (AuthModalProvider)
             и корзина (CartProvider). Header/Footer остаются server-компонентами —
             интерактив живёт в маленьких client-кнопках внутри них. */}
-        <AuthModalProvider>
-          <CartProvider>
-            <FavoritesProvider>
-              <Header />
-              <main className="au-main">{children}</main>
-              <Footer />
-            </FavoritesProvider>
-          </CartProvider>
-        </AuthModalProvider>
+        <CatalogProvider products={catalog}>
+          <AuthModalProvider>
+            <CartProvider>
+              <FavoritesProvider>
+                <Header />
+                <main className="au-main">{children}</main>
+                <Footer />
+              </FavoritesProvider>
+            </CartProvider>
+          </AuthModalProvider>
+        </CatalogProvider>
       </body>
     </html>
   )

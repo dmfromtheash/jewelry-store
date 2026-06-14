@@ -13,6 +13,7 @@
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
     "db:verify": "tsx prisma/verify-catalog.ts",
+    "db:verify:runtime": "tsx prisma/verify-runtime-catalog.ts",
     "db:studio": "prisma studio",
     "db:start": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/db/aurelia-db-start.ps1",
     "db:stop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/db/aurelia-db-stop.ps1",
@@ -24,7 +25,8 @@
     "@prisma/client": "^6.19.3",
     "next": "^15",
     "react": "^19",
-    "react-dom": "^19"
+    "react-dom": "^19",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@types/node": "^22",

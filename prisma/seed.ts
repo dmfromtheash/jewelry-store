@@ -15,7 +15,7 @@
  *   npm run db:seed
  */
 
-import { PrismaClient, ProductStatus } from '@prisma/client'
+import { Prisma, PrismaClient, ProductStatus } from '@prisma/client'
 import { products } from '../src/data/products'
 import type { CategorySlug } from '../src/lib/catalog/types'
 
@@ -91,6 +91,9 @@ async function main() {
       tagGold: p.tagGold ?? false,
       rating: p.rating ?? 0,
       reviewsCount: p.reviewsCount ?? 0,
+      // Cast: ProductSpec[] (an interface) lacks the index signature Prisma's
+      // Json input type wants; the value is plain serializable data.
+      specs: (p.specs ?? undefined) as Prisma.InputJsonValue | undefined,
       category: { connect: { id: categoryId } },
     }
 

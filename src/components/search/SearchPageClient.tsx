@@ -15,6 +15,7 @@ import {
   type SortKey,
   type StatusFilter,
 } from '../../lib/catalog'
+import { useCatalog } from '../../lib/catalog/CatalogProvider'
 
 /**
  * AURELIA — SearchPageClient (client) — Этап 12A
@@ -28,6 +29,7 @@ export default function SearchPageClient() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const { products } = useCatalog()
 
   const q = (searchParams.get('q') ?? '').trim()
   const sort = parseSort(searchParams.get('sort'))
@@ -52,8 +54,8 @@ export default function SearchPageClient() {
 
   const results = useMemo(() => {
     if (!q) return []
-    return sortProducts(filterByStatus(searchProducts(q), status), sort)
-  }, [q, status, sort])
+    return sortProducts(filterByStatus(searchProducts(q, products), status), sort)
+  }, [q, status, sort, products])
 
   // Empty query — nothing searched yet.
   if (!q) {

@@ -9,7 +9,8 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import { getProductBySlug, type Product } from '../../lib/catalog'
+import { type Product } from '../../lib/catalog'
+import { useCatalog } from '../../lib/catalog/CatalogProvider'
 import CartDrawer from './CartDrawer'
 
 /**
@@ -73,6 +74,7 @@ function readStorage(): CartEntry[] {
 }
 
 export default function CartProvider({ children }: { children: ReactNode }) {
+  const { getBySlug } = useCatalog()
   const [entries, setEntries] = useState<CartEntry[]>([])
   const [isOpen, setIsOpen] = useState(false)
   const [hydrated, setHydrated] = useState(false)
@@ -95,13 +97,13 @@ export default function CartProvider({ children }: { children: ReactNode }) {
   }, [entries, hydrated])
 
   const addItem = useCallback((slug: string, qty = 1) => {
-    if (!getProductBySlug(slug) || qty < 1) return
+    if (!getBySlug(slug) || qty < 1) return
     setEntries((prev) => {
       const found = prev.find((e) => e.slug === slug)
       if (found) return prev.map((e) => (e.slug === slug ? { ...e, qty: e.qty + qty } : e))
       return [...prev, { slug, qty }]
     })
-  }, [])
+  }, [getBySlug])
 
   const removeItem = useCallback((slug: string) => {
     setEntries((prev) => prev.filter((e) => e.slug !== slug))
@@ -127,12 +129,12 @@ export default function CartProvider({ children }: { children: ReactNode }) {
   // catalog are dropped from the rendered lines (and totals) gracefully.
   const lines = useMemo<CartLine[]>(() => {
     return entries.flatMap((entry) => {
-      const product = getProductBySlug(entry.slug)
+      const product = getBySlug(entry.slug)
       if (!product) return []
       const lineTotal = typeof product.price === 'number' ? product.price * entry.qty : 0
       return [{ ...entry, product, lineTotal }]
     })
-  }, [entries])
+  }, [entries, getBySlug])
 
   const count = useMemo(() => entries.reduce((sum, e) => sum + e.qty, 0), [entries])
   const subtotal = useMemo(() => lines.reduce((sum, l) => sum + l.lineTotal, 0), [lines])

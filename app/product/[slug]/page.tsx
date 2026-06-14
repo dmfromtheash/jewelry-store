@@ -13,10 +13,10 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import ProductPageLayout from '../../../src/components/product/ProductPageLayout'
 import {
-  getAllProductSlugs,
-  getProductBySlug,
-  getProductsByCategorySlug,
-} from '../../../src/lib/catalog'
+  getAllProductSlugsFromDb,
+  getProductBySlugFromDb,
+  getProductsByCategorySlugFromDb,
+} from '../../../src/lib/catalog/server'
 import type { CategorySlug } from '../../../src/lib/catalog'
 
 export const dynamicParams = false
@@ -26,8 +26,9 @@ const CATEGORY_META: Record<CategorySlug, { label: string; href: string }> = {
   gifts: { label: 'Подарки', href: '/category/gifts' },
 }
 
-export function generateStaticParams() {
-  return getAllProductSlugs().map((slug) => ({ slug }))
+export async function generateStaticParams() {
+  const slugs = await getAllProductSlugsFromDb()
+  return slugs.map((slug) => ({ slug }))
 }
 
 export async function generateMetadata({
@@ -36,7 +37,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
-  const product = getProductBySlug(slug)
+  const product = await getProductBySlugFromDb(slug)
   if (!product) return {}
   return {
     title: `${product.name} — AURELIA`,
@@ -50,11 +51,11 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const product = getProductBySlug(slug)
+  const product = await getProductBySlugFromDb(slug)
   if (!product) notFound()
 
   const category = CATEGORY_META[product.categorySlug]
-  const similar = getProductsByCategorySlug(product.categorySlug)
+  const similar = (await getProductsByCategorySlugFromDb(product.categorySlug))
     .filter((item) => item.slug !== product.slug)
     .slice(0, 4)
     .map((item) => item.category)

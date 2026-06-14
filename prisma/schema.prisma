@@ -59,6 +59,9 @@ model Product {
   tagGold     Boolean       @default(false)
   rating      Float         @default(0)
   reviewsCount Int          @default(0)
+  /// Spec rows [{ label, value }] for the product detail "Характеристики" tab.
+  /// JSON keeps parity with the mock shape without extra tables.
+  specs       Json?
 
   categoryId  String
   category    Category      @relation(fields: [categoryId], references: [id])
