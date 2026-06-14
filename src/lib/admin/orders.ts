@@ -1,0 +1,108 @@
+/**
+ * AURELIA — Admin order data layer (Этап 17A)
+ *
+ * Server-only Prisma reads/updates for the local admin order screens. No raw
+ * SQL, no deletes — orders are only listed, read, and have their `status`
+ * changed. PII (customer name/phone/email) is selected only for the detail read,
+ * which is rendered behind the local admin guard.
+ */
+
+import 'server-only'
+
+import { OrderStatus, Prisma } from '@prisma/client'
+import { prisma } from '../db/prisma'
+
+export const ORDER_STATUSES = Object.values(OrderStatus) as OrderStatus[]
+
+export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
+  draft: 'Черновик',
+  submitted: 'Оформлен',
+  cancelled: 'Отменён',
+}
+
+export function isOrderStatus(value: string): value is OrderStatus {
+  return (ORDER_STATUSES as string[]).includes(value)
+}
+
+export interface AdminOrdersQuery {
+  status?: string
+  query?: string
+}
+
+export async function getAdminOrders(opts: AdminOrdersQuery = {}) {
+  const where: Prisma.OrderWhereInput = {}
+
+  if (opts.status && isOrderStatus(opts.status)) {
+    where.status = opts.status
+  }
+
+  const q = opts.query?.trim()
+  if (q) {
+    where.OR = [
+      { orderCode: { contains: q, mode: 'insensitive' } },
+      { customerName: { contains: q, mode: 'insensitive' } },
+      { customerPhone: { contains: q, mode: 'insensitive' } },
+    ]
+  }
+
+  return prisma.order.findMany({
+    where,
+    orderBy: { createdAt: 'desc' },
+    take: 200,
+    select: {
+      orderCode: true,
+      status: true,
+      customerName: true,
+      deliveryCity: true,
+      totalAmount: true,
+      currency: true,
+      createdAt: true,
+      _count: { select: { items: true } },
+    },
+  })
+}
+
+export async function getAdminOrderByCode(orderCode: string) {
+  if (!orderCode) return null
+  return prisma.order.findUnique({
+    where: { orderCode },
+    select: {
+      orderCode: true,
+      status: true,
+      customerName: true,
+      customerPhone: true,
+      customerEmail: true,
+      deliveryCity: true,
+      deliveryMethod: true,
+      paymentMethod: true,
+      subtotalAmount: true,
+      totalAmount: true,
+      currency: true,
+      createdAt: true,
+      updatedAt: true,
+      items: {
+        select: {
+          productName: true,
+          productSlug: true,
+          productSku: true,
+          unitPrice: true,
+          quantity: true,
+          lineTotal: true,
+        },
+        orderBy: { createdAt: 'asc' },
+      },
+    },
+  })
+}
+
+/** Updates ONLY the status. Never touches items, prices, or contact data. */
+export async function updateAdminOrderStatus(orderCode: string, status: OrderStatus) {
+  return prisma.order.update({
+    where: { orderCode },
+    data: { status },
+    select: { orderCode: true, status: true },
+  })
+}
+
+export type AdminOrderListItem = Awaited<ReturnType<typeof getAdminOrders>>[number]
+export type AdminOrderDetail = NonNullable<Awaited<ReturnType<typeof getAdminOrderByCode>>>

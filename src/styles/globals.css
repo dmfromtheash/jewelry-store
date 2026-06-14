@@ -15,6 +15,7 @@
 @import './favorites.css';
 @import './search.css';
 @import './content.css';
+@import './admin.css';
 
 /* ---- Box model reset ---- */
 *,

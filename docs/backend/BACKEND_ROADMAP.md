@@ -22,9 +22,14 @@ The roadmap below is the original spec; the executed work is tracked as 15A–16
   order creation. Models `Order` + `OrderItem`; server action
   `createOrderDraft`; success page; `npm run db:verify:orders`. **No payment /
   auth / admin.** See `ORDER_DRAFT_FLOW.md`.
+- **17A** — **admin order management foundation** (local/dev only): `/admin/orders`
+  list + `/admin/orders/[orderCode]` detail; status change via server action;
+  `ensureLocalAdmin()` gate (dev + localhost only, `notFound()` otherwise); not
+  in public nav; `npm run db:verify:admin-orders`. **No real auth / no payment /
+  no deletes.** See `ADMIN_ORDER_MANAGEMENT.md`.
 
-Still ahead: payment (placeholder → real), customer auth + order history, admin
-order tools.
+Still ahead: real admin/customer auth (protect `/admin/*` before any non-local
+exposure), payment (placeholder → real), customer order history.
 
 ---
 
