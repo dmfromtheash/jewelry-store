@@ -10,6 +10,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ensureLocalAdmin } from '../../../../src/lib/admin/guard'
+import { requireAdminSession } from '../../../../src/lib/admin/auth'
 import {
   getAdminOrderByCode,
   ORDER_STATUSES,
@@ -31,6 +32,7 @@ export default async function AdminOrderDetailPage({
   params: Promise<{ orderCode: string }>
 }) {
   await ensureLocalAdmin()
+  await requireAdminSession()
 
   const { orderCode } = await params
   const order = await getAdminOrderByCode(decodeURIComponent(orderCode))

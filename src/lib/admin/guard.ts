@@ -1,12 +1,13 @@
 /**
  * AURELIA — Local/dev admin guard (Этап 17A)
  *
- * This is NOT a real auth system — it is a local-only gate. Admin routes are
- * allowed ONLY in development AND only when served to a localhost host. In
- * production (or any non-local host) the guard calls notFound(), so admin pages
- * simply do not exist there. No secrets, no sessions, no users.
+ * This is the local-only gate (NOT identity): admin routes are allowed ONLY in
+ * development AND only when served to a localhost host. In production (or any
+ * non-local host) the guard calls notFound(), so admin pages simply do not
+ * exist there.
  *
- * A proper admin auth (AdminUser/roles/sessions) is a later, dedicated stage.
+ * Identity/sessions are layered on top in ./auth (Этап 18A): protected pages and
+ * the mutation action call ensureLocalAdmin() AND requireAdminSession().
  */
 
 import 'server-only'

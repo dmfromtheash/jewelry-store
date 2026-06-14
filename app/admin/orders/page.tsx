@@ -9,6 +9,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ensureLocalAdmin } from '../../../src/lib/admin/guard'
+import { requireAdminSession } from '../../../src/lib/admin/auth'
 import {
   getAdminOrders,
   isOrderStatus,
@@ -30,6 +31,7 @@ export default async function AdminOrdersPage({
   searchParams: Promise<{ status?: string; q?: string }>
 }) {
   await ensureLocalAdmin()
+  await requireAdminSession()
 
   const { status, q } = await searchParams
   const orders = await getAdminOrders({ status, query: q })
