@@ -7,6 +7,10 @@ and verification script live in `prisma/` and `src/lib/db/`.
 > static mock catalog from `src/data/products.ts` via `src/lib/catalog/*`. This
 > stage only stands up the DB, migration and seed so later stages can adopt it.
 
+> **Day-to-day operation** (start / stop / status / health / backup) is covered
+> in [LOCAL_DB_OPERATIONS.md](./LOCAL_DB_OPERATIONS.md). Quick reference:
+> `npm run db:start | db:stop | db:status | db:health | db:backup`.
+
 ## What's included
 
 - `prisma/schema.prisma` — `Category`, `Product`, `ProductVariant`,

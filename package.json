@@ -13,7 +13,12 @@
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
     "db:verify": "tsx prisma/verify-catalog.ts",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "db:start": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/db/aurelia-db-start.ps1",
+    "db:stop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/db/aurelia-db-stop.ps1",
+    "db:status": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/db/aurelia-db-status.ps1",
+    "db:health": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/db/aurelia-db-health.ps1",
+    "db:backup": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/db/aurelia-db-backup.ps1"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
