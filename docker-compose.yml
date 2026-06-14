@@ -1,0 +1,32 @@
+# AURELIA — local PostgreSQL for development (optional / future use).
+#
+# Equivalent to the native portable cluster used in 15B, but containerised.
+# Exposes Postgres on host port 6700 (NOT the default 5432, which may host an
+# unrelated local cluster). The AURELIA website stays on http://localhost:5000.
+#
+# Use EITHER this OR a native cluster on 6700 — not both at once (port clash).
+#
+#   docker compose up -d     # start
+#   docker compose down      # stop (named volume keeps the data)
+#
+# Credentials below are DEV-ONLY placeholders. Put the matching DATABASE_URL in
+# the gitignored .env (see docs/backend/LOCAL_DB_SETUP.md), e.g.:
+#   DATABASE_URL="postgresql://aurelia:devsecret@localhost:6700/aurelia?schema=public"
+
+services:
+  aurelia-postgres:
+    image: postgres:16
+    container_name: aurelia-postgres
+    environment:
+      POSTGRES_USER: aurelia
+      POSTGRES_PASSWORD: devsecret
+      POSTGRES_DB: aurelia
+    ports:
+      - "6700:5432"
+    volumes:
+      - aurelia-postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  aurelia-postgres-data:
+    name: aurelia-postgres-data

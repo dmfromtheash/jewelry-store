@@ -1,40 +1,84 @@
-# AURELIA — Local DB setup (Этап 15A)
+# AURELIA — Local DB setup (Этапы 15A–15B)
 
-Backend catalog foundation: Prisma + PostgreSQL. This stage adds the schema,
-seed and client helper. **It does NOT switch the storefront to the DB** — the
-frontend still reads the static mock catalog from `src/data/products.ts`.
+Backend catalog runtime: Prisma + PostgreSQL. The schema, seed, client helper
+and verification script live in `prisma/` and `src/lib/db/`.
+
+> **15B does NOT switch the storefront to the DB.** The frontend still reads the
+> static mock catalog from `src/data/products.ts` via `src/lib/catalog/*`. This
+> stage only stands up the DB, migration and seed so later stages can adopt it.
 
 ## What's included
 
 - `prisma/schema.prisma` — `Category`, `Product`, `ProductVariant`,
   `ProductImage` (catalog only; no User/Order/Payment/Admin yet).
+- `prisma/migrations/` — committed migration history (`init_catalog`).
 - `prisma/seed.ts` — idempotent import of the mock catalog.
+- `prisma/verify-catalog.ts` — read-only DB check (counts + sample slugs).
 - `src/lib/db/prisma.ts` — `PrismaClient` singleton (not yet used by any UI).
 
-## Prerequisites
+## Port convention
 
-- A local (or remote) **PostgreSQL** instance.
-- Node 18+ (this repo uses Node 22).
+AURELIA's PostgreSQL uses **port 6700**, deliberately NOT the default `5432`
+(which on this machine hosts an unrelated cluster). The AURELIA website stays on
+`http://localhost:5000`. Keep these isolated.
+
+## Option A — native portable PostgreSQL (used for 15B)
+
+A portable PostgreSQL 16 lives at `C:\tmp\postgresql-16.11\pgsql\bin`. AURELIA
+runs its **own isolated cluster** in a separate data directory and port, so it
+never touches any other local cluster.
+
+```powershell
+$bin  = 'C:\tmp\postgresql-16.11\pgsql\bin'
+$data = 'C:\tmp\aurelia-postgres-data'
+
+# One-time: initialise an isolated cluster (superuser=postgres, scram auth)
+& "$bin\initdb.exe" -D $data -U postgres -A scram-sha-256 --pwfile=<pwfile> -E UTF8 --locale=C
+
+# Start it on 6700 (logs into the cluster's own data dir)
+& "$bin\pg_ctl.exe" -D $data -o '-p 6700' -l "$data\server.log" start
+
+# One-time: create the app role + database (run as superuser)
+#   CREATE ROLE aurelia LOGIN CREATEDB PASSWORD '<dev-only>';
+#   CREATE DATABASE aurelia OWNER aurelia;
+#   \c aurelia
+#   GRANT ALL ON SCHEMA public TO aurelia; ALTER SCHEMA public OWNER TO aurelia;
+
+# Stop the cluster when done (does NOT delete data)
+& "$bin\pg_ctl.exe" -D $data stop
+```
+
+> The `aurelia` role needs `CREATEDB` so `prisma migrate dev` can manage its
+> temporary shadow database.
+
+## Option B — Docker (future / other machines)
+
+If Docker is available, `docker-compose.yml` provides an equivalent cluster on
+**the same port 6700** (container `aurelia-postgres`, volume
+`aurelia-postgres-data`). Use **either** Option A or Option B, not both at once
+(they share port 6700).
+
+```bash
+docker compose up -d        # start aurelia-postgres on localhost:6700
+docker compose down         # stop (keeps the named volume / data)
+```
 
 ## 1. Configure `DATABASE_URL`
 
-Copy the example env file and edit the connection string:
+Copy the example env file and set the real dev password:
 
 ```bash
 cp .env.example .env
 ```
 
 ```
-DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/aurelia?schema=public"
+DATABASE_URL="postgresql://aurelia:<dev-password>@localhost:6700/aurelia?schema=public"
 ```
 
-`.env` is gitignored — never commit it. Create the `aurelia` database in your
-PostgreSQL server first (e.g. `createdb aurelia`).
+`.env` is **gitignored** — never commit it. `.env.example` carries only a
+placeholder.
 
 ## 2. Generate the Prisma client
-
-Required after install and after any schema change (generates types used by
-`typecheck`):
 
 ```bash
 npm run prisma:generate
@@ -46,25 +90,28 @@ npm run prisma:generate
 npm run prisma:validate
 ```
 
-## 4. Run the migration (needs a reachable PostgreSQL)
-
-Creates the tables and the initial migration history:
+## 4. Apply migrations (needs the DB running)
 
 ```bash
-npm run db:migrate
+npm run db:migrate          # prisma migrate dev
 ```
 
-## 5. Seed the catalog (needs a reachable PostgreSQL)
+## 5. Seed the catalog (needs the DB running)
 
-Imports the current mock products into `Category` / `Product` /
-`ProductVariant` / `ProductImage`. Safe to re-run — every write is an upsert,
-so it never creates duplicates:
+Imports the mock products. Safe to re-run — every write is an upsert, so it
+never creates duplicates:
 
 ```bash
 npm run db:seed
 ```
 
-## 6. Inspect the data (optional)
+## 6. Verify the data landed
+
+```bash
+npm run db:verify           # prints counts; asserts 2 categories, 10 products
+```
+
+## 7. Inspect (optional)
 
 ```bash
 npm run db:studio
@@ -75,10 +122,10 @@ npm run db:studio
 - **Money** is stored as integer **minor units (kopecks)** — the seed converts
   whole-RUB mock prices (`2490` → `249000`). Never store money as float.
 - **Prices are server-authoritative**; `coming-soon` products have `price = null`.
-- `ProductImage.url` is `null` for now (the UI renders a gem placeholder); the
-  row reserves the ordered image slot for real assets later.
-- **Migrate and seed require `DATABASE_URL`** and a reachable PostgreSQL. They
-  are NOT run automatically as part of build/typecheck.
+- `ProductImage.url` is `null` for now (UI renders a gem placeholder); the row
+  reserves the ordered image slot for real assets later.
+- **Migrate / seed / verify require a reachable PostgreSQL on 6700** and are NOT
+  run as part of build/typecheck.
 - Prisma is pinned to **6.x** on purpose: Prisma 7 removed `url = env(...)` from
-  the schema (it requires `prisma.config.ts` + a driver adapter), which is out
-  of scope for this minimal foundation.
+  the schema (it requires `prisma.config.ts` + a driver adapter), out of scope
+  for this foundation.
