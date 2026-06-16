@@ -150,6 +150,49 @@ model Order {
   @@index([status])
 }
 
+/// Privacy-safe storefront analytics event (Этап 23A). Append-only behavioral
+/// signal — NOT business truth (that stays in Order). Follows the contract in
+/// docs/backend/ANALYTICS_EVENT_TAXONOMY.md: no raw PII, no secrets, no full IP.
+/// References to catalog/order rows are loose ids (no FK) so analytics survives
+/// deletions and stays decoupled. Identifiable data is NEVER copied here — only
+/// referenced by id. Writes go exclusively through src/lib/analytics/record.ts,
+/// which allowlists the event name and strips forbidden payload keys.
+model AnalyticsEvent {
+  id                 String   @id @default(cuid())
+  createdAt          DateTime @default(now())
+  /// Stable snake_case event name from the taxonomy (validated server-side).
+  eventName          String
+  /// Opaque, rotating, non-identifying session id (never encodes user data).
+  anonymousSessionId String?
+  /// Reserved for future customer accounts. Null today (no accounts exist).
+  userId             String?
+  productId          String?
+  categoryId         String?
+  orderId            String?
+  orderCode          String?
+  /// Path only (no PII query strings).
+  pagePath           String?
+  /// Registrable domain only — never the full referrer URL.
+  referrerDomain     String?
+  utmSource          String?
+  utmMedium          String?
+  utmCampaign        String?
+  utmContent         String?
+  utmTerm            String?
+  /// Coarse bucket only: "mobile" | "tablet" | "desktop". No raw user-agent.
+  deviceType         String?
+  /// Small, sanitized JSON. MUST NOT hold secrets/cookies/PII/full payment.
+  payload            Json?
+  /// Optional consent/DNT flags. No identities.
+  privacyFlags       Json?
+
+  @@index([createdAt])
+  @@index([eventName])
+  @@index([productId])
+  @@index([categoryId])
+  @@index([orderCode])
+}
+
 /// Append-only admin/security audit trail (Этап 21A). Records important admin
 /// actions for accountability — login success/failure, logout, order status
 /// changes. Privacy-first: rows MUST NOT contain secrets, session cookies,

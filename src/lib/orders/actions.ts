@@ -14,6 +14,7 @@ import { Prisma } from '@prisma/client'
 import { prisma } from '../db/prisma'
 import { validateOrderDraftFields, hasErrors } from './validate'
 import { QTY_MAX, QTY_MIN, type OrderDraftInput, type OrderDraftResult } from './types'
+import { recordCheckoutError, recordDraftOrderCreated } from '../analytics/record'
 
 function generateOrderCode(): string {
   // 8 hex chars (~4.3B combos); uniqueness is also enforced by the DB + retry.
@@ -28,6 +29,7 @@ export async function createOrderDraft(input: OrderDraftInput): Promise<OrderDra
   // 1) Field validation (authoritative; the form reuses the same rules for UX).
   const fieldErrors = validateOrderDraftFields(input)
   if (hasErrors(fieldErrors)) {
+    await recordCheckoutError({ errorType: 'validation' })
     return { ok: false, error: 'Проверьте поля формы.', fieldErrors }
   }
 
@@ -37,11 +39,13 @@ export async function createOrderDraft(input: OrderDraftInput): Promise<OrderDra
     const slug = typeof item?.slug === 'string' ? item.slug : ''
     const qty = Math.floor(Number(item?.qty))
     if (!slug || !Number.isFinite(qty) || qty < QTY_MIN || qty > QTY_MAX) {
+      await recordCheckoutError({ errorType: 'invalid_quantity' })
       return { ok: false, error: 'Некорректное количество товара в заказе.' }
     }
     requested.set(slug, (requested.get(slug) ?? 0) + qty)
   }
   if (requested.size === 0) {
+    await recordCheckoutError({ errorType: 'empty_cart', itemCount: 0 })
     return { ok: false, error: 'Корзина пуста.', fieldErrors: { items: 'Корзина пуста.' } }
   }
 
@@ -58,9 +62,11 @@ export async function createOrderDraft(input: OrderDraftInput): Promise<OrderDra
   for (const [slug, qty] of requested) {
     const product = bySlug.get(slug)
     if (!product) {
+      await recordCheckoutError({ errorType: 'product_unavailable' })
       return { ok: false, error: `Товар «${slug}» больше не доступен.` }
     }
     if (product.status !== 'available' || product.price == null) {
+      await recordCheckoutError({ errorType: 'product_unavailable' })
       return { ok: false, error: `Товар «${product.name}» сейчас нельзя заказать.` }
     }
     const lineTotal = product.price * qty
@@ -79,6 +85,7 @@ export async function createOrderDraft(input: OrderDraftInput): Promise<OrderDra
   // 5) Persist Order + OrderItems atomically (nested create is one transaction).
   //    Retry only on the (rare) order-code collision.
   const totalAmount = subtotalAmount // no delivery cost / discounts in 16A
+  const itemCount = itemRows.reduce((n, r) => n + (r.quantity ?? 0), 0)
   for (let attempt = 0; attempt < 5; attempt++) {
     const orderCode = generateOrderCode()
     try {
@@ -98,12 +105,16 @@ export async function createOrderDraft(input: OrderDraftInput): Promise<OrderDra
         },
         select: { orderCode: true },
       })
+      // Analytics: order CODE + coarse totals only — never customer PII.
+      await recordDraftOrderCreated({ orderCode: order.orderCode, itemCount, totalMinor: totalAmount })
       return { ok: true, orderCode: order.orderCode }
     } catch (e) {
       if (isUniqueViolation(e) && attempt < 4) continue
       console.error('createOrderDraft failed:', e)
+      await recordCheckoutError({ errorType: 'server', itemCount })
       return { ok: false, error: 'Не удалось создать заказ. Попробуйте ещё раз.' }
     }
   }
+  await recordCheckoutError({ errorType: 'server', itemCount })
   return { ok: false, error: 'Не удалось создать заказ. Попробуйте ещё раз.' }
 }

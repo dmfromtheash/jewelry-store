@@ -11,6 +11,12 @@
 > taxonomy, §7 data model), [ADMIN_AUDIT_LOG.md](./ADMIN_AUDIT_LOG.md) (admin
 > actions — a separate stream), [SECURITY_NOTES.md](./SECURITY_NOTES.md) (PII /
 > secrets rules), [ORDER_DRAFT_FLOW.md](./ORDER_DRAFT_FLOW.md) (checkout).
+>
+> **Implementation status:** Stage 23A built the capture foundation (model,
+> validated `recordEvent()`, anonymous session, and the server-side
+> `draft_order_created` / `checkout_error` events). Client-originated events
+> (`product_view`, `category_view`, `begin_checkout`, `add_to_cart`) are deferred
+> — see [ANALYTICS_EVENT_CAPTURE.md](./ANALYTICS_EVENT_CAPTURE.md).
 
 ## 1. Purpose
 

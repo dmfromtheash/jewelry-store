@@ -305,7 +305,7 @@ One clean task and one commit per stage. Each stage states what to include and, 
 - **20A — Admin Shell & Navigation Foundation.** Persistent sidebar, topbar, route scaffolding for the target IA. *Not included:* real analytics data, charts.
 - **21A — Admin Audit Log Foundation.** `AdminAuditLog` model + writing audit entries on admin state changes. *Not included:* analytics events, dashboards.
 - **22A — Analytics Event Taxonomy & Spec — done.** Event names, the shared event envelope, privacy/forbidden-data rules, retention/aggregation plan, and 23A readiness gates — see [ANALYTICS_EVENT_TAXONOMY.md](./ANALYTICS_EVENT_TAXONOMY.md). *Not included:* capture implementation.
-- **23A — Analytics Event Capture Foundation.** `AnalyticsEvent` model + capture pipeline for storefront events. *Not included:* aggregation tables, dashboards.
+- **23A — Analytics Event Capture Foundation — done.** `AnalyticsEvent` model + validated `recordEvent()` + anonymous session; captures server-side `draft_order_created` / `checkout_error` (client-originated events deferred). See [ANALYTICS_EVENT_CAPTURE.md](./ANALYTICS_EVENT_CAPTURE.md). *Not included:* aggregation tables, dashboards.
 - **24A — Dashboard KPI v1.** First Command Center with 5–8 KPI widgets from available data. *Not included:* funnel, product deep-dives.
 - **25A — Orders Operations v2.** Faster filtering/search, bulk-friendly status workflow, better order detail. *Not included:* analytics charts.
 - **26A — Catalog Quality Dashboard.** Detect missing images/descriptions/categories/SEO fields. *Not included:* automated fixes.
