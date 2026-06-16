@@ -14,7 +14,7 @@
 import 'server-only'
 
 import { createHmac, timingSafeEqual } from 'crypto'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 export const ADMIN_SESSION_COOKIE = 'au_admin_session'
@@ -177,6 +177,58 @@ export async function endAdminSession(): Promise<void> {
     path: '/admin',
     maxAge: 0,
   })
+}
+
+// --- Login throttle (best-effort, in-memory) ---------------------------------
+// A dependency-free brute-force speed-bump for the local admin login. State lives
+// in module memory: it is per-process and fails OPEN on server restart / dev HMR,
+// so it can never permanently lock out the legitimate single admin. This is
+// defense-in-depth on top of the local-only guard (ensureLocalAdmin) — durable,
+// per-account rate limiting belongs with the future AdminUser/DB model.
+
+const LOGIN_WINDOW_MS = 10 * 60 * 1000 // rolling 10-minute window
+const LOGIN_MAX_FAILURES = 10 // failed attempts per window before lockout
+
+interface LoginAttemptBucket {
+  count: number
+  resetAt: number
+}
+
+const loginAttempts = new Map<string, LoginAttemptBucket>()
+
+/** Derives a coarse client key for throttling (proxy IP if present, else local). */
+export async function getLoginClientKey(): Promise<string> {
+  const h = await headers()
+  const fwd = h.get('x-forwarded-for')?.split(',')[0]?.trim()
+  const ip = fwd || h.get('x-real-ip')?.trim()
+  return ip || 'local'
+}
+
+/** True when the key has exhausted its failed-attempt budget for the window. */
+export function isLoginThrottled(key: string): boolean {
+  const bucket = loginAttempts.get(key)
+  if (!bucket) return false
+  if (Date.now() > bucket.resetAt) {
+    loginAttempts.delete(key)
+    return false
+  }
+  return bucket.count >= LOGIN_MAX_FAILURES
+}
+
+/** Records a failed login attempt for the key (starts/continues the window). */
+export function registerFailedLogin(key: string): void {
+  const now = Date.now()
+  const bucket = loginAttempts.get(key)
+  if (!bucket || now > bucket.resetAt) {
+    loginAttempts.set(key, { count: 1, resetAt: now + LOGIN_WINDOW_MS })
+    return
+  }
+  bucket.count += 1
+}
+
+/** Clears the failed-attempt counter for the key (call on successful login). */
+export function clearLoginThrottle(key: string): void {
+  loginAttempts.delete(key)
 }
 
 /**

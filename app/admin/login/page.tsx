@@ -35,7 +35,9 @@ export default async function AdminLoginPage({
       ? 'Вход не настроен. Задайте переменные ADMIN_* в .env (см. .env.example).'
       : error === 'invalid'
         ? 'Неверный логин или пароль.'
-        : null
+        : error === 'throttled'
+          ? 'Слишком много попыток входа. Подождите немного и попробуйте снова.'
+          : null
 
   return (
     <div className="au-container au-adm au-adm-login">

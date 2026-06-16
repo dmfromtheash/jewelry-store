@@ -13,7 +13,11 @@ import { redirect } from 'next/navigation'
 import { ensureLocalAdmin } from './guard'
 import {
   AdminAuthConfigError,
+  clearLoginThrottle,
   endAdminSession,
+  getLoginClientKey,
+  isLoginThrottled,
+  registerFailedLogin,
   sanitizeNextPath,
   startAdminSession,
   verifyAdminCredentials,
@@ -21,6 +25,11 @@ import {
 
 export async function loginAction(formData: FormData) {
   await ensureLocalAdmin()
+
+  // Best-effort brute-force speed-bump (in-memory; see auth.ts). Refuse without
+  // even checking credentials once the failure budget is exhausted.
+  const clientKey = await getLoginClientKey()
+  if (isLoginThrottled(clientKey)) redirect('/admin/login?error=throttled')
 
   const username = String(formData.get('username') ?? '')
   const password = String(formData.get('password') ?? '')
@@ -34,8 +43,12 @@ export async function loginAction(formData: FormData) {
     throw err
   }
 
-  if (!ok) redirect('/admin/login?error=invalid')
+  if (!ok) {
+    registerFailedLogin(clientKey)
+    redirect('/admin/login?error=invalid')
+  }
 
+  clearLoginThrottle(clientKey)
   await startAdminSession(username)
   redirect(next)
 }

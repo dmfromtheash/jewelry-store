@@ -75,3 +75,35 @@
 - Parameterized queries only (ORM handles this; never string-concat SQL).
 - Consistent error shape that does not leak internals/stack traces to clients.
 - Security headers (CSP, HSTS, X-Content-Type-Options) at the edge/app layer.
+
+## 11. Admin auth — current implementation (Этап 18A / 18B)
+> Unlike the spec above, this section documents what is **already implemented**
+> for the local admin area. The model is intentionally minimal: a single
+> env-based admin credential, no `AdminUser` DB model yet.
+
+- **Local-only gate.** `ensureLocalAdmin()` calls `notFound()` in production and
+  on any non-localhost host, so `/admin/*` simply does not exist off local dev.
+- **Identity.** Credentials come from env (`ADMIN_USERNAME` / `ADMIN_PASSWORD`);
+  the session is a tamper-resistant `httpOnly`, `SameSite=Lax` cookie signed with
+  HMAC-SHA256 (`ADMIN_SESSION_SECRET`, min 32 chars), `Secure` in production,
+  scoped to `path=/admin`, 12h TTL. Comparisons are constant-time.
+- **Defense in depth.** Every protected page and the order-status mutation action
+  call `ensureLocalAdmin()` **and** `requireAdminSession()`; an unauthenticated
+  POST is redirected to login and never mutates.
+- **noindex by default.** `app/admin/layout.tsx` sets `robots: { index:false,
+  follow:false }` for the whole `/admin` subtree (individual pages also set it),
+  and admin routes are never linked from public navigation.
+- **Generic errors.** Login failures return a generic message; no username/secret
+  is disclosed, nothing sensitive is logged.
+- **Login throttle (best-effort).** A dependency-free in-memory speed-bump
+  (`auth.ts`: 10 failed attempts / 10-min rolling window per client key) slows
+  repeated failures. It is **per-process and fails open** on restart/HMR, so it
+  cannot permanently lock out the single admin — durable, per-account rate
+  limiting is deferred to the future `AdminUser`/DB model (see §4 and the admin
+  superpanel roadmap).
+
+### Follow-up (not in this stage)
+- Move to an `AdminUser` model with hashed passwords + roles/permissions.
+- Append-only `AuditLog` for admin state changes (§7).
+- Durable rate limiting (per-IP/per-account, exponential backoff) and security
+  headers (§10) once admin is exposed beyond local dev.
