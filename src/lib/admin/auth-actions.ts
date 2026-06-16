@@ -15,6 +15,7 @@ import {
   AdminAuthConfigError,
   clearLoginThrottle,
   endAdminSession,
+  getAdminSession,
   getLoginClientKey,
   isLoginThrottled,
   registerFailedLogin,
@@ -22,6 +23,7 @@ import {
   startAdminSession,
   verifyAdminCredentials,
 } from './auth'
+import { auditLoginFailure, auditLoginSuccess, auditLogout } from './audit'
 
 export async function loginAction(formData: FormData) {
   await ensureLocalAdmin()
@@ -29,7 +31,10 @@ export async function loginAction(formData: FormData) {
   // Best-effort brute-force speed-bump (in-memory; see auth.ts). Refuse without
   // even checking credentials once the failure budget is exhausted.
   const clientKey = await getLoginClientKey()
-  if (isLoginThrottled(clientKey)) redirect('/admin/login?error=throttled')
+  if (isLoginThrottled(clientKey)) {
+    await auditLoginFailure('throttled')
+    redirect('/admin/login?error=throttled')
+  }
 
   const username = String(formData.get('username') ?? '')
   const password = String(formData.get('password') ?? '')
@@ -45,16 +50,21 @@ export async function loginAction(formData: FormData) {
 
   if (!ok) {
     registerFailedLogin(clientKey)
+    await auditLoginFailure('invalid_credentials')
     redirect('/admin/login?error=invalid')
   }
 
   clearLoginThrottle(clientKey)
   await startAdminSession(username)
+  await auditLoginSuccess(username)
   redirect(next)
 }
 
 export async function logoutAction() {
   await ensureLocalAdmin()
+  // Capture the subject before clearing the cookie so the audit row has an actor.
+  const session = await getAdminSession()
   await endAdminSession()
+  if (session) await auditLogout(session.sub)
   redirect('/admin/login')
 }

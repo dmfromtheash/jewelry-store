@@ -237,7 +237,7 @@ export function clearLoginThrottle(key: string): void {
  * redirects and login loops.
  */
 export function sanitizeNextPath(next: string | undefined | null): string {
-  const fallback = '/admin/orders'
+  const fallback = '/admin/dashboard'
   if (!next) return fallback
   if (!next.startsWith('/admin/')) return fallback
   if (next.startsWith('//')) return fallback

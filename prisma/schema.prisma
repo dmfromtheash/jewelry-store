@@ -150,6 +150,39 @@ model Order {
   @@index([status])
 }
 
+/// Append-only admin/security audit trail (Этап 21A). Records important admin
+/// actions for accountability — login success/failure, logout, order status
+/// changes. Privacy-first: rows MUST NOT contain secrets, session cookies,
+/// passwords, the session secret, full payment data, or unnecessary customer
+/// PII (see docs/backend/SECURITY_NOTES.md and ADMIN_AUDIT_LOG.md). Designed to
+/// support future roles/users without requiring an AdminUser model yet — the
+/// actor is just a string (today the session subject or "anonymous").
+model AdminAuditLog {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  /// Who acted. Today: the admin session subject (username) on authenticated
+  /// actions, or "anonymous" for failed/throttled logins. Not a secret.
+  actor      String
+  /// Stable action identifier, e.g. "admin.login.success".
+  action     String
+  /// Whether the action succeeded (false for failed/refused logins).
+  success    Boolean  @default(true)
+  /// Optional target entity type, e.g. "order".
+  entityType String?
+  /// Optional target entity id/code, e.g. an order code. Never raw PII.
+  entityId   String?
+  /// Short, human-readable summary. Safe by construction — no secrets/PII.
+  summary    String
+  /// Optional machine reason, e.g. "invalid_credentials" / "throttled".
+  reason     String?
+  /// Optional minimal structured context (e.g. status transition). MUST NOT
+  /// hold secrets, cookies, passwords, full payment data, or raw customer PII.
+  metadata   Json?
+
+  @@index([createdAt])
+  @@index([action])
+}
+
 /// Immutable line snapshot captured at order time (name/price/sku copied so the
 /// order is stable even if the product later changes). `productId` is nullable
 /// so the order survives product deletion.

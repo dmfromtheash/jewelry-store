@@ -95,6 +95,16 @@ export async function getAdminOrderByCode(orderCode: string) {
   })
 }
 
+/** Reads just the current status (for audit transition logging). No PII. */
+export async function getAdminOrderStatus(orderCode: string): Promise<OrderStatus | null> {
+  if (!orderCode) return null
+  const row = await prisma.order.findUnique({
+    where: { orderCode },
+    select: { status: true },
+  })
+  return row?.status ?? null
+}
+
 /** Updates ONLY the status. Never touches items, prices, or contact data. */
 export async function updateAdminOrderStatus(orderCode: string, status: OrderStatus) {
   return prisma.order.update({

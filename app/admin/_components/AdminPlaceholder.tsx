@@ -8,11 +8,15 @@
  * not here.
  */
 
+import Link from 'next/link'
+
 export function AdminPlaceholder({
   title,
   lead,
   planned,
   stage,
+  actionHref,
+  actionLabel,
 }: {
   /** Section heading (Russian, matches sidebar label). */
   title: string
@@ -22,6 +26,10 @@ export function AdminPlaceholder({
   planned: string[]
   /** Roadmap stage that will deliver this section, if known. */
   stage?: string
+  /** Optional link to a part of this section that IS already implemented. */
+  actionHref?: string
+  /** Label for the optional action link (required when actionHref is set). */
+  actionLabel?: string
 }) {
   return (
     <div className="au-container au-adm">
@@ -47,6 +55,13 @@ export function AdminPlaceholder({
         {stage && (
           <p className="au-adm-note">
             Запланировано: этап {stage} (см. docs/backend/ADMIN_SUPERPANEL_ROADMAP.md).
+          </p>
+        )}
+        {actionHref && actionLabel && (
+          <p className="au-adm-cta">
+            <Link className="au-btn au-btn--primary" href={actionHref}>
+              {actionLabel}
+            </Link>
           </p>
         )}
       </div>

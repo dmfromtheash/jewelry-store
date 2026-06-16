@@ -117,6 +117,15 @@
   background: #f6e7e2;
   color: var(--au-danger);
 }
+/* Audit-log result badges (Этап 21A) */
+.au-adm-badge--ok {
+  background: var(--au-gold-tint);
+  color: var(--au-gold);
+}
+.au-adm-badge--fail {
+  background: #f6e7e2;
+  color: var(--au-danger);
+}
 
 /* ---- Empty state ---- */
 .au-adm-empty {

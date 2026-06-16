@@ -104,6 +104,23 @@
 
 ### Follow-up (not in this stage)
 - Move to an `AdminUser` model with hashed passwords + roles/permissions.
-- Append-only `AuditLog` for admin state changes (§7).
 - Durable rate limiting (per-IP/per-account, exponential backoff) and security
   headers (§10) once admin is exposed beyond local dev.
+
+## 12. Admin audit log — current implementation (Этап 21A)
+> Implements the append-only audit trail promised in §7 (foundation only).
+
+- **Model `AdminAuditLog`** (Prisma; additive migration). Records: admin login
+  success, login failure (bad credentials **and** throttled), logout, and order
+  status changes. Helper: `src/lib/admin/audit.ts` (server-only).
+- **Privacy by construction.** No passwords (nor the attempted password), no
+  cookies, no `ADMIN_SESSION_SECRET`, no full payment data, no raw customer PII.
+  Failed logins record only a machine `reason` and actor `anonymous`. Order
+  events store the order **code** + status transition, never contact details.
+- **Side-effect-safe.** A failed audit write is swallowed (logged without the
+  payload) so it can never break the underlying admin action.
+- **Viewer.** `/admin/audit-log` — `ensureLocalAdmin()` + `requireAdminSession()`,
+  `noindex`; shows the 50 most recent events with no raw `metadata` JSON dump.
+- **Follow-up:** retention/rotation, optional hashed IP/user-agent with a defined
+  window, filtering/search, and richer actors once `AdminUser` exists. See
+  docs/backend/ADMIN_AUDIT_LOG.md.
