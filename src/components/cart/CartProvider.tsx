@@ -11,6 +11,8 @@ import {
 } from 'react'
 import { type Product } from '../../lib/catalog'
 import { useCatalog } from '../../lib/catalog/CatalogProvider'
+import { sendAnalyticsEvent } from '../../lib/analytics/client'
+import { ANALYTICS_EVENTS } from '../../lib/analytics/events'
 import CartDrawer from './CartDrawer'
 
 /**
@@ -103,6 +105,8 @@ export default function CartProvider({ children }: { children: ReactNode }) {
       if (found) return prev.map((e) => (e.slug === slug ? { ...e, qty: e.qty + qty } : e))
       return [...prev, { slug, qty }]
     })
+    // Analytics: slug + quantity only (no customer data). Best-effort.
+    sendAnalyticsEvent(ANALYTICS_EVENTS.addToCart, { productSlug: slug, quantity: qty })
   }, [getBySlug])
 
   const removeItem = useCallback((slug: string) => {
@@ -122,7 +126,10 @@ export default function CartProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const clear = useCallback(() => setEntries([]), [])
-  const openCart = useCallback(() => setIsOpen(true), [])
+  const openCart = useCallback(() => {
+    setIsOpen(true)
+    sendAnalyticsEvent(ANALYTICS_EVENTS.cartView) // viewed cart; no payload/PII
+  }, [])
   const closeCart = useCallback(() => setIsOpen(false), [])
 
   // Resolve catalog data + totals. Entries whose slug is no longer in the

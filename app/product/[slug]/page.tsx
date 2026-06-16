@@ -12,6 +12,8 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import ProductPageLayout from '../../../src/components/product/ProductPageLayout'
+import TrackView from '../../../src/components/analytics/TrackView'
+import { ANALYTICS_EVENTS } from '../../../src/lib/analytics/events'
 import {
   getAllProductSlugsFromDb,
   getProductBySlugFromDb,
@@ -61,14 +63,17 @@ export default async function ProductPage({
     .map((item) => item.category)
 
   return (
-    <ProductPageLayout
-      breadcrumbs={[
-        { label: 'Главная', href: '/' },
-        { label: category.label, href: category.href },
-        { label: product.name },
-      ]}
-      similar={similar}
-      product={product}
-    />
+    <>
+      <TrackView event={ANALYTICS_EVENTS.productView} payload={{ productSlug: product.slug }} />
+      <ProductPageLayout
+        breadcrumbs={[
+          { label: 'Главная', href: '/' },
+          { label: category.label, href: category.href },
+          { label: product.name },
+        ]}
+        similar={similar}
+        product={product}
+      />
+    </>
   )
 }

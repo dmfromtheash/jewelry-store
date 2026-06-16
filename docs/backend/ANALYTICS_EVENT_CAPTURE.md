@@ -25,29 +25,53 @@ server-side hook today. **No dashboards / admin analytics UI** are built here.
 
 ## Events captured now
 
+**Server-side (23A)** — the server already knows the action; no client, no PII:
+
 | Event | Where | Data captured (no PII) |
 |---|---|---|
 | `draft_order_created` | `createOrderDraft` success | `orderCode`, `pagePath=/checkout`, payload `{ itemCount, totalMinor }`, anon session, coarse device/referrer |
 | `checkout_error` | `createOrderDraft` failure branches | payload `{ errorType, itemCount? }` where `errorType` ∈ `validation` / `invalid_quantity` / `empty_cart` / `product_unavailable` / `server`; anon session |
 
-These are captured **server-side**, where the server already knows the action —
-no client instrumentation, no PII, no fragile hacks.
+**Client-side via the capture gateway (23B)** — sent through `POST /api/analytics`:
+
+| Event | Where | Data captured (no PII) |
+|---|---|---|
+| `product_view` | `<TrackView>` on `/product/[slug]` | payload `{ productSlug }` |
+| `category_view` | `<TrackView>` on category pages | payload `{ categorySlug }` |
+| `add_to_cart` | `CartProvider.addItem` | payload `{ productSlug, quantity }` |
+| `cart_view` | `CartProvider.openCart` | no payload |
+| `begin_checkout` | `CheckoutPageClient` (cart non-empty) | payload `{ itemCount, cartTotalMinor }` |
+
+All client payloads carry only slugs / counts / coarse totals — never customer
+data. The anonymous session, device bucket and referrer domain are derived
+**server-side** in the route, not sent by the client.
 
 ## Events intentionally deferred (and why)
 
 | Event | Reason deferred |
 |---|---|
-| `product_view` | `/product/[slug]` is **statically prerendered** (`dynamicParams=false`, build-time `generateStaticParams`). No per-request server hook to record on render. |
-| `category_view` | Category pages are **static** server components rendered at build — no per-request execution. |
-| `begin_checkout` | The checkout page renders a **client** component; entry happens client-side. |
-| `add_to_cart` | The cart is **purely client/localStorage**; there is no server-side add hook. The taxonomy/brief explicitly allow deferring this rather than converting the cart system for analytics. |
+| `search_performed` / `search_no_results` | Search is URL-driven, in-memory and client-only. Storing query **values** safely requires **value-level** PII redaction (drop email/phone-like queries), which the current sanitizer does not do (it strips by key, not value). Deferred until a `normalizeSearchQuery()` value guard is added — out of scope for 23B to avoid expanding it. |
+| `remove_from_cart`, `checkout_step_view`, `product_image_view`, `collection_view` | Lower-priority funnel/discovery events; add once the core funnel is validated. |
+| Marketing/source + site-health groups | Need landing/first-touch capture and error-boundary wiring respectively — separate stages. |
 
-**Capturing these cleanly needs a dedicated client-instrumentation stage:** a
-same-origin capture endpoint (e.g. `POST /api/analytics`) that runs the requested
-events through `recordEvent()` (same allowlist + sanitization), plus a minimal
-client beacon on the relevant pages. That endpoint + beacons are deliberately
-**out of scope for 23A** to avoid bolting fragile client hacks onto the working
-static storefront. The backend foundation here is ready to serve them.
+## Client capture gateway (23B)
+
+- **Route:** `app/api/analytics/route.ts` (`POST`, Node.js runtime). The only
+  client→server analytics path. Guards: **same-origin** (Origin must match host
+  when present), **JSON only**, **≤ 2 KB** body. Delegates to the server-only
+  `recordClientEvent()`. Returns `204` (accepted) / `400` (unknown event or bad
+  request) / `413` (too big). Never logs payloads, never leaks internals.
+- **Server enforcement (`recordClientEvent` in `record.ts`):** normalizes +
+  allowlists the event name (rejects unknown), derives the anonymous session +
+  coarse device/referrer server-side, strips a query string from `pagePath`, and
+  writes through `recordEvent()` (payload sanitization). The client can only
+  influence `event` / `pagePath` / `payload`.
+- **Client helper:** `src/lib/analytics/client.ts` — `sendAnalyticsEvent()` uses
+  `navigator.sendBeacon` (fire-and-forget) with a `keepalive` `fetch` fallback.
+  Dependency-free, never throws, no-ops on the server, never blocks the UI.
+- **View tracker:** `src/components/analytics/TrackView.tsx` — a render-nothing
+  `'use client'` component for the static product/category pages; fires once per
+  mount (and on slug change). No layout/hydration impact beyond a tiny effect.
 
 ## Privacy / forbidden-data enforcement
 

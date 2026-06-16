@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCart } from '../cart/CartProvider'
@@ -8,6 +8,8 @@ import { formatPrice } from '../../lib/catalog'
 import { createOrderDraft } from '../../lib/orders/actions'
 import { validateOrderDraftFields, hasErrors } from '../../lib/orders/validate'
 import type { OrderDraftInput, OrderFieldErrors } from '../../lib/orders/types'
+import { sendAnalyticsEvent } from '../../lib/analytics/client'
+import { ANALYTICS_EVENTS } from '../../lib/analytics/events'
 
 /**
  * AURELIA — CheckoutPageClient (client) — Этапы 10A → 16A
@@ -46,6 +48,19 @@ export default function CheckoutPageClient() {
   const [errors, setErrors] = useState<OrderFieldErrors>({})
   const [generalError, setGeneralError] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
+
+  // begin_checkout: fire once when the cart first has items (cart hydrates from
+  // localStorage after mount). Counts/totals only — never any contact data.
+  const beganCheckout = useRef(false)
+  useEffect(() => {
+    if (!beganCheckout.current && lines.length > 0) {
+      beganCheckout.current = true
+      sendAnalyticsEvent(ANALYTICS_EVENTS.beginCheckout, {
+        itemCount: count,
+        cartTotalMinor: Math.round(subtotal * 100),
+      })
+    }
+  }, [lines.length, count, subtotal])
 
   const set = (key: keyof typeof form) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,

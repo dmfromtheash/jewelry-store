@@ -6,6 +6,8 @@
 
 import type { Metadata } from 'next'
 import CategoryLayout from '../../../src/components/category/CategoryLayout'
+import TrackView from '../../../src/components/analytics/TrackView'
+import { ANALYTICS_EVENTS } from '../../../src/lib/analytics/events'
 import { getProductsByCategorySlugFromDb } from '../../../src/lib/catalog/server'
 
 export const metadata: Metadata = {
@@ -31,13 +33,16 @@ export default async function GiftsCategoryPage() {
   const PRODUCTS = await getProductsByCategorySlugFromDb('gifts')
 
   return (
-    <CategoryLayout
-      breadcrumbs={[{ label: 'Главная', href: '/' }, { label: 'Подарки' }]}
-      title="Подарки"
-      chips={CHIPS}
-      products={PRODUCTS}
-      seoTitle="Подарки от AURELIA"
-      seoParagraphs={SEO_PARAGRAPHS}
-    />
+    <>
+      <TrackView event={ANALYTICS_EVENTS.categoryView} payload={{ categorySlug: 'gifts' }} />
+      <CategoryLayout
+        breadcrumbs={[{ label: 'Главная', href: '/' }, { label: 'Подарки' }]}
+        title="Подарки"
+        chips={CHIPS}
+        products={PRODUCTS}
+        seoTitle="Подарки от AURELIA"
+        seoParagraphs={SEO_PARAGRAPHS}
+      />
+    </>
   )
 }

@@ -147,6 +147,44 @@ export async function recordEvent(input: RecordEventInput): Promise<void> {
   }
 }
 
+/**
+ * Records a CLIENT-originated event (from the same-origin /api/analytics route).
+ * Validates the event name against the taxonomy allowlist, derives the anonymous
+ * session + coarse request signals server-side, and writes via recordEvent
+ * (which sanitizes the payload). Returns whether the event name was accepted.
+ * The client can only influence eventName / pagePath / payload — never the
+ * anonymous session id, device, or referrer (those are server-derived).
+ */
+export async function recordClientEvent(
+  eventName: string,
+  payload?: unknown,
+  pagePath?: string | null,
+): Promise<boolean> {
+  try {
+    const name = normalizeEventName(eventName)
+    if (!name) return false // unknown/disallowed event — reject
+
+    const anonymousSessionId = await getOrCreateAnonymousSessionId()
+    const { deviceType, referrerDomain } = await getRequestSignals()
+    // Path only, no query string, length-capped.
+    const safePath =
+      typeof pagePath === 'string' ? pagePath.split('?')[0].slice(0, 200) : null
+
+    await recordEvent({
+      eventName: name,
+      anonymousSessionId,
+      deviceType,
+      referrerDomain,
+      pagePath: safePath,
+      payload,
+    })
+    return true
+  } catch {
+    // Best-effort: never throw to the route.
+    return false
+  }
+}
+
 /** draft_order_created — order CODE + coarse totals only; NO customer PII. */
 export async function recordDraftOrderCreated(opts: {
   orderCode: string
