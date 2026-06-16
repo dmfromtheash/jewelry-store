@@ -343,6 +343,129 @@
   margin-top: 14px;
 }
 
+/* ---- Dashboard KPI v1 (Этап 24A) ---- */
+.au-adm-section-title {
+  margin: 28px 0 12px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--au-ink-soft);
+}
+
+.au-adm-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+.au-adm-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 18px;
+  border: 1px solid var(--au-line);
+  border-radius: var(--au-radius-lg);
+  background: var(--au-bg);
+}
+.au-adm-kpi-label {
+  font-size: 13px;
+  color: var(--au-muted);
+}
+.au-adm-kpi-value {
+  font-family: var(--au-font-display);
+  font-size: 26px;
+  line-height: 1.1;
+  color: var(--au-ink);
+}
+.au-adm-kpi-hint {
+  font-size: 12px;
+  color: var(--au-muted);
+}
+
+/* Orders status breakdown */
+.au-adm-breakdown {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+}
+.au-adm-breakdown li {
+  display: grid;
+  grid-template-columns: 140px 60px 1fr;
+  align-items: center;
+  gap: 12px;
+}
+.au-adm-breakdown-count {
+  font-weight: 700;
+  color: var(--au-ink);
+}
+.au-adm-breakdown-sum {
+  text-align: right;
+  color: var(--au-ink-soft);
+}
+
+/* Recent activity (two columns) */
+.au-adm-recent {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+.au-adm-recent .au-adm-card {
+  margin-top: 0;
+}
+.au-adm-feed {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.au-adm-feed-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--au-line);
+  font-size: 13px;
+}
+.au-adm-feed-row:last-child {
+  border-bottom: none;
+}
+.au-adm-feed-main {
+  color: var(--au-ink);
+  min-width: 0;
+  word-break: break-word;
+}
+.au-adm-feed-meta {
+  color: var(--au-muted);
+}
+.au-adm-feed-aside {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  white-space: nowrap;
+}
+.au-adm-feed-actor {
+  color: var(--au-ink-soft);
+  font-weight: 600;
+}
+.au-adm-feed-time {
+  color: var(--au-muted);
+  font-size: 12px;
+}
+
+.au-adm-quicklinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 /* ---- Responsive ---- */
 @media (max-width: 900px) {
   .au-adm-grid {
@@ -361,5 +484,24 @@
   .au-adm-nav {
     flex-direction: row;
     flex-wrap: wrap;
+  }
+  .au-adm-kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .au-adm-recent {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .au-adm-kpis {
+    grid-template-columns: 1fr;
+  }
+  .au-adm-breakdown li {
+    grid-template-columns: 1fr auto;
+  }
+  .au-adm-breakdown-sum {
+    grid-column: 1 / -1;
+    text-align: left;
   }
 }
