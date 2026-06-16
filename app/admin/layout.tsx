@@ -1,19 +1,24 @@
 /**
- * AURELIA — Admin layout (Этап 18A; hardened 18B)
+ * AURELIA — Admin shell (Этап 18A; hardened 18B; shell 20A)
  *
- * Renders a slim admin bar (signed-in user + logout) ONLY when a valid session
- * exists, so the login screen stays clean. This layout does not enforce auth —
- * each admin page and the mutation action call requireAdminSession themselves
- * (defense in depth).
+ * Wraps every /admin route. When a valid admin session exists it renders the
+ * full admin shell — persistent sidebar (navigation) + topbar (current admin +
+ * logout) + content area. When there is NO session it renders children bare, so
+ * the login screen stays clean and is never wrapped in the authenticated shell.
+ *
+ * This layout does NOT enforce auth — each admin page and the mutation action
+ * call ensureLocalAdmin() + requireAdminSession() themselves (defense in depth).
+ * It only chooses the chrome based on whether a session is present.
  *
  * It also sets `noindex/nofollow` as the DEFAULT for every /admin route, so a
  * future admin page can never be accidentally indexed if it forgets robots
- * metadata (individual pages may still set their own title).
+ * metadata.
  */
 
 import type { Metadata } from 'next'
 import { getAdminSession } from '../../src/lib/admin/auth'
 import { logoutAction } from '../../src/lib/admin/auth-actions'
+import { AdminNav } from './_components/AdminNav'
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -22,11 +27,20 @@ export const metadata: Metadata = {
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await getAdminSession()
 
+  // Unauthenticated (e.g. /admin/login) → render bare, no shell chrome.
+  if (!session) return <>{children}</>
+
   return (
-    <>
-      {session && (
-        <div className="au-adm-bar au-container">
-          <span className="au-adm-bar-id">
+    <div className="au-adm-shell">
+      <aside className="au-adm-sidebar">
+        <div className="au-adm-brand">AURELIA</div>
+        <div className="au-adm-brand-sub">Админка</div>
+        <AdminNav />
+      </aside>
+
+      <div className="au-adm-main">
+        <header className="au-adm-topbar">
+          <span className="au-adm-topbar-id">
             Админ: <strong>{session.sub}</strong>
           </span>
           <form action={logoutAction}>
@@ -34,9 +48,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               Выйти
             </button>
           </form>
-        </div>
-      )}
-      {children}
-    </>
+        </header>
+
+        <main className="au-adm-content">{children}</main>
+      </div>
+    </div>
   )
 }

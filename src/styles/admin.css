@@ -242,24 +242,115 @@
   font-size: 13px;
   margin: 0 0 16px;
 }
-.au-adm-bar {
+.au-adm-bar-logout {
+  padding: 8px 14px;
+}
+
+/* ---- Admin shell: sidebar + topbar (Этап 20A) ---- */
+.au-adm-shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+  align-items: stretch;
+}
+.au-adm-sidebar {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 22px 16px;
+  border-right: 1px solid var(--au-line);
+  background: var(--au-surface);
+}
+.au-adm-brand {
+  font-family: var(--au-font-display);
+  font-size: 22px;
+  letter-spacing: 0.08em;
+  color: var(--au-ink);
+}
+.au-adm-brand-sub {
+  margin-bottom: 22px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--au-muted);
+}
+.au-adm-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.au-adm-nav-link {
+  display: block;
+  padding: 10px 12px;
+  border-radius: var(--au-radius);
+  color: var(--au-ink-soft);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+}
+.au-adm-nav-link:hover {
+  background: var(--au-gold-tint);
+  color: var(--au-ink);
+}
+.au-adm-nav-link.is-active {
+  background: var(--au-gold-tint);
+  color: var(--au-gold);
+  font-weight: 600;
+}
+.au-adm-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.au-adm-topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 10px 0;
-  margin-top: 8px;
+  padding: 12px 24px;
   border-bottom: 1px solid var(--au-line);
+  background: var(--au-bg);
   font-size: 13px;
   color: var(--au-ink-soft);
 }
-.au-adm-bar-logout {
-  padding: 8px 14px;
+.au-adm-content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* ---- Placeholder sections (Этап 20A) ---- */
+.au-adm-planned {
+  margin: 12px 0 0;
+  padding-left: 18px;
+  font-size: 14px;
+  color: var(--au-ink-soft);
+}
+.au-adm-planned li {
+  margin: 4px 0;
+}
+.au-adm-cta {
+  margin-top: 14px;
 }
 
 /* ---- Responsive ---- */
 @media (max-width: 900px) {
   .au-adm-grid {
     grid-template-columns: 1fr;
+  }
+  .au-adm-shell {
+    grid-template-columns: 1fr;
+  }
+  .au-adm-sidebar {
+    position: static;
+    height: auto;
+    overflow-y: visible;
+    border-right: none;
+    border-bottom: 1px solid var(--au-line);
+  }
+  .au-adm-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
   }
 }
