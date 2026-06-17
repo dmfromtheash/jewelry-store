@@ -15,6 +15,7 @@ import { prisma } from '../db/prisma'
 import { validateOrderDraftFields, hasErrors } from './validate'
 import { QTY_MAX, QTY_MIN, type OrderDraftInput, type OrderDraftResult } from './types'
 import { recordCheckoutError, recordDraftOrderCreated } from '../analytics/record'
+import { PURCHASABLE_PRODUCT_STATUSES, isProductPurchasable } from '../catalog/availability'
 
 function generateOrderCode(): string {
   // 8 hex chars (~4.3B combos); uniqueness is also enforced by the DB + retry.
@@ -50,18 +51,27 @@ export async function createOrderDraft(input: OrderDraftInput): Promise<OrderDra
   }
 
   // 3) Pull the real products from the DB — never trust client price/name/status.
-  //    `isPublished: true` is the AUTHORITATIVE purchasability gate (Этап 26M):
-  //    a hidden/unpublished product (admin visibility control, Этап 26L) is never
-  //    fetched here, so it can NEVER enter an Order/OrderItem — even if a tampered
-  //    client payload smuggles its slug in. A hidden slug simply resolves to
-  //    `undefined` below and falls into the "no longer available" rejection.
+  //    TWO authoritative purchasability gates are applied right in the query:
+  //      - `isPublished: true` — visibility gate (Этап 26M): a hidden product is
+  //        never fetched, so it can NEVER enter an Order/OrderItem.
+  //      - `status in PURCHASABLE_PRODUCT_STATUSES` — availability gate (Этап 28A):
+  //        a published-but-non-purchasable product (e.g. `coming_soon`) is never
+  //        fetched either. A non-orderable slug simply resolves to `undefined`
+  //        below and falls into the "no longer available" rejection — even if a
+  //        tampered client payload smuggles its slug in.
   const products = await prisma.product.findMany({
-    where: { slug: { in: [...requested.keys()] }, isPublished: true },
+    where: {
+      slug: { in: [...requested.keys()] },
+      isPublished: true,
+      status: { in: [...PURCHASABLE_PRODUCT_STATUSES] },
+    },
     select: { id: true, slug: true, name: true, sku: true, price: true, status: true },
   })
   const bySlug = new Map(products.map((p) => [p.slug, p]))
 
-  // 4) Build snapshot line items, rejecting anything not orderable.
+  // 4) Build snapshot line items, rejecting anything not orderable. The status is
+  //    already gated by the query; this re-checks status + price defensively
+  //    (single source of truth: isProductPurchasable / PURCHASABLE_PRODUCT_STATUSES).
   const itemRows: Prisma.OrderItemCreateWithoutOrderInput[] = []
   let subtotalAmount = 0
   for (const [slug, qty] of requested) {
@@ -70,7 +80,7 @@ export async function createOrderDraft(input: OrderDraftInput): Promise<OrderDra
       await recordCheckoutError({ errorType: 'product_unavailable' })
       return { ok: false, error: `Товар «${slug}» больше не доступен.` }
     }
-    if (product.status !== 'available' || product.price == null) {
+    if (!isProductPurchasable(product) || product.price == null) {
       await recordCheckoutError({ errorType: 'product_unavailable' })
       return { ok: false, error: `Товар «${product.name}» сейчас нельзя заказать.` }
     }

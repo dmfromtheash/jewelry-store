@@ -37,8 +37,12 @@ sends prices, names or totals:
    `src/lib/orders/validate.ts` (also used by the form for instant feedback).
 2. Normalises items: quantity must be an integer **1–99**.
 3. Loads the referenced products **from the DB** (`prisma.product.findMany` by
-   slug) — selecting price/name/sku/status.
-4. Rejects any item that is missing, `coming_soon`, or has a null price.
+   slug), filtered to **`isPublished: true`** (visibility gate, Этап 26M) **and
+   `status` in `PURCHASABLE_PRODUCT_STATUSES`** (availability gate, Этап 28A) —
+   selecting price/name/sku/status.
+4. Rejects any item that is missing or not purchasable (`isProductPurchasable`:
+   non-available status such as `coming_soon`, or a null price). A
+   published-but-`coming_soon` product can therefore never be ordered.
 5. Recomputes `unitPrice` (DB minor units), `lineTotal = unitPrice * qty`, and
    `subtotalAmount` / `totalAmount` **on the server**. A tampered client price
    is impossible because the client price is never read.
@@ -46,6 +50,15 @@ sends prices, names or totals:
    transaction), retrying only on the rare order-code collision.
 
 Money is stored as integer **minor units (kopecks)**; the UI divides by 100.
+
+**Purchasability policy (Этап 28A).** `src/lib/catalog/availability.ts` is the single
+source of truth: `PURCHASABLE_PRODUCT_STATUSES` (only `available`) +
+`isProductPurchasable(product)` (purchasable status **and** a real price). The
+client cart (`CartProvider`) uses it too — a `coming_soon` (or otherwise
+non-purchasable) item left in `localStorage` is shown as **unavailable**, kept
+out of totals, never submitted, and removable (the same UX as a hidden product
+from 26M). Inventory **quantity** / stock decrement and `ProductVariant`-level
+availability remain **future** stages — today availability is status-only.
 
 ## Data model (16A)
 

@@ -10,6 +10,7 @@ import type { CategorySlug, Product, ProductStatus, ProductSpec, ProductImageRef
 
 export type { CategorySlug, Product, ProductStatus, ProductSpec, ProductImageRef }
 export * from './search'
+export * from './availability'
 
 export function getAllProducts(): Product[] {
   return products

@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from 'react'
 import { type Product } from '../../lib/catalog'
+import { isProductPurchasable } from '../../lib/catalog/availability'
 import { useCatalog } from '../../lib/catalog/CatalogProvider'
 import { sendAnalyticsEvent } from '../../lib/analytics/client'
 import { ANALYTICS_EVENTS } from '../../lib/analytics/events'
@@ -40,10 +41,12 @@ export interface CartLine extends CartEntry {
 interface CartContextValue {
   entries: CartEntry[]
   lines: CartLine[]
-  /** Entries whose slug no longer resolves in the public catalog snapshot —
-   *  e.g. a product hidden by the admin (isPublished=false, Этап 26L). Surfaced
-   *  so the UI can show them as unavailable + let the user remove them, instead
-   *  of silently dropping (and still counting/submitting) them. */
+  /** Entries that can't be ordered: either the slug no longer resolves in the
+   *  public catalog snapshot (e.g. a product the admin hid, isPublished=false,
+   *  Этап 26L/26M) OR it resolves but is not purchasable by status/price
+   *  (e.g. `coming_soon`, Этап 28A). Surfaced so the UI can show them as
+   *  unavailable + let the user remove them, instead of silently dropping (and
+   *  still counting/submitting) them. */
   unavailable: CartEntry[]
   hasUnavailable: boolean
   count: number
@@ -105,7 +108,11 @@ export default function CartProvider({ children }: { children: ReactNode }) {
   }, [entries, hydrated])
 
   const addItem = useCallback((slug: string, qty = 1) => {
-    if (!getBySlug(slug) || qty < 1) return
+    // Only add products that actually resolve AND are purchasable (published +
+    // available status + price, Этап 28A). Defensive: the storefront already
+    // hides "add to cart" for non-purchasable products.
+    const product = getBySlug(slug)
+    if (!product || !isProductPurchasable(product) || qty < 1) return
     setEntries((prev) => {
       const found = prev.find((e) => e.slug === slug)
       if (found) return prev.map((e) => (e.slug === slug ? { ...e, qty: e.qty + qty } : e))
@@ -138,20 +145,27 @@ export default function CartProvider({ children }: { children: ReactNode }) {
   }, [])
   const closeCart = useCallback(() => setIsOpen(false), [])
 
-  // Resolve catalog data + totals. Entries whose slug is no longer in the public
-  // snapshot (e.g. a product the admin hid) are split out into `unavailable`
-  // instead of silently vanishing: they stay removable and excluded from totals.
+  // Resolve catalog data + totals. Entries that are no longer orderable — either
+  // not in the public snapshot (e.g. a product the admin hid) OR resolved but not
+  // purchasable by status/price (e.g. `coming_soon`, Этап 28A) — are split out
+  // into `unavailable` instead of silently vanishing: they stay removable and
+  // excluded from `lines`/totals (and are therefore never submitted to checkout).
   const lines = useMemo<CartLine[]>(() => {
     return entries.flatMap((entry) => {
       const product = getBySlug(entry.slug)
-      if (!product) return []
+      if (!product || !isProductPurchasable(product)) return []
       const lineTotal = typeof product.price === 'number' ? product.price * entry.qty : 0
       return [{ ...entry, product, lineTotal }]
     })
   }, [entries, getBySlug])
 
   const unavailable = useMemo<CartEntry[]>(
-    () => entries.filter((entry) => !getBySlug(entry.slug)),
+    () => {
+      return entries.filter((entry) => {
+        const product = getBySlug(entry.slug)
+        return !product || !isProductPurchasable(product)
+      })
+    },
     [entries, getBySlug],
   )
 
