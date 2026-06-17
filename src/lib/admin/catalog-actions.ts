@@ -325,3 +325,118 @@ export async function setProductPublishedAction(formData: FormData) {
   revalidateStorefront(existing.slug)
   redirect(`${CATALOG_PATH}?ok=${publish ? 'published' : 'hidden'}`)
 }
+
+/**
+ * Add a SECONDARY gallery image to an existing product (Этап 29A). The primary
+ * slot (position 0, managed by uploadProductImageAction in 26F) is never touched
+ * here: the new row lands at the next free position (> 0) with isPrimary=false, so
+ * the storefront gallery (already multi-image via map.ts/ProductGallery) shows it
+ * as an extra thumbnail. Reuses the 26F upload validation + safe storage. The
+ * `@@unique([productId, position])` constraint is honoured with a small retry that
+ * recomputes the next slot, so a rare race can't wedge on a duplicate position.
+ */
+export async function addGalleryImageAction(formData: FormData) {
+  await ensureLocalAdmin()
+  const session = await requireAdminSession()
+
+  const productId = String(formData.get('productId') ?? '').trim()
+  if (!productId) redirect(`${CATALOG_PATH}?err=missing`)
+
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+    select: { id: true, slug: true, name: true },
+  })
+  if (!product) redirect(`${CATALOG_PATH}?err=notfound`)
+
+  let saved: SavedImage | null = null
+  try {
+    saved = await saveProductImageFile(formData.get('image'))
+  } catch (err) {
+    if (err instanceof ProductMediaError) redirect(`${editPath(productId)}?gerr=upload`)
+    throw err
+  }
+
+  // Insert at the next free position after the current max (primary stays at 0).
+  // Retry on a unique-position collision (concurrent add) with a fresh max.
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const top = await prisma.productImage.findFirst({
+      where: { productId },
+      orderBy: { position: 'desc' },
+      select: { position: true },
+    })
+    const nextPosition = (top?.position ?? -1) + 1
+    try {
+      await prisma.productImage.create({
+        data: {
+          productId,
+          position: nextPosition,
+          url: saved.url,
+          alt: product.name,
+          isPrimary: false,
+        },
+      })
+      break
+    } catch (err) {
+      if (isUniqueConstraintError(err) && attempt < 4) continue
+      // Created the file but couldn't persist the row — clean the orphan file.
+      await deleteProductImageFile(saved.url)
+      throw err
+    }
+  }
+
+  await recordAuditEvent({
+    actor: session.sub,
+    action: AUDIT_ACTIONS.productImageUpdated,
+    entityType: 'product',
+    entityId: product.slug,
+    summary: `Добавлено изображение галереи товара ${product.slug}.`,
+  })
+
+  revalidateStorefront(product.slug)
+  redirect(`${editPath(productId)}?gok=added`)
+}
+
+/**
+ * Delete a SECONDARY gallery image (Этап 29A). Defensive on two axes: the image
+ * must belong to the given product AND must NOT be the primary slot (isPrimary or
+ * position 0). The primary image's replace/delete flow from 26F is therefore never
+ * reachable here — this only removes gallery extras (row + file).
+ */
+export async function deleteGalleryImageAction(formData: FormData) {
+  await ensureLocalAdmin()
+  const session = await requireAdminSession()
+
+  const productId = String(formData.get('productId') ?? '').trim()
+  const imageId = String(formData.get('imageId') ?? '').trim()
+  if (!productId || !imageId) redirect(`${CATALOG_PATH}?err=missing`)
+
+  const image = await prisma.productImage.findUnique({
+    where: { id: imageId },
+    select: {
+      id: true,
+      productId: true,
+      position: true,
+      isPrimary: true,
+      url: true,
+      product: { select: { slug: true } },
+    },
+  })
+  // Unknown image or one that belongs to a different product → safe no-op.
+  if (!image || image.productId !== productId) redirect(`${editPath(productId)}?gerr=notfound`)
+  // Never delete the primary slot through the gallery action (26F owns it).
+  if (image.isPrimary || image.position === 0) redirect(`${editPath(productId)}?gerr=primary`)
+
+  await prisma.productImage.delete({ where: { id: image.id } })
+  await deleteProductImageFile(image.url)
+
+  await recordAuditEvent({
+    actor: session.sub,
+    action: AUDIT_ACTIONS.productImageRemoved,
+    entityType: 'product',
+    entityId: image.product.slug,
+    summary: `Удалено изображение галереи товара ${image.product.slug}.`,
+  })
+
+  revalidateStorefront(image.product.slug)
+  redirect(`${editPath(productId)}?gok=removed`)
+}

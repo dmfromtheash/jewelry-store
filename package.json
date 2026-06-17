@@ -14,6 +14,7 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:verify": "tsx prisma/verify-catalog.ts",
     "db:verify:catalog-images": "tsx prisma/verify-catalog-images.ts",
+    "db:verify:catalog-gallery": "tsx prisma/verify-catalog-gallery.ts",
     "db:verify:catalog-crud": "tsx prisma/verify-catalog-crud.ts",
     "db:verify:catalog-visibility": "tsx prisma/verify-catalog-visibility.ts",
     "db:verify:cart-hidden": "tsx prisma/verify-cart-hidden.ts",

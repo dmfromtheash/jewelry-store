@@ -95,6 +95,33 @@ export interface AdminProductForEdit {
   tagGold: boolean
 }
 
+/** One product image row for the admin gallery manager (Этап 29A). */
+export interface AdminProductGalleryImage {
+  id: string
+  /** Ordered slot; 0 is the primary slot from 26F. */
+  position: number
+  /** Public URL, or null for an empty slot (primary slot may exist but be empty). */
+  url: string | null
+  alt: string | null
+  /** True for the primary image — managed on the «Каталог · изображения» page. */
+  isPrimary: boolean
+}
+
+/**
+ * All image rows of a product, ordered by position (Этап 29A). The primary slot
+ * (position 0 / isPrimary) is included so the gallery UI can show it read-only;
+ * secondary rows (position > 0) are the gallery images the admin can add/remove.
+ */
+export async function getAdminProductGalleryImages(
+  productId: string,
+): Promise<AdminProductGalleryImage[]> {
+  return prisma.productImage.findMany({
+    where: { productId },
+    orderBy: { position: 'asc' },
+    select: { id: true, position: true, url: true, alt: true, isPrimary: true },
+  })
+}
+
 /** Loads one product's editable scalar fields, or null when it does not exist. */
 export async function getAdminProductForEdit(
   id: string,

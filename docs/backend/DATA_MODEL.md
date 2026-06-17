@@ -46,13 +46,23 @@ Selectable option (today: coating — Позолота/Родирование/С
 - **Relations:** `product` (M:1), `inventory` (1:1 later).
 - **Source now:** `Product.coatings: string[]` (flat list, no pricing).
 
-## ProductImage (placeholder)
-Image slots; **no real images yet** (UI shows gem placeholder).
+## ProductImage
+Ordered image slots per product. Real uploads live under
+`public/uploads/products` (26F); the DB stores the relative URL only.
 
-- **Required:** `id`, `productId` (FK), `position`.
-- **Later:** `url`, `alt`, `width`, `height`, `isPrimary`, storage key.
+- **Required:** `id`, `productId` (FK), `position`, `isPrimary`.
+- **Fields:** `url` (null until an asset is uploaded), `alt`.
+- **Primary (26F):** position `0`, `isPrimary = true` — managed on
+  «Каталог · изображения» (upload / replace / delete clears the slot's `url`).
+- **Gallery (Этап 29A):** secondary images at position `> 0`,
+  `isPrimary = false`, added/removed on the product edit page. The storefront
+  read (`server.ts` → `map.ts` → `ProductGallery`) already surfaces them in a
+  stable order (primary first, then ascending position); no real image → the
+  approved placeholder. **Product Gallery Management v1 done** — primary behavior
+  preserved, multi-image supported; reorder UI, CDN/external storage, and a bulk
+  media library remain future.
+- **Constraints:** `@@unique([productId, position])`.
 - **Relations:** `product` (M:1).
-- **Source now:** none — UI renders a static placeholder.
 
 ## User
 Customer account.
