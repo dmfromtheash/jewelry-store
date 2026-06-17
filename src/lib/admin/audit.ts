@@ -27,6 +27,8 @@ export const AUDIT_ACTIONS = {
   loginFailure: 'admin.login.failure',
   logout: 'admin.logout',
   orderStatusChanged: 'admin.order.status_changed',
+  productCreated: 'admin.product.created',
+  productUpdated: 'admin.product.updated',
   productImageUpdated: 'admin.product.image_updated',
   productImageRemoved: 'admin.product.image_removed',
 } as const
@@ -37,6 +39,8 @@ export const AUDIT_ACTION_LABELS: Record<string, string> = {
   [AUDIT_ACTIONS.loginFailure]: 'Неуспешный вход',
   [AUDIT_ACTIONS.logout]: 'Выход',
   [AUDIT_ACTIONS.orderStatusChanged]: 'Смена статуса заказа',
+  [AUDIT_ACTIONS.productCreated]: 'Товар создан',
+  [AUDIT_ACTIONS.productUpdated]: 'Товар обновлён',
   [AUDIT_ACTIONS.productImageUpdated]: 'Изображение товара обновлено',
   [AUDIT_ACTIONS.productImageRemoved]: 'Изображение товара удалено',
 }

@@ -18,10 +18,12 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { Prisma } from '@prisma/client'
 import { prisma } from '../db/prisma'
 import { ensureLocalAdmin } from './guard'
 import { requireAdminSession } from './auth'
 import { AUDIT_ACTIONS, recordAuditEvent } from './audit'
+import { parseProductForm } from './catalog-form'
 import {
   ProductMediaError,
   deleteProductImageFile,
@@ -30,6 +32,11 @@ import {
 } from './media'
 
 const CATALOG_PATH = '/admin/catalog'
+
+/** True for a Prisma unique-constraint violation (P2002) — here, a duplicate slug. */
+function isUniqueConstraintError(err: unknown): boolean {
+  return err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002'
+}
 
 /** Revalidate every storefront surface that renders product imagery. */
 function revalidateStorefront(productSlug: string) {
@@ -135,4 +142,132 @@ export async function deleteProductImageAction(formData: FormData) {
 
   revalidateStorefront(product.slug)
   redirect(`${CATALOG_PATH}?ok=removed`)
+}
+
+const NEW_PATH = `${CATALOG_PATH}/new`
+const editPath = (id: string) => `${CATALOG_PATH}/${id}/edit`
+
+/**
+ * Resolves the card caption (`categoryLabel`, NOT-null in the schema). The admin
+ * may type a specific caption ("Серьги · позолота"); when left blank we fall back
+ * to the selected category's display name so a value always exists.
+ */
+async function resolveCategoryLabel(
+  categoryId: string,
+  typedLabel: string,
+): Promise<string | null> {
+  if (typedLabel) return typedLabel
+  const category = await prisma.category.findUnique({
+    where: { id: categoryId },
+    select: { name: true },
+  })
+  return category?.name ?? null
+}
+
+/** Create a new catalog product from the admin form. */
+export async function createProductAction(formData: FormData) {
+  await ensureLocalAdmin()
+  const session = await requireAdminSession()
+
+  const parsed = parseProductForm(formData)
+  if (!parsed.ok) redirect(`${NEW_PATH}?err=${parsed.error}`)
+  const input = parsed.data
+
+  // categoryId must reference a real category (also yields the label fallback).
+  const categoryLabel = await resolveCategoryLabel(input.categoryId, input.categoryLabel)
+  if (categoryLabel === null) redirect(`${NEW_PATH}?err=category`)
+
+  let created
+  try {
+    created = await prisma.product.create({
+      data: {
+        slug: input.slug,
+        name: input.name,
+        categoryId: input.categoryId,
+        categoryLabel,
+        status: input.status,
+        price: input.price,
+        sku: input.sku,
+        brand: input.brand,
+        description: input.description,
+        tag: input.tag,
+        tagGold: input.tagGold,
+      },
+      select: { id: true, slug: true },
+    })
+  } catch (err) {
+    if (isUniqueConstraintError(err)) redirect(`${NEW_PATH}?err=duplicate`)
+    throw err
+  }
+
+  await recordAuditEvent({
+    actor: session.sub,
+    action: AUDIT_ACTIONS.productCreated,
+    entityType: 'product',
+    entityId: created.slug,
+    summary: `Создан товар ${created.slug}.`,
+  })
+
+  revalidateStorefront(created.slug)
+  redirect(`${CATALOG_PATH}?ok=created`)
+}
+
+/** Update the editable scalar fields of an existing product. */
+export async function updateProductAction(formData: FormData) {
+  await ensureLocalAdmin()
+  const session = await requireAdminSession()
+
+  const id = String(formData.get('id') ?? '').trim()
+  if (!id) redirect(`${CATALOG_PATH}?err=missing`)
+
+  const existing = await prisma.product.findUnique({
+    where: { id },
+    select: { id: true, slug: true },
+  })
+  if (!existing) redirect(`${CATALOG_PATH}?err=notfound`)
+
+  const parsed = parseProductForm(formData)
+  if (!parsed.ok) redirect(`${editPath(id)}?err=${parsed.error}`)
+  const input = parsed.data
+
+  const categoryLabel = await resolveCategoryLabel(input.categoryId, input.categoryLabel)
+  if (categoryLabel === null) redirect(`${editPath(id)}?err=category`)
+
+  try {
+    await prisma.product.update({
+      where: { id },
+      data: {
+        slug: input.slug,
+        name: input.name,
+        categoryId: input.categoryId,
+        categoryLabel,
+        status: input.status,
+        price: input.price,
+        sku: input.sku,
+        brand: input.brand,
+        description: input.description,
+        tag: input.tag,
+        tagGold: input.tagGold,
+      },
+    })
+  } catch (err) {
+    if (isUniqueConstraintError(err)) redirect(`${editPath(id)}?err=duplicate`)
+    throw err
+  }
+
+  await recordAuditEvent({
+    actor: session.sub,
+    action: AUDIT_ACTIONS.productUpdated,
+    entityType: 'product',
+    entityId: input.slug,
+    summary:
+      input.slug === existing.slug
+        ? `Обновлён товар ${input.slug}.`
+        : `Обновлён товар ${existing.slug} → ${input.slug}.`,
+  })
+
+  // Revalidate the new slug, plus the old PDP path when the slug changed.
+  revalidateStorefront(input.slug)
+  if (input.slug !== existing.slug) revalidatePath(`/product/${existing.slug}`)
+  redirect(`${CATALOG_PATH}?ok=updated`)
 }

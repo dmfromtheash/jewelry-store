@@ -8,6 +8,7 @@
  */
 
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { ensureLocalAdmin } from '../../../src/lib/admin/guard'
 import { requireAdminSession } from '../../../src/lib/admin/auth'
 import { getAdminProductsForImages } from '../../../src/lib/admin/catalog'
@@ -25,6 +26,8 @@ const NOTICES: Record<string, { kind: 'ok' | 'err'; text: string }> = {
   uploaded: { kind: 'ok', text: 'Изображение сохранено.' },
   removed: { kind: 'ok', text: 'Изображение удалено.' },
   noop: { kind: 'ok', text: 'Изменений нет.' },
+  created: { kind: 'ok', text: 'Товар создан.' },
+  updated: { kind: 'ok', text: 'Товар обновлён.' },
   missing: { kind: 'err', text: 'Не указан товар.' },
   notfound: { kind: 'err', text: 'Товар не найден.' },
   upload: { kind: 'err', text: 'Не удалось загрузить файл: разрешены JPG, PNG, WEBP до 5 МБ.' },
@@ -57,6 +60,9 @@ export default async function AdminCatalogPage({
             Загрузка, замена и удаление основного фото товара. JPG / PNG / WEBP, до 5 МБ.
           </span>
         </div>
+        <Link className="au-btn au-btn--primary" href="/admin/catalog/new">
+          Добавить товар
+        </Link>
       </div>
 
       {notice && (
@@ -125,6 +131,9 @@ export default async function AdminCatalogPage({
                         </button>
                       </form>
                     )}
+                    <Link className="au-adm-link" href={`/admin/catalog/${p.id}/edit`}>
+                      Изменить
+                    </Link>
                   </div>
                 </td>
               </tr>

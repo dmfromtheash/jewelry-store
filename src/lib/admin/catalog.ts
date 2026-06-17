@@ -1,10 +1,10 @@
 /**
- * AURELIA — Admin catalog reads (Этап 26F) — server-only
+ * AURELIA — Admin catalog reads (Этап 26F; create/edit added 26I) — server-only
  *
- * Read helpers for the admin product-image manager. Returns each product with
- * its primary image slot (position 0) so the admin can upload / replace / delete
- * the main photo. Scoped deliberately small — this is image management, not full
- * product CRUD.
+ * Read helpers for the admin product-image manager AND the product create/edit
+ * forms. Image reads return each product with its primary image slot (position
+ * 0); the create/edit helpers expose the editable scalar fields + the category
+ * list for the <select>. Mutations live in ./catalog-actions.
  */
 
 import 'server-only'
@@ -47,4 +47,60 @@ export async function getAdminProductsForImages(): Promise<AdminProductImageRow[
     status: r.status,
     imageUrl: r.images[0]?.url ?? null,
   }))
+}
+
+/** A category option for the product form <select>, ordered like the storefront. */
+export interface AdminCategoryOption {
+  id: string
+  name: string
+}
+
+/** All categories for the create/edit category <select>. */
+export async function getAdminCategoriesForSelect(): Promise<AdminCategoryOption[]> {
+  const rows = await prisma.category.findMany({
+    orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
+    select: { id: true, name: true },
+  })
+  return rows.map((r) => ({ id: r.id, name: r.name }))
+}
+
+/** Editable scalar fields of one product, for the edit form. Price stays in minor units. */
+export interface AdminProductForEdit {
+  id: string
+  name: string
+  slug: string
+  categoryId: string
+  categoryLabel: string
+  status: 'available' | 'coming_soon'
+  /** Integer MINOR units (kopecks); null for coming-soon without a price. */
+  price: number | null
+  sku: string | null
+  brand: string | null
+  description: string | null
+  tag: string | null
+  tagGold: boolean
+}
+
+/** Loads one product's editable scalar fields, or null when it does not exist. */
+export async function getAdminProductForEdit(
+  id: string,
+): Promise<AdminProductForEdit | null> {
+  const row = await prisma.product.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      categoryId: true,
+      categoryLabel: true,
+      status: true,
+      price: true,
+      sku: true,
+      brand: true,
+      description: true,
+      tag: true,
+      tagGold: true,
+    },
+  })
+  return row ?? null
 }
