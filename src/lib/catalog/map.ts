@@ -14,7 +14,15 @@
  *   - specs JSON → `ProductSpec[]`
  */
 
-import type { CategorySlug, Product, ProductSpec } from './types'
+import type { CategorySlug, Product, ProductImageRef, ProductSpec } from './types'
+
+/** Minimal shape of a Prisma product image row needed for mapping. */
+export interface DbProductImageForMapping {
+  url: string | null
+  alt: string | null
+  isPrimary: boolean
+  position: number
+}
 
 /** Minimal shape of a Prisma product row needed for mapping. */
 export interface DbProductForMapping {
@@ -33,6 +41,8 @@ export interface DbProductForMapping {
   specs: unknown
   category: { slug: string }
   variants: { name: string; value: string; sortOrder: number }[]
+  /** Optional — only mapped when the catalog query includes images. */
+  images?: DbProductImageForMapping[]
 }
 
 export function mapDbProductToProduct(row: DbProductForMapping): Product {
@@ -40,6 +50,17 @@ export function mapDbProductToProduct(row: DbProductForMapping): Product {
     .filter((v) => v.name === 'coating')
     .sort((a, b) => a.sortOrder - b.sortOrder)
     .map((v) => v.value)
+
+  // Real images only (a row exists per slot but `url` stays null until an asset
+  // is uploaded). Ordered by position; primary first so cards use it.
+  const imageRows = (row.images ?? [])
+    .filter((img): img is DbProductImageForMapping & { url: string } => !!img.url)
+    .sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary) || a.position - b.position)
+  const images: ProductImageRef[] = imageRows.map((img) => ({
+    url: img.url,
+    alt: img.alt ?? undefined,
+  }))
+  const imageUrl = images.length > 0 ? images[0].url : undefined
 
   return {
     slug: row.slug,
@@ -58,5 +79,7 @@ export function mapDbProductToProduct(row: DbProductForMapping): Product {
     tagGold: row.tagGold,
     rating: row.rating,
     reviewsCount: row.reviewsCount,
+    imageUrl,
+    images: images.length > 0 ? images : undefined,
   }
 }

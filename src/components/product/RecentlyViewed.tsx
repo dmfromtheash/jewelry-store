@@ -69,6 +69,8 @@ export default function RecentlyViewed({ currentSlug }: { currentSlug: string })
             price={product.price}
             tag={product.tag}
             tagGold={product.tagGold}
+            imageUrl={product.imageUrl}
+            imageAlt={product.name}
           />
         ))}
       </div>

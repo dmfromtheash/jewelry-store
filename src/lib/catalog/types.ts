@@ -15,6 +15,13 @@ export interface ProductSpec {
   value: string
 }
 
+/** A real product image (only present once an asset has been uploaded). */
+export interface ProductImageRef {
+  /** Relative public URL, e.g. "/uploads/products/<id>.webp". */
+  url: string
+  alt?: string
+}
+
 export interface Product {
   /** unique URL id — latin only, used for /product/[slug] */
   slug: string
@@ -32,6 +39,10 @@ export interface Product {
   coatings?: string[]
   description?: string
   specs?: ProductSpec[]
+  /** Primary image URL (first/primary uploaded asset). Absent → placeholder. */
+  imageUrl?: string | null
+  /** All uploaded images in display order. Absent/empty → placeholder. */
+  images?: ProductImageRef[]
   /** card badge, e.g. "New" / "Хит" */
   tag?: string
   /** gold badge variant (otherwise dark) */

@@ -30,6 +30,10 @@ interface ProductCardProps {
   status?: ProductStatus
   /** RUB; a number renders a real price, otherwise the "— ₽" placeholder */
   price?: number | null
+  /** real uploaded image URL → rendered in place of the media placeholder */
+  imageUrl?: string | null
+  /** alt text for the real image (falls back to the product name) */
+  imageAlt?: string
 }
 
 const GemIcon = () => (
@@ -53,6 +57,8 @@ export default function ProductCard({
   slug,
   status,
   price,
+  imageUrl,
+  imageAlt,
 }: ProductCardProps) {
   const { isFavorite, toggleFavorite } = useFavorites()
   const { addItem, openCart } = useCart()
@@ -82,22 +88,35 @@ export default function ProductCard({
       )}
 
       <Link className="au-card-media" href={href} aria-label={name}>
-        <span className="dash only-admin" />
-        <div className="only-admin">
-          <span className="au-ph-plus">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
-              <path d="M12 5v14M5 12h14" />
-            </svg>
-          </span>
-          <span className="t">Добавить товар</span>
-          <span className="s">Нажмите, чтобы загрузить изображение</span>
-        </div>
-        <div className="only-customer">
-          <span className="au-ph-gem">
-            <GemIcon />
-          </span>
-          <span className="t-cust">Скоро будет добавлен товар</span>
-        </div>
+        {imageUrl ? (
+          // Real uploaded image fills the existing media box (no layout change —
+          // sizing is inline so no card stylesheet is touched).
+          <img
+            src={imageUrl}
+            alt={imageAlt || name}
+            loading="lazy"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          />
+        ) : (
+          <>
+            <span className="dash only-admin" />
+            <div className="only-admin">
+              <span className="au-ph-plus">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+              </span>
+              <span className="t">Добавить товар</span>
+              <span className="s">Нажмите, чтобы загрузить изображение</span>
+            </div>
+            <div className="only-customer">
+              <span className="au-ph-gem">
+                <GemIcon />
+              </span>
+              <span className="t-cust">Скоро будет добавлен товар</span>
+            </div>
+          </>
+        )}
       </Link>
 
       <div className="au-card-body">

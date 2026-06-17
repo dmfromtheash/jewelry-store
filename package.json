@@ -13,6 +13,7 @@
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
     "db:verify": "tsx prisma/verify-catalog.ts",
+    "db:verify:catalog-images": "tsx prisma/verify-catalog-images.ts",
     "db:verify:runtime": "tsx prisma/verify-runtime-catalog.ts",
     "db:verify:orders": "tsx prisma/verify-orders.ts",
     "db:verify:admin-orders": "tsx prisma/verify-admin-orders.ts",

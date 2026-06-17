@@ -90,6 +90,8 @@ export default function CategoryBrowser({ products }: { products: Product[] }) {
               price={product.price}
               tag={product.tag}
               tagGold={product.tagGold}
+              imageUrl={product.imageUrl}
+              imageAlt={product.name}
             />
           ))}
         </div>

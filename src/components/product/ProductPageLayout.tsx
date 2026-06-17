@@ -33,7 +33,7 @@ export default function ProductPageLayout({ breadcrumbs, similar, product }: Pro
         <Breadcrumbs items={breadcrumbs} />
 
         <div className="au-product">
-          <ProductGallery />
+          <ProductGallery images={product?.images} />
           <ProductInfo product={product} />
         </div>
 

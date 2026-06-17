@@ -47,3 +47,7 @@ pnpm-debug.log*
 # Local DB backups — never commit dumps
 /backups/
 /.local-backups/
+
+# Uploaded product images (binaries) — keep the folder, not the files
+/public/uploads/products/*
+!/public/uploads/products/.gitkeep

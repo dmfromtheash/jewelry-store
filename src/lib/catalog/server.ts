@@ -26,6 +26,10 @@ const productInclude = {
     select: { name: true, value: true, sortOrder: true },
     orderBy: { sortOrder: 'asc' as const },
   },
+  images: {
+    select: { url: true, alt: true, isPrimary: true, position: true },
+    orderBy: { position: 'asc' as const },
+  },
 }
 
 const orderBySku = { sku: 'asc' as const }
