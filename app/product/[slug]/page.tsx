@@ -1,9 +1,11 @@
 /**
- * AURELIA — Dynamic product page (Этап 8A)
+ * AURELIA — Dynamic product page (Этап 8A; runtime routes Этап 26J)
  *
- * Statically prerendered per catalog slug — no backend/API/DB. Every product
- * from the mock catalog is enumerated at build time via generateStaticParams;
- * dynamicParams = false makes any unknown slug a 404 (no runtime rendering).
+ * DB-backed PDP. Known catalog slugs are prerendered at build time via
+ * generateStaticParams; dynamicParams = true additionally renders any *new*
+ * DB slug on-demand at runtime — so a product created through the admin opens
+ * by /product/[slug] without a rebuild. A slug with no matching product still
+ * yields notFound() (getProductBySlugFromDb returns null).
  *
  * Renders the shared ProductPageLayout fed with the real product. The generic
  * /product/coming-soon page stays as the no-product fallback.
@@ -21,7 +23,7 @@ import {
 } from '../../../src/lib/catalog/server'
 import type { CategorySlug } from '../../../src/lib/catalog'
 
-export const dynamicParams = false
+export const dynamicParams = true
 
 const CATEGORY_META: Record<CategorySlug, { label: string; href: string }> = {
   bijouterie: { label: 'Бижутерия', href: '/category/bijouterie' },

@@ -43,6 +43,9 @@ function revalidateStorefront(productSlug: string) {
   revalidatePath('/')
   revalidatePath('/category/bijouterie')
   revalidatePath('/category/gifts')
+  // /search renders the catalog snapshot hydrated from the root layout, so it
+  // needs its own revalidation to pick up a newly created/renamed product.
+  revalidatePath('/search')
   revalidatePath(`/product/${productSlug}`)
   revalidatePath(CATALOG_PATH)
 }

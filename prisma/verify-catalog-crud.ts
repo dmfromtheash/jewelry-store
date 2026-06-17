@@ -11,7 +11,9 @@
  *   2. a duplicate slug is rejected (Prisma P2002);
  *   3. update works (name/price/status/slug change);
  *   4. the category relation resolves;
- *   5. the storefront mapper reads the created/updated row cleanly.
+ *   5. the storefront mapper reads the created/updated row cleanly;
+ *   6. the product is reachable BY SLUG via the same query the runtime PDP uses
+ *      (getProductBySlugFromDb) — i.e. an admin-created slug serves at runtime.
  *
  * No secrets printed, no real data mutated. Run with: npm run db:verify:catalog-crud
  */
@@ -117,6 +119,21 @@ async function main() {
     check('mapper price null (coming-soon)', mapped.price === null)
     check('mapper categorySlug resolved', mapped.categorySlug === row.category.slug)
     check('no image → placeholder fallback (imageUrl undefined)', mapped.imageUrl === undefined)
+  }
+
+  // Runtime PDP path: /product/[slug] resolves a product with the SAME query as
+  // getProductBySlugFromDb (findUnique by slug + productInclude + mapper). This is
+  // what makes an admin-created slug serve at runtime now that dynamicParams=true.
+  console.log('Read by slug (runtime PDP path):')
+  const bySlug = await prisma.product.findUnique({
+    where: { slug: slugB },
+    include: productInclude,
+  })
+  check('product found by slug', !!bySlug)
+  if (bySlug) {
+    const mappedBySlug = mapDbProductToProduct(bySlug)
+    check('mapped slug matches', mappedBySlug.slug === slugB)
+    check('mapped name present', mappedBySlug.name.length > 0)
   }
 
   if (failures > 0) {
