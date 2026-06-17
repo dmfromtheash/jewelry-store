@@ -12,7 +12,9 @@ import { ensureLocalAdmin } from '../../../src/lib/admin/guard'
 import { requireAdminSession } from '../../../src/lib/admin/auth'
 import {
   getAdminOrders,
+  getNeedsAttentionOrderCount,
   isOrderStatus,
+  NEEDS_ATTENTION_STATUS,
   ORDER_STATUSES,
   ORDER_STATUS_LABELS,
 } from '../../../src/lib/admin/orders'
@@ -35,14 +37,38 @@ export default async function AdminOrdersPage({
   await requireAdminSession()
 
   const { status, q } = await searchParams
-  const orders = await getAdminOrders({ status, query: q })
+  const [orders, needsAttention] = await Promise.all([
+    getAdminOrders({ status, query: q }),
+    getNeedsAttentionOrderCount(),
+  ])
   const activeStatus = status && isOrderStatus(status) ? status : ''
+  const viewingInbox = activeStatus === NEEDS_ATTENTION_STATUS
 
   return (
     <div className="au-container au-adm">
       <div className="au-adm-head">
         <h1 className="au-adm-title">Заказы</h1>
         <span className="au-adm-sub">Локальная админка (dev). Оплата подтверждается вручную.</span>
+      </div>
+
+      {/* Этап 27D — new-orders inbox: a clear "needs attention" entry point. */}
+      <div className="au-adm-card">
+        {needsAttention > 0 ? (
+          <p className="au-adm-note">
+            <strong>Новые заказы, требующие обработки: {needsAttention}.</strong>{' '}
+            {viewingInbox ? (
+              <Link className="au-adm-link" href="/admin/orders">
+                Показать все заказы →
+              </Link>
+            ) : (
+              <Link className="au-adm-link" href={`/admin/orders?status=${NEEDS_ATTENTION_STATUS}`}>
+                Показать только новые →
+              </Link>
+            )}
+          </p>
+        ) : (
+          <p className="au-adm-note">Новых заказов, требующих обработки, нет.</p>
+        )}
       </div>
 
       <form className="au-adm-toolbar" method="get" action="/admin/orders">

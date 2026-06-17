@@ -68,15 +68,22 @@ export default async function AdminDashboardPage() {
       {/* ---- Orders ---- */}
       <h2 className="au-adm-section-title">Заказы</h2>
       <div className="au-adm-kpis">
-        <KpiCard label="Всего заказов" value={String(orders.total)} />
-        <KpiCard label="Черновики" value={String(orders.draftCount)} hint="статус «черновик»" />
-        <KpiCard label="Сумма черновиков" value={money(orders.draftValueMinor)} />
         <KpiCard
-          label="Сумма заказов"
-          value={money(orders.activeValueMinor)}
-          hint="без отменённых"
+          label="Новые заказы"
+          value={String(orders.needsAttention)}
+          hint="требуют обработки"
         />
+        <KpiCard label="Всего заказов" value={String(orders.total)} />
+        <KpiCard label="Сумма заказов" value={money(orders.activeValueMinor)} hint="без отменённых" />
+        <KpiCard label="Черновики" value={String(orders.draftCount)} hint="статус «черновик»" />
       </div>
+      {orders.needsAttention > 0 ? (
+        <p className="au-adm-cta">
+          <Link className="au-adm-link" href="/admin/orders?status=submitted">
+            Показать новые заказы ({orders.needsAttention}) →
+          </Link>
+        </p>
+      ) : null}
 
       <div className="au-adm-card">
         <h3 className="au-adm-card-title">Заказы по статусам</h3>

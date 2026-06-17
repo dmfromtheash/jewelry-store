@@ -74,6 +74,21 @@ Money is stored as integer **minor units (kopecks)**; the UI divides by 100.
   the code already present in the URL. The old `src/lib/orders/read.ts`
   (`getOrderSummaryByCode`) was removed.
 
+## Admin new-orders inbox (27D — owner attention v1)
+
+- Every storefront order is created as **`submitted`**, so that status doubles as
+  the **"needs attention"** inbox: orders the owner hasn't actioned yet.
+- `/admin/dashboard` shows a **«Новые заказы»** KPI (count of `submitted`) + a CTA
+  to the filtered list; `/admin/orders` shows a needs-attention count with a
+  **«Показать только новые»** quick filter (`?status=submitted`). No schema change
+  — both are reads over the existing status (`getNeedsAttentionOrderCount`).
+- An order **leaves** the inbox as soon as its status changes (today the available
+  move is `submitted → cancelled`; a dedicated "fulfilled/processed" status is a
+  future lifecycle stage, see `ORDER_LIFECYCLE_SPEC.md` §5).
+- **No external notifications** (email/SMS/Telegram) and **no external API** — the
+  owner sees new orders entirely inside the local admin. Push notifications remain
+  a separate future stage.
+
 ## Not in 16A
 
 - No real payment (the order is a non-paid draft; `paymentMethod` is a

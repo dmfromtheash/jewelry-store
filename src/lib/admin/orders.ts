@@ -24,6 +24,21 @@ export function isOrderStatus(value: string): value is OrderStatus {
   return (ORDER_STATUSES as string[]).includes(value)
 }
 
+/**
+ * Этап 27D — "needs attention" inbox status. Every storefront order is created
+ * as `submitted` (see createOrderDraft), so that is the status the owner must
+ * still act on. An order leaves the inbox as soon as its status changes (today
+ * the only move from `submitted` is → `cancelled`; a dedicated "fulfilled"
+ * status is a future lifecycle stage — see docs/ORDER_LIFECYCLE_SPEC.md §5).
+ * No schema/enum change: this is purely a read over the existing status.
+ */
+export const NEEDS_ATTENTION_STATUS: OrderStatus = OrderStatus.submitted
+
+/** Count of orders still awaiting owner action (status = submitted). */
+export async function getNeedsAttentionOrderCount(): Promise<number> {
+  return prisma.order.count({ where: { status: NEEDS_ATTENTION_STATUS } })
+}
+
 export interface AdminOrdersQuery {
   status?: string
   query?: string

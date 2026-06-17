@@ -86,6 +86,9 @@ export async function getAdminDashboardData() {
 
   const totalOrders = statusBuckets.reduce((n, b) => n + b.count, 0)
   const draft = byStatus.get(OrderStatus.draft)!
+  // Этап 27D — orders still awaiting owner action (new checkout orders are
+  // `submitted`). Derived from the same single groupBy — no extra query.
+  const needsAttention = byStatus.get(OrderStatus.submitted)!.count
   // Useful, honest total: value of everything that is not cancelled.
   const activeOrderValueMinor = statusBuckets
     .filter((b) => b.status !== OrderStatus.cancelled)
@@ -94,6 +97,7 @@ export async function getAdminDashboardData() {
   return {
     orders: {
       total: totalOrders,
+      needsAttention,
       draftCount: draft.count,
       draftValueMinor: draft.totalMinor,
       activeValueMinor: activeOrderValueMinor,
