@@ -374,6 +374,46 @@ variant on a cancelled order restocks nothing (loose id → 0 rows matched).
 
 ---
 
+## 14. 30C — Implementation Note (DONE)
+
+Admin variant management is implemented (no storefront selector/cart — that is
+30D). No schema change (30B already added the fields).
+
+**Where:** a «Варианты» card on the product edit page
+(`app/admin/catalog/[id]/edit`, beside the 29A gallery), built from existing admin
+primitives (`.au-adm-card` / `.au-adm-table` / `.au-field` / `.au-btn`) — no new
+CSS, no storefront change.
+
+**Actions** (`src/lib/admin/catalog-actions.ts`, local-admin + session guarded,
+audited, `revalidateStorefront`, `?vok=`/`?verr=` redirects):
+- `addVariantAction` — first variant of a product is forced default; otherwise the
+  checkbox is honoured.
+- `updateVariantAction` — edits value/name/sortOrder/priceDelta/stock/sku;
+  variant must belong to the product; setting default unsets siblings.
+- `deleteVariantAction` — see deletion safety below.
+- Validation (`parseVariantForm`): name (default `coating`) + value required;
+  `priceDelta` signed UAH→minor (nullable); `stockQuantity` nullable `>= 0`;
+  `sortOrder` nullable `>= 0`; `sku` optional. Duplicate `(productId, name, value)`
+  → friendly `duplicate` (P2002, not a crash). A `priceDelta` that would push the
+  product's final price to `<= 0` is rejected (`pricetotal`); skipped for an
+  unpriced `coming_soon` product (the order foundation guards price anyway).
+
+**Default enforcement** (`ensureExactlyOneDefault`, runs in each mutation's
+transaction): a product with variants always has exactly one default — zero
+defaults promote the stable first (sortOrder, value, id); several collapse to that
+stable one; deleting the default promotes the next; deleting the last leaves none.
+This keeps 30B's default fallback deterministic.
+
+**Deletion safety:** a variant referenced by an OPEN order
+(`submitted`/`processing`, where a cancel could still restock it) is blocked
+(`inuse`). A variant referenced only by terminal (`completed`/`cancelled`) orders
+is deletable — their snapshot is immutable and never cascaded (loose id, 30B).
+
+**Verify:** `npm run db:verify:admin-product-variants` (throwaway `zzz-verify-apv-`
+rows; no seed/reset/drop). 30D remains the storefront selector + cart integration.
+
+---
+
 _See also: `docs/backend/DATA_MODEL.md` (ProductVariant / OrderItem),
 `docs/backend/ORDER_DRAFT_FLOW.md` (checkout + inventory), and the 28B/28C/29A
 notes for the guards this feature must preserve._

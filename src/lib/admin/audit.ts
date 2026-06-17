@@ -33,6 +33,9 @@ export const AUDIT_ACTIONS = {
   productPublished: 'admin.product.published',
   productImageUpdated: 'admin.product.image_updated',
   productImageRemoved: 'admin.product.image_removed',
+  productVariantAdded: 'admin.product.variant_added',
+  productVariantUpdated: 'admin.product.variant_updated',
+  productVariantRemoved: 'admin.product.variant_removed',
 } as const
 
 /** Human-readable labels for the audit-log UI (fallback: the raw action). */
@@ -47,6 +50,9 @@ export const AUDIT_ACTION_LABELS: Record<string, string> = {
   [AUDIT_ACTIONS.productPublished]: 'Товар возвращён на витрину',
   [AUDIT_ACTIONS.productImageUpdated]: 'Изображение товара обновлено',
   [AUDIT_ACTIONS.productImageRemoved]: 'Изображение товара удалено',
+  [AUDIT_ACTIONS.productVariantAdded]: 'Вариант товара добавлен',
+  [AUDIT_ACTIONS.productVariantUpdated]: 'Вариант товара обновлён',
+  [AUDIT_ACTIONS.productVariantRemoved]: 'Вариант товара удалён',
 }
 
 export interface AuditEventInput {

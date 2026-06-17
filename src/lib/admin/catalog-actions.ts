@@ -18,12 +18,12 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { Prisma } from '@prisma/client'
+import { Prisma, OrderStatus } from '@prisma/client'
 import { prisma } from '../db/prisma'
 import { ensureLocalAdmin } from './guard'
 import { requireAdminSession } from './auth'
 import { AUDIT_ACTIONS, recordAuditEvent } from './audit'
-import { parseProductForm } from './catalog-form'
+import { parseProductForm, parseVariantForm } from './catalog-form'
 import {
   ProductMediaError,
   deleteProductImageFile,
@@ -439,4 +439,233 @@ export async function deleteGalleryImageAction(formData: FormData) {
 
   revalidateStorefront(image.product.slug)
   redirect(`${editPath(productId)}?gok=removed`)
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Этап 30C — Admin product variant management
+//
+// Create / edit / delete the variant rows that 30B's order foundation already
+// resolves, prices, and decrements. Each action re-checks the local admin guard
+// AND a valid session, validates with the pure parser, audits, revalidates, and
+// redirects with ?vok=/?verr= back to the product edit page. Variant rows carry
+// optional priceDelta/stock/sku (30B); the storefront selector/cart is 30D.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Open-order statuses where a cancellation+restock against a variant may still
+ *  happen — deleting such a variant would orphan its restock target (Этап 30C). */
+const OPEN_ORDER_STATUSES: readonly OrderStatus[] = [OrderStatus.submitted, OrderStatus.processing]
+
+/**
+ * Guarantees a product has EXACTLY ONE default variant when it has any (Этап 30C),
+ * so 30B's default fallback always resolves deterministically. If zero variants
+ * are default, the stable first (sortOrder, value, id) is promoted; if several
+ * are, only that stable one is kept. A product with no variants keeps no default.
+ * Runs inside the caller's transaction. NOTE: when a specific variant was just set
+ * default (siblings already unset), this is a no-op (exactly one default already).
+ */
+async function ensureExactlyOneDefault(tx: Prisma.TransactionClient, productId: string): Promise<void> {
+  const variants = await tx.productVariant.findMany({
+    where: { productId },
+    select: { id: true, isDefault: true, sortOrder: true, value: true },
+  })
+  if (variants.length === 0) return
+  const defaults = variants.filter((v) => v.isDefault)
+  if (defaults.length === 1) return
+  const stable = [...variants].sort(
+    (a, b) =>
+      a.sortOrder - b.sortOrder || a.value.localeCompare(b.value) || a.id.localeCompare(b.id),
+  )[0]
+  await tx.productVariant.updateMany({
+    where: { productId, isDefault: true },
+    data: { isDefault: false },
+  })
+  await tx.productVariant.update({ where: { id: stable.id }, data: { isDefault: true } })
+}
+
+/** Rejects a priceDelta that would push the product's final price to <= 0 (Этап
+ *  30C). Only enforced when the product carries a base price (coming_soon has
+ *  none — the order foundation rejects an unpriced order anyway). */
+function finalPriceIsValid(basePrice: number | null, priceDelta: number | null): boolean {
+  if (basePrice == null) return true
+  return basePrice + (priceDelta ?? 0) > 0
+}
+
+/** Add a variant to a product. The first variant becomes default automatically. */
+export async function addVariantAction(formData: FormData) {
+  await ensureLocalAdmin()
+  const session = await requireAdminSession()
+
+  const productId = String(formData.get('productId') ?? '').trim()
+  if (!productId) redirect(`${CATALOG_PATH}?err=missing`)
+
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+    select: { id: true, slug: true, price: true },
+  })
+  if (!product) redirect(`${CATALOG_PATH}?err=notfound`)
+
+  const parsed = parseVariantForm(formData)
+  if (!parsed.ok) redirect(`${editPath(productId)}?verr=${parsed.error}`)
+  const input = parsed.data
+
+  if (!finalPriceIsValid(product.price, input.priceDelta)) {
+    redirect(`${editPath(productId)}?verr=pricetotal`)
+  }
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      const count = await tx.productVariant.count({ where: { productId } })
+      // First variant is always default; otherwise honour the checkbox.
+      const makeDefault = input.isDefault || count === 0
+      if (makeDefault) {
+        await tx.productVariant.updateMany({
+          where: { productId, isDefault: true },
+          data: { isDefault: false },
+        })
+      }
+      await tx.productVariant.create({
+        data: {
+          productId,
+          name: input.name,
+          value: input.value,
+          sortOrder: input.sortOrder,
+          isDefault: makeDefault,
+          priceDelta: input.priceDelta,
+          stockQuantity: input.stockQuantity,
+          sku: input.sku,
+        },
+      })
+      await ensureExactlyOneDefault(tx, productId)
+    })
+  } catch (err) {
+    if (isUniqueConstraintError(err)) redirect(`${editPath(productId)}?verr=duplicate`)
+    throw err
+  }
+
+  await recordAuditEvent({
+    actor: session.sub,
+    action: AUDIT_ACTIONS.productVariantAdded,
+    entityType: 'product',
+    entityId: product.slug,
+    summary: `Добавлен вариант «${input.value}» товара ${product.slug}.`,
+  })
+
+  revalidateStorefront(product.slug)
+  redirect(`${editPath(productId)}?vok=added`)
+}
+
+/** Update one variant's fields. Setting isDefault unsets the product's siblings. */
+export async function updateVariantAction(formData: FormData) {
+  await ensureLocalAdmin()
+  const session = await requireAdminSession()
+
+  const productId = String(formData.get('productId') ?? '').trim()
+  const variantId = String(formData.get('variantId') ?? '').trim()
+  if (!productId || !variantId) redirect(`${CATALOG_PATH}?err=missing`)
+
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+    select: { id: true, slug: true, price: true },
+  })
+  if (!product) redirect(`${CATALOG_PATH}?err=notfound`)
+
+  const variant = await prisma.productVariant.findUnique({
+    where: { id: variantId },
+    select: { id: true, productId: true },
+  })
+  // Unknown variant, or one belonging to a different product → reject.
+  if (!variant || variant.productId !== productId) redirect(`${editPath(productId)}?verr=notfound`)
+
+  const parsed = parseVariantForm(formData)
+  if (!parsed.ok) redirect(`${editPath(productId)}?verr=${parsed.error}`)
+  const input = parsed.data
+
+  if (!finalPriceIsValid(product.price, input.priceDelta)) {
+    redirect(`${editPath(productId)}?verr=pricetotal`)
+  }
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      if (input.isDefault) {
+        await tx.productVariant.updateMany({
+          where: { productId, isDefault: true, id: { not: variantId } },
+          data: { isDefault: false },
+        })
+      }
+      await tx.productVariant.update({
+        where: { id: variantId },
+        data: {
+          name: input.name,
+          value: input.value,
+          sortOrder: input.sortOrder,
+          isDefault: input.isDefault,
+          priceDelta: input.priceDelta,
+          stockQuantity: input.stockQuantity,
+          sku: input.sku,
+        },
+      })
+      // If the admin unchecked the LAST default, re-promote a stable one — a
+      // variant product never ends up with zero defaults.
+      await ensureExactlyOneDefault(tx, productId)
+    })
+  } catch (err) {
+    if (isUniqueConstraintError(err)) redirect(`${editPath(productId)}?verr=duplicate`)
+    throw err
+  }
+
+  await recordAuditEvent({
+    actor: session.sub,
+    action: AUDIT_ACTIONS.productVariantUpdated,
+    entityType: 'product',
+    entityId: product.slug,
+    summary: `Обновлён вариант «${input.value}» товара ${product.slug}.`,
+  })
+
+  revalidateStorefront(product.slug)
+  redirect(`${editPath(productId)}?vok=updated`)
+}
+
+/**
+ * Delete a variant. Blocked when the variant is referenced by an OPEN order
+ * (submitted/processing) whose cancellation could still need to restock it —
+ * removing it would orphan that restock target. Completed/cancelled (terminal)
+ * orders keep their immutable snapshot, so deleting a variant they reference is
+ * safe. Deleting the default promotes the next stable variant; deleting the last
+ * leaves no default. Order history is never cascaded (loose snapshot id, 30B).
+ */
+export async function deleteVariantAction(formData: FormData) {
+  await ensureLocalAdmin()
+  const session = await requireAdminSession()
+
+  const productId = String(formData.get('productId') ?? '').trim()
+  const variantId = String(formData.get('variantId') ?? '').trim()
+  if (!productId || !variantId) redirect(`${CATALOG_PATH}?err=missing`)
+
+  const variant = await prisma.productVariant.findUnique({
+    where: { id: variantId },
+    select: { id: true, productId: true, value: true, product: { select: { slug: true } } },
+  })
+  if (!variant || variant.productId !== productId) redirect(`${editPath(productId)}?verr=notfound`)
+
+  // Safety: never delete a variant an open order may still restock on cancel.
+  const openRefs = await prisma.orderItem.count({
+    where: { variantId, order: { status: { in: [...OPEN_ORDER_STATUSES] } } },
+  })
+  if (openRefs > 0) redirect(`${editPath(productId)}?verr=inuse`)
+
+  await prisma.$transaction(async (tx) => {
+    await tx.productVariant.delete({ where: { id: variantId } })
+    await ensureExactlyOneDefault(tx, productId)
+  })
+
+  await recordAuditEvent({
+    actor: session.sub,
+    action: AUDIT_ACTIONS.productVariantRemoved,
+    entityType: 'product',
+    entityId: variant.product.slug,
+    summary: `Удалён вариант «${variant.value}» товара ${variant.product.slug}.`,
+  })
+
+  revalidateStorefront(variant.product.slug)
+  redirect(`${editPath(productId)}?vok=removed`)
 }

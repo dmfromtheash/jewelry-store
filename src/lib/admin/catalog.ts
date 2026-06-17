@@ -122,6 +122,45 @@ export async function getAdminProductGalleryImages(
   })
 }
 
+/** One ProductVariant row for the admin variant manager (Этап 30C). */
+export interface AdminProductVariantRow {
+  id: string
+  /** Attribute group name, e.g. "coating". */
+  name: string
+  /** Attribute value, e.g. "Позолота". */
+  value: string
+  sortOrder: number
+  isDefault: boolean
+  /** Price adjustment in integer MINOR units (kopecks); null = same as product. */
+  priceDelta: number | null
+  /** Variant stock (Этап 30B); null = not tracked (falls back to product stock). */
+  stockQuantity: number | null
+  sku: string | null
+}
+
+/**
+ * All variants of a product for the admin «Варианты» card (Этап 30C), ordered the
+ * same way the storefront/default policy sorts them (sortOrder, then value).
+ */
+export async function getAdminProductVariants(
+  productId: string,
+): Promise<AdminProductVariantRow[]> {
+  return prisma.productVariant.findMany({
+    where: { productId },
+    orderBy: [{ sortOrder: 'asc' }, { value: 'asc' }],
+    select: {
+      id: true,
+      name: true,
+      value: true,
+      sortOrder: true,
+      isDefault: true,
+      priceDelta: true,
+      stockQuantity: true,
+      sku: true,
+    },
+  })
+}
+
 /** Loads one product's editable scalar fields, or null when it does not exist. */
 export async function getAdminProductForEdit(
   id: string,

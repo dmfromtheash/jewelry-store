@@ -15,6 +15,7 @@ import {
   getAdminCategoriesForSelect,
   getAdminProductForEdit,
   getAdminProductGalleryImages,
+  getAdminProductVariants,
 } from '../../../../../src/lib/admin/catalog'
 import {
   addGalleryImageAction,
@@ -22,6 +23,7 @@ import {
   updateProductAction,
 } from '../../../../../src/lib/admin/catalog-actions'
 import { ProductForm } from '../../_components/ProductForm'
+import { ProductVariants, resolveVariantNotice } from '../../_components/ProductVariants'
 
 export const metadata: Metadata = {
   title: 'Админ · Редактирование товара — AURELIA',
@@ -67,6 +69,10 @@ export default async function AdminCatalogEditPage({
   const galleryImages = await getAdminProductGalleryImages(id)
   const secondaryImages = galleryImages.filter((img) => !img.isPrimary && img.position !== 0)
   const galleryNotice = resolveGalleryNotice(sp)
+
+  // Variants (Этап 30C): admin add/edit/delete + default. Storefront selector 30D.
+  const variants = await getAdminProductVariants(id)
+  const variantNotice = resolveVariantNotice(sp)
 
   return (
     <div className="au-container au-adm">
@@ -169,6 +175,8 @@ export default async function AdminCatalogEditPage({
           </button>
         </form>
       </div>
+
+      <ProductVariants productId={product.id} variants={variants} notice={variantNotice} />
     </div>
   )
 }

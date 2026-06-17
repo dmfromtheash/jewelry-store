@@ -96,6 +96,95 @@ function parseStock(raw: string): { value: number | null } | 'invalid' {
   return { value: n }
 }
 
+/** Default attribute group for v1 single-axis variants (Этап 30C). */
+export const DEFAULT_VARIANT_NAME = 'coating'
+
+/** Validation error codes for the variant form — surfaced via ?verr=. */
+export type VariantFormErrorCode =
+  | 'name'
+  | 'value'
+  | 'sortOrder'
+  | 'pricedelta'
+  | 'stock'
+  | 'sku'
+
+/** Normalized, persistable variant fields parsed from the admin form. */
+export interface ParsedVariantInput {
+  name: string
+  value: string
+  sortOrder: number
+  isDefault: boolean
+  /** Integer MINOR units (kopecks); may be negative/zero; null = no adjustment. */
+  priceDelta: number | null
+  /** null = not tracked at the variant level; else a non-negative integer. */
+  stockQuantity: number | null
+  sku: string | null
+}
+
+export type ParseVariantResult =
+  | { ok: true; data: ParsedVariantInput }
+  | { ok: false; error: VariantFormErrorCode }
+
+/**
+ * Parses an optional SIGNED UAH delta → integer minor units (Этап 30C). Unlike a
+ * product price a variant delta may be negative or zero. Empty → null (no
+ * adjustment). The "final price stays > 0" rule is enforced in the action (it
+ * needs the product's base price), not here.
+ */
+function parseDeltaToMinor(raw: string): { value: number | null } | 'invalid' {
+  const cleaned = raw.replace(/\s/g, '').replace(',', '.')
+  if (cleaned.length === 0) return { value: null }
+  if (!/^-?\d+(\.\d{1,2})?$/.test(cleaned)) return 'invalid'
+  const n = Number(cleaned)
+  if (!Number.isFinite(n)) return 'invalid'
+  return { value: Math.round(n * 100) }
+}
+
+/** Parses an optional non-negative integer sortOrder; empty → 0. */
+function parseSortOrder(raw: string): { value: number } | 'invalid' {
+  const cleaned = raw.replace(/\s/g, '')
+  if (cleaned.length === 0) return { value: 0 }
+  if (!/^\d+$/.test(cleaned)) return 'invalid'
+  const n = Number(cleaned)
+  if (!Number.isInteger(n) || n < 0) return 'invalid'
+  return { value: n }
+}
+
+/**
+ * Parses + validates the admin variant form (Этап 30C). Pure: no Prisma. The
+ * (productId, name, value) UNIQUENESS and the "final price > 0" rule are enforced
+ * in the action (DB P2002 / product base price), not here.
+ */
+export function parseVariantForm(formData: FormData): ParseVariantResult {
+  const name = str(formData, 'variantName') || DEFAULT_VARIANT_NAME
+  if (!name) return { ok: false, error: 'name' }
+
+  const value = str(formData, 'variantValue')
+  if (!value) return { ok: false, error: 'value' }
+
+  const parsedSort = parseSortOrder(str(formData, 'sortOrder'))
+  if (parsedSort === 'invalid') return { ok: false, error: 'sortOrder' }
+
+  const parsedDelta = parseDeltaToMinor(str(formData, 'priceDelta'))
+  if (parsedDelta === 'invalid') return { ok: false, error: 'pricedelta' }
+
+  const parsedStock = parseStock(str(formData, 'variantStock'))
+  if (parsedStock === 'invalid') return { ok: false, error: 'stock' }
+
+  return {
+    ok: true,
+    data: {
+      name,
+      value,
+      sortOrder: parsedSort.value,
+      isDefault: str(formData, 'isDefault') === 'on',
+      priceDelta: parsedDelta.value,
+      stockQuantity: parsedStock.value,
+      sku: optStr(formData, 'variantSku'),
+    },
+  }
+}
+
 /**
  * Parses + validates the product form. The slug format is checked here; slug
  * UNIQUENESS is enforced by the DB (a P2002 in the action), not here.
