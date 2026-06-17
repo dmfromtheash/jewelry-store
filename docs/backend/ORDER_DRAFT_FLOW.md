@@ -15,8 +15,8 @@ contact fields + cart                 createOrderDraft()
                                       recompute prices (DB)
                                       create Order + items   ───▶ Order / OrderItem
                   ◀── { ok, orderCode } ──
-clear cart, go to
-/checkout/success?order=CODE
+show inline confirmation
+(client state), clear cart
 ```
 
 ## What the client sends
@@ -58,13 +58,21 @@ Money is stored as integer **minor units (kopecks)**; the UI divides by 100.
 - **OrderStatus** enum: `draft` / `submitted` / `cancelled` (only `submitted`
   is produced now).
 
-## After success
+## After success (27C — order confirmation)
 
-- The cart is cleared **only after** the server confirms the order is persisted.
-- The browser navigates to `/checkout/success?order=<code>`, a server component
-  that reads the order summary by code (`src/lib/orders/read.ts`) — it shows the
-  order code, line items and total, and intentionally **does not** show customer
-  contact details (the code travels in the URL).
+- `CheckoutPageClient` renders an **inline confirmation from client state**: the
+  `orderCode` returned by the action plus the payment/delivery method + optional
+  `deliveryDetails` the customer just submitted (labelled via
+  `src/lib/orders/methods.ts`). The copy is honest about the manual payment path
+  (`manual_online` → manager sends details; `cash_on_delivery` → pay on receipt).
+- The cart is **cleared only after** the server confirms the order is persisted,
+  so the same cart can't be re-submitted.
+- **No by-code public order lookup.** The confirmation needs no DB read, so no
+  order contents are fetched by a guessable code and no PII is exposed.
+  `/checkout/success?order=<code>` remains only as a **safe static fallback**
+  (direct hit / refresh): it performs **no database lookup** — at most it echoes
+  the code already present in the URL. The old `src/lib/orders/read.ts`
+  (`getOrderSummaryByCode`) was removed.
 
 ## Not in 16A
 

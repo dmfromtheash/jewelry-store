@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { useCart } from '../cart/CartProvider'
 import { formatPrice } from '../../lib/catalog'
 import { createOrderDraft } from '../../lib/orders/actions'
@@ -13,6 +12,8 @@ import {
   DELIVERY_METHOD_LABELS,
   PAYMENT_METHODS,
   PAYMENT_METHOD_LABELS,
+  deliveryMethodLabel,
+  paymentMethodLabel,
 } from '../../lib/orders/methods'
 import { sendAnalyticsEvent } from '../../lib/analytics/client'
 import { ANALYTICS_EVENTS } from '../../lib/analytics/events'
@@ -22,10 +23,22 @@ import { ANALYTICS_EVENTS } from '../../lib/analytics/events'
  *
  * Reads the cart via useCart() and submits a guest order DRAFT to the server
  * action (createOrderDraft). The server recomputes every price from the DB, so
- * the client only sends slugs + quantities + contact fields. On success the
- * cart is cleared and we navigate to /checkout/success?order=<code>. Payment is
- * still not connected — the order is a non-paid draft.
+ * the client only sends slugs + quantities + contact fields.
+ *
+ * Этап 27C — order confirmation: on success the cart is cleared and an inline
+ * confirmation state is shown FROM CLIENT STATE (the action's orderCode + the
+ * values the customer just submitted). We intentionally do NOT navigate to a
+ * by-code public order page, so no order data is fetched by a guessable code and
+ * no PII is exposed. Payment is manual (no provider) — the copy says so honestly.
  */
+
+/** What the inline confirmation renders — all from the just-submitted order. */
+interface OrderConfirmation {
+  orderCode: string
+  paymentMethod: string
+  deliveryMethod: string
+  deliveryDetails: string
+}
 
 const GemIcon = () => (
   <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.1" aria-hidden="true">
@@ -35,8 +48,8 @@ const GemIcon = () => (
 )
 
 export default function CheckoutPageClient() {
-  const router = useRouter()
   const { lines, unavailable, hasUnavailable, count, subtotal, removeItem, clear } = useCart()
+  const [confirmation, setConfirmation] = useState<OrderConfirmation | null>(null)
 
   const [form, setForm] = useState({
     name: '',
@@ -112,9 +125,16 @@ export default function CheckoutPageClient() {
     try {
       const result = await createOrderDraft(payload)
       if (result.ok) {
+        // Snapshot the confirmation from the action result + what was just
+        // submitted, THEN clear the cart so the same cart can't be re-submitted.
+        setConfirmation({
+          orderCode: result.orderCode,
+          paymentMethod: payload.paymentMethod,
+          deliveryMethod: payload.deliveryMethod,
+          deliveryDetails: payload.deliveryDetails ?? '',
+        })
         clear() // order is persisted server-side; safe to empty the local cart
-        router.push(`/checkout/success?order=${encodeURIComponent(result.orderCode)}`)
-        return // keep the pending state while navigating away
+        return // confirmation view takes over (keeps `pending` irrelevant)
       }
       setErrors(result.fieldErrors ?? {})
       setGeneralError(result.error)
@@ -123,6 +143,61 @@ export default function CheckoutPageClient() {
       setGeneralError('Не удалось отправить заказ. Попробуйте ещё раз.')
       setPending(false)
     }
+  }
+
+  // Order confirmation takes precedence: after a successful order the cart is
+  // empty, so without this it would fall through to the "Корзина пуста" state.
+  if (confirmation) {
+    const isManualOnline = confirmation.paymentMethod === 'manual_online'
+    return (
+      <div className="au-container au-checkout">
+        <div className="au-co-empty">
+          <span className="au-co-empty-ico">
+            <GemIcon />
+          </span>
+          <h1 className="au-co-empty-title">Заказ принят</h1>
+          <p className="au-co-empty-sub">
+            Спасибо! Мы свяжемся с вами для подтверждения заказа.
+          </p>
+
+          <ul className="au-co-list" style={{ width: '100%', maxWidth: 480, textAlign: 'left' }}>
+            <li className="au-co-line">
+              <span className="au-co-line-meta">Номер заказа</span>
+              <span className="au-co-line-name"><strong>{confirmation.orderCode}</strong></span>
+            </li>
+            <li className="au-co-line">
+              <span className="au-co-line-meta">Оплата</span>
+              <span className="au-co-line-name">{paymentMethodLabel(confirmation.paymentMethod)}</span>
+            </li>
+            <li className="au-co-line">
+              <span className="au-co-line-meta">Доставка</span>
+              <span className="au-co-line-name">{deliveryMethodLabel(confirmation.deliveryMethod)}</span>
+            </li>
+            {confirmation.deliveryDetails && (
+              <li className="au-co-line">
+                <span className="au-co-line-meta">Детали доставки</span>
+                <span className="au-co-line-name">{confirmation.deliveryDetails}</span>
+              </li>
+            )}
+          </ul>
+
+          <p className="au-co-note" style={{ marginTop: 16 }}>
+            {isManualOnline
+              ? 'Автоматическая онлайн-оплата на сайте пока не подключена. Реквизиты для оплаты отправит менеджер после подтверждения заказа.'
+              : 'Оплата при получении — с вас сейчас ничего не списано.'}
+          </p>
+
+          <div className="au-co-empty-actions">
+            <Link className="au-btn au-btn--primary" href="/category/bijouterie">
+              В каталог
+            </Link>
+            <Link className="au-btn au-btn--ghost" href="/">
+              На главную
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (lines.length === 0 && unavailable.length === 0) {

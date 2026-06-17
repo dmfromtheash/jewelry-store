@@ -1,19 +1,24 @@
 /**
- * AURELIA — Checkout success (Этап 16A)
+ * AURELIA — Checkout success fallback (Этап 16A → 27C)
  *
- * Shows the created draft order by its code (?order=AUR-XXXXXXXX). Honest demo
- * copy: the order is stored, but payment and processing are not connected yet.
- * Server component — reads the order summary from the DB (no customer PII).
+ * The primary order confirmation is now shown INLINE in CheckoutPageClient from
+ * client state right after a successful order (orderCode + the values the
+ * customer just submitted). This route is only a SAFE FALLBACK for a direct hit
+ * / refresh / bookmark of /checkout/success.
+ *
+ * Этап 27C privacy hardening: it deliberately performs NO database lookup. It
+ * does not read an order by code, so no order contents are exposed by a
+ * guessable order code and no PII is ever returned here. At most it echoes the
+ * code already present in the URL (which the customer themselves hold).
  */
 
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { formatPrice } from '../../../src/lib/catalog'
-import { getOrderSummaryByCode } from '../../../src/lib/orders/read'
 
 export const metadata: Metadata = {
   title: 'Заказ создан — AURELIA',
-  description: 'Черновик заказа AURELIA создан (демо-режим).',
+  description: 'Заказ AURELIA принят (демо-режим).',
+  robots: { index: false, follow: false },
 }
 
 const GemIcon = () => (
@@ -29,7 +34,6 @@ export default async function CheckoutSuccessPage({
   searchParams: Promise<{ order?: string }>
 }) {
   const { order: orderCode } = await searchParams
-  const order = orderCode ? await getOrderSummaryByCode(orderCode) : null
 
   return (
     <div className="au-container au-checkout">
@@ -37,41 +41,20 @@ export default async function CheckoutSuccessPage({
         <span className="au-co-empty-ico">
           <GemIcon />
         </span>
-        <h1 className="au-co-empty-title">Заказ создан</h1>
+        <h1 className="au-co-empty-title">Заказ принят</h1>
 
-        {order ? (
-          <>
-            <p className="au-co-empty-sub">
-              Номер заказа: <strong>{order.orderCode}</strong>
-            </p>
-
-            <ul className="au-co-list" style={{ textAlign: 'left', width: '100%', maxWidth: 480 }}>
-              {order.items.map((item, i) => (
-                <li className="au-co-line" key={`${item.productName}-${i}`}>
-                  <div className="au-co-line-main">
-                    <p className="au-co-line-name">{item.productName}</p>
-                    <p className="au-co-line-meta">{item.quantity} шт.</p>
-                  </div>
-                  <span className="au-co-line-price">{formatPrice(item.lineTotal / 100)}</span>
-                </li>
-              ))}
-            </ul>
-
-            <div className="au-co-total" style={{ width: '100%', maxWidth: 480 }}>
-              <span>Итого</span>
-              <span className="au-co-total-val">{formatPrice(order.totalAmount / 100)}</span>
-            </div>
-          </>
-        ) : (
-          <p className="au-co-empty-sub">
-            {orderCode
-              ? `Заказ «${orderCode}» не найден.`
-              : 'Заказ оформлен. Подробности отправим позже.'}
-          </p>
-        )}
+        <p className="au-co-empty-sub">
+          {orderCode ? (
+            <>
+              Номер заказа: <strong>{orderCode}</strong>. Мы свяжемся с вами для подтверждения.
+            </>
+          ) : (
+            'Спасибо! Мы свяжемся с вами для подтверждения заказа.'
+          )}
+        </p>
 
         <p className="au-co-note" style={{ marginTop: 16 }}>
-          Заказ создан в демо-режиме. Оплата и обработка заказов будут подключены позже —
+          Заказ оформлен в демо-режиме. Оплата подтверждается вручную по выбранному способу —
           сейчас с вас ничего не списано.
         </p>
 
