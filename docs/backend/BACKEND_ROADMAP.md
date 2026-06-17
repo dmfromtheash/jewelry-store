@@ -28,6 +28,14 @@ The roadmap below is the original spec; the executed work is tracked as 15A–16
   in public nav; `npm run db:verify:admin-orders`. **No real auth / no payment /
   no deletes.** See `ADMIN_ORDER_MANAGEMENT.md`.
 
+- **30A** — **Product Variants v1 — implementation SPEC** (docs-only): plan for
+  selectable variants (coating/size) across product page, cart, checkout, order
+  snapshot, inventory, and admin. Additive-only data model; default-variant
+  fallback keeps old carts/orders safe. Implementation split **30B** (data model
+  + server/order/inventory + verify), **30C** (admin variant management), **30D**
+  (storefront selector + cart + checkout). **Variants remain blocked until 30B.**
+  See `PRODUCT_VARIANTS_IMPLEMENTATION_SPEC.md`.
+
 Still ahead: real admin/customer auth (protect `/admin/*` before any non-local
 exposure), payment (placeholder → real), customer order history.
 
