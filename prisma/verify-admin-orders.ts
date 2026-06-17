@@ -14,7 +14,7 @@
 import { OrderStatus, PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
-const EXPECTED_STATUSES = ['draft', 'submitted', 'cancelled']
+const EXPECTED_STATUSES = ['draft', 'submitted', 'processing', 'completed', 'cancelled']
 
 async function main() {
   const orderCount = await prisma.order.count()

@@ -1,14 +1,16 @@
 /**
- * AURELIA — Order status transition guard (Этап 26B)
+ * AURELIA — Order status transition guard (Этап 26B → 27E)
  *
- * Central, decision-free map of which OrderStatus transitions are permitted for
- * the CURRENT enum (`draft` · `submitted` · `cancelled`). This hardens the order
- * spine ahead of payments/delivery WITHOUT touching the schema, the enum, or the
- * business flow: checkout still creates `submitted`, the admin can still cancel.
- * It only forbids illogical jumps (e.g. resurrecting a `cancelled` order).
+ * Central, decision-free map of which OrderStatus transitions are permitted.
+ * Этап 27E adds a MANUAL admin fulfillment path on top of the order spine:
+ * checkout still creates `submitted`; the admin can take an order into
+ * `processing` and then `completed`, and can still `cancel`. It only forbids
+ * illogical jumps (e.g. resurrecting a terminal order, or skipping straight from
+ * `submitted` to `completed`). No payment automation — each move is a manual,
+ * audited admin action.
  *
- * See docs/ORDER_LIFECYCLE_SPEC.md §5 for the future (payment-aware) table; this
- * module implements only the subset expressible with today's three statuses.
+ * See docs/ORDER_LIFECYCLE_SPEC.md for the future payment-aware table (paid /
+ * shipped / refunded …); this module implements the manual subset only.
  *
  * Pure + dependency-light: only a TYPE import from Prisma (erased at runtime), so
  * it is safe to import from server actions, server components, and the verify
@@ -19,16 +21,20 @@ import type { OrderStatus } from '@prisma/client'
 
 /**
  * Allowed *changes* per source status (the target must differ from the source).
- * Anything not listed is denied. `cancelled` is terminal — no resurrection; a
- * re-order creates a brand new order.
+ * Anything not listed is denied. `completed` and `cancelled` are terminal — no
+ * resurrection; a re-order creates a brand new order.
  *
- *   draft     → submitted | cancelled
- *   submitted → cancelled
- *   cancelled → (terminal)
+ *   draft      → submitted | cancelled
+ *   submitted  → processing | cancelled
+ *   processing → completed | cancelled
+ *   completed  → (terminal)
+ *   cancelled  → (terminal)
  */
 export const ALLOWED_ORDER_TRANSITIONS: Record<OrderStatus, readonly OrderStatus[]> = {
   draft: ['submitted', 'cancelled'],
-  submitted: ['cancelled'],
+  submitted: ['processing', 'cancelled'],
+  processing: ['completed', 'cancelled'],
+  completed: [],
   cancelled: [],
 }
 

@@ -82,12 +82,25 @@ Money is stored as integer **minor units (kopecks)**; the UI divides by 100.
   to the filtered list; `/admin/orders` shows a needs-attention count with a
   **«Показать только новые»** quick filter (`?status=submitted`). No schema change
   — both are reads over the existing status (`getNeedsAttentionOrderCount`).
-- An order **leaves** the inbox as soon as its status changes (today the available
-  move is `submitted → cancelled`; a dedicated "fulfilled/processed" status is a
-  future lifecycle stage, see `ORDER_LIFECYCLE_SPEC.md` §5).
+- An order **leaves** the inbox as soon as its status changes — including the new
+  manual fulfillment path below, so the owner clears it by **processing**, not only
+  by cancelling.
 - **No external notifications** (email/SMS/Telegram) and **no external API** — the
   owner sees new orders entirely inside the local admin. Push notifications remain
   a separate future stage.
+
+## Manual fulfillment lifecycle (27E — processing/fulfillment v1)
+
+- The `OrderStatus` enum gained two **additive** values: `processing` («В обработке»)
+  and `completed` («Выполнен»). Checkout still creates `submitted`; only the admin
+  moves an order forward, and only `submitted` counts as needs-attention.
+- Allowed manual transitions (audited, enforced by `transitions.ts` + the status
+  action): `submitted → processing → completed`, plus `submitted → cancelled` and
+  `processing → cancelled`. `completed` and `cancelled` are **terminal**; backward
+  or skip jumps (`submitted → completed`, `completed → processing`, …) are rejected.
+- No payment/carrier automation — every move is a manual admin action. Payment-aware
+  states (`paid` / `shipped` / `refunded` …) and notifications remain future stages
+  (see `ORDER_LIFECYCLE_SPEC.md`).
 
 ## Not in 16A
 

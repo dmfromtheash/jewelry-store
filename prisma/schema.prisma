@@ -118,11 +118,16 @@ model ProductImage {
   @@index([productId])
 }
 
-/// Order lifecycle. 16A only creates `submitted` guest drafts (no payment yet);
-/// `draft`/`cancelled` reserved for later flows.
+/// Order lifecycle. Storefront checkout always creates `submitted`; the admin can
+/// then move it through a MANUAL fulfillment path (Этап 27E): `submitted` →
+/// `processing` (взят в работу) → `completed` (выполнен). `cancelled` and
+/// `completed` are terminal. `draft` is reserved for later flows. No payment
+/// automation: every transition is a manual, audited admin action.
 enum OrderStatus {
   draft
   submitted
+  processing
+  completed
   cancelled
 }
 

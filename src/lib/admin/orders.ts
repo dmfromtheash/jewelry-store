@@ -17,6 +17,8 @@ export const ORDER_STATUSES = Object.values(OrderStatus) as OrderStatus[]
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   draft: 'Черновик',
   submitted: 'Оформлен',
+  processing: 'В обработке',
+  completed: 'Выполнен',
   cancelled: 'Отменён',
 }
 

@@ -21,6 +21,7 @@
     "db:verify:checkout-options": "tsx prisma/verify-checkout-options.ts",
     "db:verify:order-confirmation": "tsx prisma/verify-order-confirmation.ts",
     "db:verify:admin-inbox": "tsx prisma/verify-admin-inbox.ts",
+    "db:verify:order-lifecycle": "tsx prisma/verify-order-lifecycle.ts",
     "db:verify:runtime": "tsx prisma/verify-runtime-catalog.ts",
     "db:verify:orders": "tsx prisma/verify-orders.ts",
     "db:verify:admin-orders": "tsx prisma/verify-admin-orders.ts",
