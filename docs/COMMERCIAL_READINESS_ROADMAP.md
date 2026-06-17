@@ -296,3 +296,62 @@ to *taking money*, so it is not the priority right now.
 - Admin stays `noindex`, local/guarded; secrets only via env/secret manager.
 - One stage, one commit; SPEC before risky implementation; checks must pass before
   commit; no push/deploy without explicit instruction.
+
+---
+
+## 9. Marketing / Growth Skills Backlog (Buyer Demo & Growth Readiness)
+
+> **Backlog only — docs, not work.** Added during Этап 26M after a read-only
+> review of the external repo [`coreyhaines31/marketingskills`](https://github.com/coreyhaines31/marketingskills)
+> (MIT, by Corey Haines): a library of ~45 "Agent Skills" (markdown playbooks) +
+> a tools registry, aimed at technical marketers. It is **not installed** and
+> nothing was copied in. These items describe *future, opt-in* stages that help
+> position AURELIA as a **sale-ready store / buyer demo**, and must each follow the
+> §8 guardrails. None of them changes the approved storefront design without a
+> separate, explicit owner decision.
+
+**Caveat on fit:** that library is **SaaS-leaning** (freemium tiers, paywalls,
+per-seat pricing, B2B sales decks, cold email, onboarding/activation). AURELIA is
+a **guest-checkout e-commerce jewelry store**, so only the e-commerce-relevant
+skills below are worth borrowing as *frameworks/checklists* — we would re-derive,
+not import.
+
+### Relevant future stages (framework reference only)
+- **26N? — Storefront copy pass** (`copywriting` / `copy-editing`): tighten hero,
+  category, PDP, cart and checkout microcopy in ru-RU using the existing voice.
+  Text-only; no layout/spacing/colour change.
+- **26O? — CRO audit (read-only)** (`cro`, `offers`): documented conversion
+  findings for home / category / PDP / cart / checkout. **Recommendations only** —
+  the approved design is **not** altered without a separate owner go-ahead.
+- **26P? — E-commerce SEO + structured data** (`seo-audit`, `schema`): `Product`,
+  `Offer`, `BreadcrumbList`, `Organization` JSON-LD; titles/meta/canonicals. Maps
+  cleanly onto the existing SSG PDP and DB-backed catalog.
+- **26Q? — Conversion analytics deepening** (`analytics`): extend the existing
+  privacy-safe `AnalyticsEvent` funnel (view → add-to-cart → begin-checkout →
+  order) with view-item / remove-from-cart, still **no PII** (per §8 + analytics
+  taxonomy).
+- **Buyer package / demo** (`launch`, `product-marketing`, `pricing`,
+  `sales-enablement`): a one-page positioning + demo script + "what's built vs
+  stubbed" sheet to **sell the finished store**. `product-marketing` would live in
+  `.agents/product-marketing.md`, kept out of runtime code.
+
+### Not taking now (and why)
+- **Plugin / marketplace install, `npx skills add/install`, submodule, repo copy**
+  — never auto-installed into a working project; this stays an external read-only
+  reference.
+- **SaaS-specific skills** — `paywalls`, `signup`/`onboarding` (activation),
+  freemium `pricing` tiers, `revops`, B2B `sales-enablement`/`cold-email`: wrong
+  business model for a guest-checkout store.
+- **Paid acquisition / growth-loop skills** — `ads`, `ad-creative`, `referrals`,
+  `programmatic-seo`, `directory-submissions`: premature before payments/delivery
+  exist (§5 gaps) and out of scope for the current functional track.
+- **External marketing CLIs/MCPs** (GA4/Semrush/Ahrefs/Mixpanel/etc. in
+  `tools/REGISTRY.md`) — third-party SaaS + secrets; not adopted now.
+
+### Risks to respect
+- Do **not** let a marketing pass turn a functional stage (like 26M) into a
+  marketing refactor — hidden-product safety was the actual deliverable here.
+- Do **not** change the approved design under the banner of CRO without a separate
+  owner decision; CRO output is a findings doc, not edits.
+- Do **not** auto-install plugins/skills into this repo; keep any borrowed playbook
+  as a re-derived framework, under the §8 guardrails.

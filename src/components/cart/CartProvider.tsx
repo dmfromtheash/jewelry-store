@@ -40,6 +40,12 @@ export interface CartLine extends CartEntry {
 interface CartContextValue {
   entries: CartEntry[]
   lines: CartLine[]
+  /** Entries whose slug no longer resolves in the public catalog snapshot —
+   *  e.g. a product hidden by the admin (isPublished=false, Этап 26L). Surfaced
+   *  so the UI can show them as unavailable + let the user remove them, instead
+   *  of silently dropping (and still counting/submitting) them. */
+  unavailable: CartEntry[]
+  hasUnavailable: boolean
   count: number
   subtotal: number
   isOpen: boolean
@@ -132,8 +138,9 @@ export default function CartProvider({ children }: { children: ReactNode }) {
   }, [])
   const closeCart = useCallback(() => setIsOpen(false), [])
 
-  // Resolve catalog data + totals. Entries whose slug is no longer in the
-  // catalog are dropped from the rendered lines (and totals) gracefully.
+  // Resolve catalog data + totals. Entries whose slug is no longer in the public
+  // snapshot (e.g. a product the admin hid) are split out into `unavailable`
+  // instead of silently vanishing: they stay removable and excluded from totals.
   const lines = useMemo<CartLine[]>(() => {
     return entries.flatMap((entry) => {
       const product = getBySlug(entry.slug)
@@ -143,12 +150,21 @@ export default function CartProvider({ children }: { children: ReactNode }) {
     })
   }, [entries, getBySlug])
 
-  const count = useMemo(() => entries.reduce((sum, e) => sum + e.qty, 0), [entries])
+  const unavailable = useMemo<CartEntry[]>(
+    () => entries.filter((entry) => !getBySlug(entry.slug)),
+    [entries, getBySlug],
+  )
+
+  // Badge counts only purchasable items; the unavailable ones are shown
+  // separately in the drawer so the count never silently disagrees with totals.
+  const count = useMemo(() => lines.reduce((sum, l) => sum + l.qty, 0), [lines])
   const subtotal = useMemo(() => lines.reduce((sum, l) => sum + l.lineTotal, 0), [lines])
 
   const value: CartContextValue = {
     entries,
     lines,
+    unavailable,
+    hasUnavailable: unavailable.length > 0,
     count,
     subtotal,
     isOpen,

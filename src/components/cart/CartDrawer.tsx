@@ -27,7 +27,8 @@ const GemIcon = () => (
 )
 
 export default function CartDrawer() {
-  const { isOpen, closeCart, lines, count, subtotal, increment, decrement, removeItem } = useCart()
+  const { isOpen, closeCart, lines, unavailable, count, subtotal, increment, decrement, removeItem } =
+    useCart()
 
   useEffect(() => {
     if (!isOpen) return
@@ -62,7 +63,7 @@ export default function CartDrawer() {
           </button>
         </header>
 
-        {lines.length === 0 ? (
+        {lines.length === 0 && unavailable.length === 0 ? (
           <div className="au-cart-empty">
             <span className="au-cart-empty-ico">
               <GemIcon />
@@ -72,6 +73,7 @@ export default function CartDrawer() {
           </div>
         ) : (
           <>
+            {lines.length > 0 && (
             <ul className="au-cart-list">
               {lines.map((line) => (
                 <li className="au-cart-item" key={line.slug}>
@@ -117,20 +119,61 @@ export default function CartDrawer() {
                 </li>
               ))}
             </ul>
+            )}
+
+            {unavailable.length > 0 && (
+              <ul className="au-cart-list">
+                {unavailable.map((entry) => (
+                  <li className="au-cart-item" key={entry.slug}>
+                    <span className="au-cart-thumb" aria-hidden="true">
+                      <GemIcon />
+                    </span>
+                    <div className="au-cart-item-main">
+                      <p className="au-cart-item-name">Товар недоступен</p>
+                      <p className="au-cart-item-cat">Снят с продажи — удалите из корзины</p>
+                    </div>
+                    <div className="au-cart-item-side">
+                      <span className="au-cart-item-price">— ₽</span>
+                      <button
+                        type="button"
+                        className="au-cart-remove"
+                        aria-label="Удалить из корзины"
+                        onClick={() => removeItem(entry.slug)}
+                      >
+                        Удалить
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
 
             <footer className="au-cart-foot">
               <div className="au-cart-total">
                 <span>Итого</span>
                 <span className="au-cart-total-val">{formatPrice(subtotal)}</span>
               </div>
-              <Link
-                className="au-btn au-btn--primary au-btn--block"
-                href="/checkout"
-                onClick={closeCart}
-              >
-                Оформить заказ
-              </Link>
-              <p className="au-cart-note">Демо-оформление — оплата подключается позже.</p>
+              {lines.length > 0 ? (
+                <Link
+                  className="au-btn au-btn--primary au-btn--block"
+                  href="/checkout"
+                  onClick={closeCart}
+                >
+                  Оформить заказ
+                </Link>
+              ) : (
+                <p className="au-cart-note">
+                  В корзине нет доступных товаров — добавьте украшения из каталога.
+                </p>
+              )}
+              {unavailable.length > 0 && lines.length > 0 && (
+                <p className="au-cart-note">
+                  Удалите недоступные товары, чтобы перейти к оформлению.
+                </p>
+              )}
+              {lines.length > 0 && (
+                <p className="au-cart-note">Демо-оформление — оплата подключается позже.</p>
+              )}
             </footer>
           </>
         )}

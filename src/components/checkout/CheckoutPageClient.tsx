@@ -30,7 +30,7 @@ const GemIcon = () => (
 
 export default function CheckoutPageClient() {
   const router = useRouter()
-  const { entries, lines, count, subtotal, clear } = useCart()
+  const { lines, unavailable, hasUnavailable, count, subtotal, removeItem, clear } = useCart()
 
   const [form, setForm] = useState({
     name: '',
@@ -62,6 +62,10 @@ export default function CheckoutPageClient() {
 
   const canSubmit =
     lines.length > 0 &&
+    // Block while the cart still holds an item that no longer resolves in the
+    // public catalog (e.g. admin-hidden, Этап 26M) — the server would reject it
+    // anyway; this gives clearer UX and never ships a doomed order.
+    !hasUnavailable &&
     form.name.trim().length > 0 &&
     form.phone.trim().length > 0 &&
     form.city.trim().length > 0 &&
@@ -80,7 +84,9 @@ export default function CheckoutPageClient() {
       // validates it against src/lib/orders/methods.ts.
       deliveryMethod: form.delivery,
       paymentMethod: 'not_connected',
-      items: entries.map((entry) => ({ slug: entry.slug, qty: entry.qty })),
+      // Only purchasable lines are sent; unavailable items are never included
+      // (the server independently re-checks isPublished as the hard guarantee).
+      items: lines.map((line) => ({ slug: line.slug, qty: line.qty })),
     }
 
     // Instant UX feedback using the SAME rules the server enforces.
@@ -108,7 +114,7 @@ export default function CheckoutPageClient() {
     }
   }
 
-  if (lines.length === 0) {
+  if (lines.length === 0 && unavailable.length === 0) {
     return (
       <div className="au-container au-checkout">
         <div className="au-co-empty">
@@ -249,7 +255,34 @@ export default function CheckoutPageClient() {
                 </span>
               </li>
             ))}
+            {unavailable.map((entry) => (
+              <li className="au-co-line" key={entry.slug}>
+                <span className="au-co-line-thumb" aria-hidden="true">
+                  <GemIcon />
+                </span>
+                <div className="au-co-line-main">
+                  <p className="au-co-line-name">Товар недоступен</p>
+                  <p className="au-co-line-meta">
+                    Снят с продажи ·{' '}
+                    <button
+                      type="button"
+                      className="au-cart-remove"
+                      onClick={() => removeItem(entry.slug)}
+                    >
+                      удалить
+                    </button>
+                  </p>
+                </div>
+                <span className="au-co-line-price">— ₽</span>
+              </li>
+            ))}
           </ul>
+
+          {hasUnavailable && (
+            <p className="au-field-error" role="alert">
+              В корзине есть недоступные товары. Удалите их, чтобы оформить заказ.
+            </p>
+          )}
 
           <div className="au-co-total">
             <span>Итого</span>

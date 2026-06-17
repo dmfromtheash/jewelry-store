@@ -50,8 +50,13 @@ export async function createOrderDraft(input: OrderDraftInput): Promise<OrderDra
   }
 
   // 3) Pull the real products from the DB — never trust client price/name/status.
+  //    `isPublished: true` is the AUTHORITATIVE purchasability gate (Этап 26M):
+  //    a hidden/unpublished product (admin visibility control, Этап 26L) is never
+  //    fetched here, so it can NEVER enter an Order/OrderItem — even if a tampered
+  //    client payload smuggles its slug in. A hidden slug simply resolves to
+  //    `undefined` below and falls into the "no longer available" rejection.
   const products = await prisma.product.findMany({
-    where: { slug: { in: [...requested.keys()] } },
+    where: { slug: { in: [...requested.keys()] }, isPublished: true },
     select: { id: true, slug: true, name: true, sku: true, price: true, status: true },
   })
   const bySlug = new Map(products.map((p) => [p.slug, p]))
