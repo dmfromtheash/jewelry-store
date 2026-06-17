@@ -16,6 +16,7 @@ import {
   ORDER_STATUSES,
   ORDER_STATUS_LABELS,
 } from '../../../src/lib/admin/orders'
+import { deliveryMethodLabel } from '../../../src/lib/orders/methods'
 import { formatPrice } from '../../../src/lib/catalog'
 
 export const metadata: Metadata = {
@@ -41,7 +42,7 @@ export default async function AdminOrdersPage({
     <div className="au-container au-adm">
       <div className="au-adm-head">
         <h1 className="au-adm-title">Заказы</h1>
-        <span className="au-adm-sub">Локальная админка (dev). Оплата не подключена.</span>
+        <span className="au-adm-sub">Локальная админка (dev). Оплата подтверждается вручную.</span>
       </div>
 
       <form className="au-adm-toolbar" method="get" action="/admin/orders">
@@ -88,6 +89,7 @@ export default async function AdminOrdersPage({
                 <th>Статус</th>
                 <th>Клиент</th>
                 <th>Город</th>
+                <th>Доставка</th>
                 <th>Позиций</th>
                 <th>Сумма</th>
                 <th>Создан</th>
@@ -108,6 +110,7 @@ export default async function AdminOrdersPage({
                   </td>
                   <td>{o.customerName}</td>
                   <td>{o.deliveryCity}</td>
+                  <td>{deliveryMethodLabel(o.deliveryMethod)}</td>
                   <td>{o._count.items}</td>
                   <td>{formatPrice(o.totalAmount / 100)}</td>
                   <td>{dateFmt.format(o.createdAt)}</td>

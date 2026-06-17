@@ -61,8 +61,8 @@ options, unless explicitly marked "future" or "to confirm".
 | **Primary market** | **Ukraine.** |
 | **Primary currency** | **UAH.** Schema defaults and the demo catalog baseline are UAH as of **Этап 27A** (migration `switch_currency_to_uah`); the storefront shows ₴ — see §2.1. |
 | **Secondary / future currencies** | EUR / USD as an **export-ready future**, not a required v1 payment path. |
-| **Checkout model** | **Guest checkout is mandatory.** Customer accounts come later. Target flexibility = online payment **and** cash-on-delivery (COD / "оплата при отриманні"). |
-| **Delivery model** | Самовивіз (pickup), **Нова Пошта**, **Укрпошта**, courier / local delivery. Carrier API integration is **later**, not v1. |
+| **Checkout model** | **Guest checkout is mandatory.** Customer accounts come later. Target flexibility = online payment **and** cash-on-delivery (COD / "оплата при отриманні"). ✅ **Manual checkout v1 done in Этап 27B** — payment options `cash_on_delivery` / `manual_online` (honest, no provider API); methods stored on the Order and shown in admin. |
+| **Delivery model** | Самовивіз (pickup), **Нова Пошта**, **Укрпошта**, courier / local delivery. Carrier API integration is **later**, not v1. ✅ **Manual delivery v1 done in Этап 27B** — options `self_pickup` / `nova_poshta` / `ukrposhta` / `local_courier` + an optional free-text note (`Order.deliveryDetails`); no carrier API, no address model. |
 | **Refunds** | Architected for from the start (lifecycle reserves the states); full refund/return **UI** is later. |
 | **Fiscalization / receipts** | A **legal/provider blocker** for a real launch. **Not** to be implemented without a separate, current official check. |
 | **Launch goal** | A **demo / sale-ready MVP** that can be shown to a potential buyer or brand — not necessarily a live revenue store on day one. |

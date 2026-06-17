@@ -92,7 +92,8 @@ export default async function AdminOrderDetailPage({
           </div>
 
           <p className="au-adm-note">
-            Оплата пока не подключена — заказ хранится как черновик/демо. Списаний нет.
+            Оплата подтверждается вручную по выбранному способу (при получении или по
+            реквизитам). Автоматическая онлайн-оплата на сайте не подключена.
           </p>
         </div>
 
@@ -117,6 +118,8 @@ export default async function AdminOrderDetailPage({
               <dd>{order.deliveryCity}</dd>
               <dt>Способ</dt>
               <dd>{deliveryMethodLabel(order.deliveryMethod)}</dd>
+              <dt>Детали</dt>
+              <dd>{order.deliveryDetails ?? '—'}</dd>
               <dt>Оплата</dt>
               <dd>{paymentMethodLabel(order.paymentMethod)}</dd>
               <dt>Создан</dt>

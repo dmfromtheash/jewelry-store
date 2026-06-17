@@ -7,7 +7,7 @@
  * product prices/availability are validated server-side against the DB.
  */
 
-import type { OrderDraftInput, OrderFieldErrors } from './types'
+import { DELIVERY_DETAILS_MAX, type OrderDraftInput, type OrderFieldErrors } from './types'
 import { isAllowedDeliveryMethod, isAllowedPaymentMethod } from './methods'
 
 /** Lenient phone check: 10–18 chars, digits plus + ( ) - and spaces. */
@@ -43,6 +43,12 @@ export function validateOrderDraftFields(input: OrderDraftInput): OrderFieldErro
   const paymentMethod = input.paymentMethod?.trim() ?? ''
   if (!isAllowedPaymentMethod(paymentMethod)) {
     errors.paymentMethod = 'Этот способ оплаты сейчас недоступен.'
+  }
+
+  // Delivery note is optional; only its length is constrained (no address model).
+  const deliveryDetails = input.deliveryDetails?.trim() ?? ''
+  if (deliveryDetails.length > DELIVERY_DETAILS_MAX) {
+    errors.deliveryDetails = 'Комментарий к доставке слишком длинный.'
   }
 
   if (!Array.isArray(input.items) || input.items.length === 0) {

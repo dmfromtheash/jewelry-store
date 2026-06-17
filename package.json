@@ -18,6 +18,7 @@
     "db:verify:catalog-visibility": "tsx prisma/verify-catalog-visibility.ts",
     "db:verify:cart-hidden": "tsx prisma/verify-cart-hidden.ts",
     "db:verify:currency": "tsx prisma/verify-currency.ts",
+    "db:verify:checkout-options": "tsx prisma/verify-checkout-options.ts",
     "db:verify:runtime": "tsx prisma/verify-runtime-catalog.ts",
     "db:verify:orders": "tsx prisma/verify-orders.ts",
     "db:verify:admin-orders": "tsx prisma/verify-admin-orders.ts",

@@ -70,8 +70,8 @@ async function main() {
       customerName: 'Verify',
       customerPhone: '+380000000000',
       deliveryCity: 'Kyiv',
-      deliveryMethod: 'pickup',
-      paymentMethod: 'not_connected',
+      deliveryMethod: 'self_pickup',
+      paymentMethod: 'cash_on_delivery',
       subtotalAmount: 199000,
       totalAmount: 199000,
       // currency intentionally NOT set → must inherit the column default.

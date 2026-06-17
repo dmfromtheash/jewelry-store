@@ -36,8 +36,8 @@ async function main() {
           customerName: 'smoke-test',
           customerPhone: '+70000000000',
           deliveryCity: 'smoke',
-          deliveryMethod: 'pickup',
-          paymentMethod: 'not_connected',
+          deliveryMethod: 'self_pickup',
+          paymentMethod: 'cash_on_delivery',
           subtotalAmount: 0,
           totalAmount: 0,
           items: {

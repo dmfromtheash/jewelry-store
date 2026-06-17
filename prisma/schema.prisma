@@ -139,9 +139,16 @@ model Order {
   customerPhone  String
   customerEmail  String?
   deliveryCity   String
-  /// Placeholder method labels (pickup/courier/post) — no real logistics yet.
+  /// Manual delivery method key (Этап 27B): self_pickup / nova_poshta /
+  /// ukrposhta / local_courier. Allowlisted by src/lib/orders/methods.ts. No
+  /// carrier API — this is the customer's chosen method only.
   deliveryMethod String
-  /// Placeholder — payment is not connected in 16A.
+  /// Optional free-text delivery note (Этап 27B): отделение №, адрес или
+  /// комментарий. Intentionally a single line — no structured address model.
+  deliveryDetails String?
+  /// Manual payment method key (Этап 27B): cash_on_delivery / manual_online.
+  /// Allowlisted by src/lib/orders/methods.ts. No payment provider API — payment
+  /// is confirmed manually.
   paymentMethod  String
 
   subtotalAmount Int         // minor units (kopecks)

@@ -18,9 +18,14 @@ export interface OrderDraftInput {
   customerEmail?: string
   deliveryCity: string
   deliveryMethod: string
+  /** Optional free-text delivery note (отделение/адрес/комментарий). */
+  deliveryDetails?: string
   paymentMethod: string
   items: OrderDraftItemInput[]
 }
+
+/** Max length for the optional free-text delivery note. */
+export const DELIVERY_DETAILS_MAX = 200
 
 /** Per-field validation messages, keyed by form field name. */
 export type OrderFieldErrors = Partial<
@@ -30,6 +35,7 @@ export type OrderFieldErrors = Partial<
     | 'customerEmail'
     | 'deliveryCity'
     | 'deliveryMethod'
+    | 'deliveryDetails'
     | 'paymentMethod'
     | 'items',
     string

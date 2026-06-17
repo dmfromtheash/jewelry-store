@@ -8,6 +8,12 @@ import { formatPrice } from '../../lib/catalog'
 import { createOrderDraft } from '../../lib/orders/actions'
 import { validateOrderDraftFields, hasErrors } from '../../lib/orders/validate'
 import type { OrderDraftInput, OrderFieldErrors } from '../../lib/orders/types'
+import {
+  DELIVERY_METHODS,
+  DELIVERY_METHOD_LABELS,
+  PAYMENT_METHODS,
+  PAYMENT_METHOD_LABELS,
+} from '../../lib/orders/methods'
 import { sendAnalyticsEvent } from '../../lib/analytics/client'
 import { ANALYTICS_EVENTS } from '../../lib/analytics/events'
 
@@ -37,7 +43,11 @@ export default function CheckoutPageClient() {
     phone: '',
     email: '',
     city: '',
-    delivery: 'pickup',
+    // Stored as plain strings (set from <select> values); the server re-validates
+    // them against the allowlist in src/lib/orders/methods.ts.
+    delivery: DELIVERY_METHODS[0] as string, // self_pickup
+    deliveryDetails: '',
+    payment: PAYMENT_METHODS[0] as string, // cash_on_delivery
   })
   const [errors, setErrors] = useState<OrderFieldErrors>({})
   const [generalError, setGeneralError] = useState<string | null>(null)
@@ -80,10 +90,11 @@ export default function CheckoutPageClient() {
       customerPhone: form.phone,
       customerEmail: form.email || undefined,
       deliveryCity: form.city,
-      // Send the allowlisted method KEY (pickup/courier/post); the server
-      // validates it against src/lib/orders/methods.ts.
+      // Send the allowlisted delivery/payment KEYS; the server re-validates them
+      // against src/lib/orders/methods.ts (a tampered value is rejected).
       deliveryMethod: form.delivery,
-      paymentMethod: 'not_connected',
+      deliveryDetails: form.deliveryDetails || undefined,
+      paymentMethod: form.payment,
       // Only purchasable lines are sent; unavailable items are never included
       // (the server independently re-checks isPublished as the hard guarantee).
       items: lines.map((line) => ({ slug: line.slug, qty: line.qty })),
@@ -214,20 +225,56 @@ export default function CheckoutPageClient() {
                 className="au-co-select"
                 value={form.delivery}
                 onChange={set('delivery')}
+                aria-invalid={!!errors.deliveryMethod}
               >
-                <option value="pickup">Самовывоз — скоро</option>
-                <option value="courier">Курьер — скоро</option>
-                <option value="post">Почта — скоро</option>
+                {DELIVERY_METHODS.map((m) => (
+                  <option key={m} value={m}>
+                    {DELIVERY_METHOD_LABELS[m]}
+                  </option>
+                ))}
               </select>
+              {errors.deliveryMethod && <p className="au-field-error">{errors.deliveryMethod}</p>}
+            </div>
+            <div className="au-field">
+              <label htmlFor="co-delivery-details">Отделение / адрес / комментарий</label>
+              <input
+                id="co-delivery-details"
+                type="text"
+                placeholder="Напр.: Новая Почта, отделение №12"
+                value={form.deliveryDetails}
+                onChange={set('deliveryDetails')}
+                aria-invalid={!!errors.deliveryDetails}
+              />
+              {errors.deliveryDetails && (
+                <p className="au-field-error">{errors.deliveryDetails}</p>
+              )}
             </div>
           </section>
 
           {/* Payment */}
           <section className="au-co-section">
             <h2 className="au-co-section-title">Оплата</h2>
+            <div className="au-field">
+              <label htmlFor="co-payment">Способ оплаты</label>
+              <select
+                id="co-payment"
+                className="au-co-select"
+                value={form.payment}
+                onChange={set('payment')}
+                aria-invalid={!!errors.paymentMethod}
+              >
+                {PAYMENT_METHODS.map((m) => (
+                  <option key={m} value={m}>
+                    {PAYMENT_METHOD_LABELS[m]}
+                  </option>
+                ))}
+              </select>
+              {errors.paymentMethod && <p className="au-field-error">{errors.paymentMethod}</p>}
+            </div>
             <div className="au-co-payment-note">
-              Оплата будет подключена позже. Заказ создаётся как черновик —
-              с вас сейчас ничего не списывается.
+              {form.payment === 'manual_online'
+                ? 'Автоматическая онлайн-оплата на сайте не подключена. Реквизиты для перевода пришлём после оформления; оплата подтверждается вручную.'
+                : 'Оплата при получении. Оплата через сайт не списывается — расчёт происходит при получении заказа.'}
             </div>
           </section>
         </form>

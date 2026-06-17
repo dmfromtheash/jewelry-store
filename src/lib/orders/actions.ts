@@ -105,6 +105,8 @@ export async function createOrderDraft(input: OrderDraftInput): Promise<OrderDra
           // Allowlisted by validateOrderDraftFields above — store the normalised
           // key, never a raw/unknown client value.
           deliveryMethod: input.deliveryMethod.trim(),
+          // Optional free-text note (отделение/адрес/комментарий); null if blank.
+          deliveryDetails: input.deliveryDetails?.trim() ? input.deliveryDetails.trim() : null,
           paymentMethod: input.paymentMethod.trim(),
           subtotalAmount,
           totalAmount,
