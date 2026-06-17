@@ -51,14 +51,22 @@ sends prices, names or totals:
 
 Money is stored as integer **minor units (kopecks)**; the UI divides by 100.
 
-**Purchasability policy (Этап 28A).** `src/lib/catalog/availability.ts` is the single
-source of truth: `PURCHASABLE_PRODUCT_STATUSES` (only `available`) +
-`isProductPurchasable(product)` (purchasable status **and** a real price). The
-client cart (`CartProvider`) uses it too — a `coming_soon` (or otherwise
-non-purchasable) item left in `localStorage` is shown as **unavailable**, kept
-out of totals, never submitted, and removable (the same UX as a hidden product
-from 26M). Inventory **quantity** / stock decrement and `ProductVariant`-level
-availability remain **future** stages — today availability is status-only.
+**Purchasability policy (Этап 28A + 28B).** `src/lib/catalog/availability.ts` is the
+single source of truth: `PURCHASABLE_PRODUCT_STATUSES` (only `available`) +
+`isProductPurchasable(product)` = purchasable status **and** a real price **and**
+in stock (`isInStock`). The client cart (`CartProvider`) uses it too — a
+`coming_soon`, hidden, or **out-of-stock** item left in `localStorage` is shown as
+**unavailable**, kept out of totals, never submitted, and removable (the same UX
+as a hidden product from 26M).
+
+**Inventory quantity (Этап 28B).** `Product.stockQuantity Int?`: `null` = NOT
+tracked (legacy/demo, purchasable on status+price alone), `0` = out of stock,
+`>0` = in stock. The order action validates stock and, inside the **same
+transaction** as the order create, decrements each tracked line with a conditional
+`updateMany(where stockQuantity >= qty)` — so stock **can never go negative** and
+concurrent/duplicate submissions cannot oversell (a losing race rolls the whole
+order back). Admin create/edit sets it via the «Остаток» field. **Product-level
+only** — variant-level inventory and reservations/holds remain future stages.
 
 ## Data model (16A)
 

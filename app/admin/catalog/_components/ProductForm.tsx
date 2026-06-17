@@ -17,6 +17,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   category: 'Выберите категорию.',
   status: 'Выберите статус.',
   price: 'Для товара «в наличии» укажите корректную цену больше нуля.',
+  stock: 'Остаток должен быть целым числом 0 или больше (пусто — не отслеживается).',
   duplicate: 'Товар с таким slug уже существует — выберите другой.',
 }
 
@@ -41,6 +42,8 @@ export function ProductForm({
   const message = errorCode ? ERROR_MESSAGES[errorCode] : undefined
   // Price is stored in minor units; show whole UAH in the input.
   const priceValue = product?.price != null ? String(product.price / 100) : ''
+  // Stock (Этап 28B): empty input = not tracked (null); a number = tracked.
+  const stockValue = product?.stockQuantity != null ? String(product.stockQuantity) : ''
 
   return (
     <form action={action} className="au-adm-form au-adm-card">
@@ -118,6 +121,18 @@ export function ProductForm({
           inputMode="decimal"
           placeholder="2490"
           defaultValue={priceValue}
+        />
+      </div>
+
+      <div className="au-field">
+        <label htmlFor="au-product-stock">Остаток</label>
+        <input
+          id="au-product-stock"
+          name="stockQuantity"
+          type="text"
+          inputMode="numeric"
+          placeholder="пусто — не отслеживается"
+          defaultValue={stockValue}
         />
       </div>
 

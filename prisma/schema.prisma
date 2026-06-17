@@ -54,6 +54,11 @@ model Product {
   currency    String        @default("UAH")
   /// Integer MINOR units (kopecks); null for coming-soon products.
   price       Int?
+  /// Product-level stock (Этап 28B). `null` = NOT tracked (legacy/demo item —
+  /// stays purchasable on status+price alone); `0` = out of stock (not
+  /// purchasable); `>0` = in stock, decremented by the ordered quantity at
+  /// checkout. No variant-level inventory and no reservations yet.
+  stockQuantity Int?
   sku         String?
   brand       String?
   description String?

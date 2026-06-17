@@ -32,6 +32,9 @@ export interface Product {
   status: ProductStatus
   /** UAH; null/undefined renders the "— ₴" coming-soon state */
   price?: number | null
+  /** Product-level stock (Этап 28B): null = not tracked, 0 = out of stock,
+   *  >0 = in stock. Used by the purchasability policy (isProductPurchasable). */
+  stockQuantity?: number | null
   sku?: string
   /** own placeholder brand — always AURELIA for now */
   brand?: string

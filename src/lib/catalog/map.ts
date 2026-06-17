@@ -31,6 +31,8 @@ export interface DbProductForMapping {
   categoryLabel: string
   status: 'available' | 'coming_soon'
   price: number | null
+  /** Optional in fixtures; real catalog rows always include it (Этап 28B). */
+  stockQuantity?: number | null
   sku: string | null
   brand: string | null
   description: string | null
@@ -70,6 +72,8 @@ export function mapDbProductToProduct(row: DbProductForMapping): Product {
     status: row.status === 'coming_soon' ? 'coming-soon' : 'available',
     // Minor units → whole UAH; null stays null (coming-soon).
     price: row.price == null ? null : row.price / 100,
+    // Stock passes through unchanged (null = not tracked, Этап 28B).
+    stockQuantity: row.stockQuantity ?? null,
     sku: row.sku ?? undefined,
     brand: row.brand ?? undefined,
     coatings: coatings.length > 0 ? coatings : undefined,

@@ -26,6 +26,7 @@ export type ProductFormErrorCode =
   | 'category'
   | 'status'
   | 'price'
+  | 'stock'
 
 /** Normalized, persistable product fields parsed from the form. */
 export interface ParsedProductInput {
@@ -37,6 +38,8 @@ export interface ParsedProductInput {
   status: ProductFormStatus
   /** Integer MINOR units (kopecks); null for coming-soon without a price. */
   price: number | null
+  /** Product-level stock (Этап 28B): null = not tracked, else a non-negative int. */
+  stockQuantity: number | null
   sku: string | null
   brand: string | null
   description: string | null
@@ -79,6 +82,21 @@ function parseRubToMinor(raw: string): { value: number } | 'empty' | 'invalid' {
 }
 
 /**
+ * Parses an optional stock quantity (Этап 28B). Empty → null (NOT tracked). A
+ * value must be a non-negative integer (0 = out of stock). Returns:
+ *   - { value: number | null } on success,
+ *   - 'invalid' otherwise.
+ */
+function parseStock(raw: string): { value: number | null } | 'invalid' {
+  const cleaned = raw.replace(/\s/g, '')
+  if (cleaned.length === 0) return { value: null }
+  if (!/^\d+$/.test(cleaned)) return 'invalid'
+  const n = Number(cleaned)
+  if (!Number.isInteger(n) || n < 0) return 'invalid'
+  return { value: n }
+}
+
+/**
  * Parses + validates the product form. The slug format is checked here; slug
  * UNIQUENESS is enforced by the DB (a P2002 in the action), not here.
  */
@@ -110,6 +128,9 @@ export function parseProductForm(formData: FormData): ParseProductResult {
     price = parsedPrice === 'empty' ? null : parsedPrice.value
   }
 
+  const parsedStock = parseStock(str(formData, 'stockQuantity'))
+  if (parsedStock === 'invalid') return { ok: false, error: 'stock' }
+
   return {
     ok: true,
     data: {
@@ -119,6 +140,7 @@ export function parseProductForm(formData: FormData): ParseProductResult {
       categoryLabel: str(formData, 'categoryLabel'),
       status,
       price,
+      stockQuantity: parsedStock.value,
       sku: optStr(formData, 'sku'),
       brand: optStr(formData, 'brand'),
       description: optStr(formData, 'description'),

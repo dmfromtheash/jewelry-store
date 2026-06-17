@@ -82,6 +82,8 @@ export interface AdminProductForEdit {
   status: 'available' | 'coming_soon'
   /** Integer MINOR units (kopecks); null for coming-soon without a price. */
   price: number | null
+  /** Product-level stock (Этап 28B); null = not tracked. */
+  stockQuantity: number | null
   sku: string | null
   brand: string | null
   description: string | null
@@ -103,6 +105,7 @@ export async function getAdminProductForEdit(
       categoryLabel: true,
       status: true,
       price: true,
+      stockQuantity: true,
       sku: true,
       brand: true,
       description: true,
