@@ -104,7 +104,6 @@ export default async function AdminCatalogPage({
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
                     <form
                       action={uploadProductImageAction}
-                      encType="multipart/form-data"
                       style={{ display: 'flex', gap: 8, alignItems: 'center' }}
                     >
                       <input type="hidden" name="productId" value={p.id} />
