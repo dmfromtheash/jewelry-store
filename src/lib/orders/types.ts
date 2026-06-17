@@ -5,10 +5,17 @@
  * from both client (checkout form) and server (action) — no Prisma here.
  */
 
-/** Cart line the client submits — ONLY slug + qty. Price/name come from the DB. */
+/**
+ * Cart line the client submits — slug + qty, and an OPTIONAL `variantId`
+ * (Этап 30B). Price/name/variant snapshot all come from the DB. A line without
+ * `variantId` for a product that has variants falls back to the product's
+ * default variant server-side (§6 backward compatibility); a no-variant product
+ * ignores it entirely.
+ */
 export interface OrderDraftItemInput {
   slug: string
   qty: number
+  variantId?: string
 }
 
 /** Customer + cart payload posted from the checkout form. */

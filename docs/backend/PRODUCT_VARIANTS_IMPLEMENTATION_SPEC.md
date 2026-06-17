@@ -328,6 +328,52 @@ before any admin or storefront wiring exists, and each stage stays one commit.
 
 ---
 
+---
+
+## 13. 30B — Implementation Note (DONE)
+
+The data model + server/order/inventory foundation is implemented (no UI). 30C
+(admin) and 30D (storefront) remain future work.
+
+**Schema (additive only — `ADD COLUMN`, all nullable):**
+- `ProductVariant` += `priceDelta Int?`, `stockQuantity Int?`, `sku String?`.
+- `OrderItem` += `variantId String?`, `variantName String?`, `variantValue
+  String?`, **plus `stockSource String?`**. `stockSource` ("variant" | "product" |
+  null) is the one extra additive field over §5: it records WHICH inventory level
+  a line decremented at order time so restock-on-cancel re-increments the exact
+  same row, even if an admin later flips a variant between tracked/untracked. It
+  is the smallest safe addition (a string flag, no new model). `variantId` is a
+  loose id (no FK/cascade) so the snapshot survives variant deletion.
+- Migration: `20260617230526_add_product_variant_order_foundation`.
+
+**Variant resolution policy** (`src/lib/orders/variants.ts`,
+`resolveOrderLineVariant` — pure, shared by `createOrderDraft` and the verify
+script):
+- No variants on the product → no-variant path, unchanged behaviour.
+- Variants + no `variantId` → **default fallback** = the `isDefault` row, else the
+  deterministic first by (sortOrder, value, id). Never rejected (§6 backward
+  compatibility). The fallback always resolves for a variant product.
+- Variants + `variantId` → the id MUST belong to that product (callers pass only
+  the product's own variants), else **rejected** (`variant_not_found`). A
+  `variantId` on a variant-less product is likewise rejected.
+
+**Pricing policy:** `unitPrice = product.price + (variant.priceDelta ?? 0)`,
+server-authoritative (client never sends price); a non-positive/non-integer result
+is rejected. Currency stays UAH (27A). Snapshot: `variantId` / `variantName` /
+`variantValue`, and the variant `sku` (when set) onto `productSku`.
+
+**Inventory target policy:** variant stock when the resolved variant tracks it
+(`stockQuantity != null`) → decrement/restock the **variant**; else the product
+(28B); null at both levels = untracked (no decrement/restock). Decrement is the
+race-safe conditional `updateMany(where stockQuantity >= qty)`; restock mirrors the
+recorded `stockSource` with the `stockQuantity: { not: null }` guard. A deleted
+variant on a cancelled order restocks nothing (loose id → 0 rows matched).
+
+**Verify:** `npm run db:verify:product-variants` proves the full contract above
+(throwaway `zzz-verify-pv-` rows; no seed/reset/drop).
+
+---
+
 _See also: `docs/backend/DATA_MODEL.md` (ProductVariant / OrderItem),
 `docs/backend/ORDER_DRAFT_FLOW.md` (checkout + inventory), and the 28B/28C/29A
 notes for the guards this feature must preserve._

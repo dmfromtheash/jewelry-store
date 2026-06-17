@@ -97,6 +97,16 @@ model ProductVariant {
   value     String
   sortOrder Int      @default(0)
   isDefault Boolean  @default(false)
+  /// Variant price adjustment in integer MINOR units (kopecks), added to the
+  /// product price (Этап 30B). `null`/0 = same as the product price. Pricing
+  /// stays server-authoritative: unitPrice = product.price + (priceDelta ?? 0).
+  priceDelta Int?
+  /// Variant-level stock (Этап 30B). `null` = NOT tracked at the variant level →
+  /// falls back to Product.stockQuantity (28B semantics); `0` = out of stock;
+  /// `>0` = on hand, decremented by the ordered quantity at checkout.
+  stockQuantity Int?
+  /// Optional variant SKU, snapshotted onto the order line when present.
+  sku       String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -260,6 +270,22 @@ model OrderItem {
   productSlug String
   productName String
   productSku  String?
+
+  /// Variant snapshot (Этап 30B). Loose id — NO FK / NO cascade — so the order
+  /// survives variant deletion, exactly like `productId?`. Null on a product
+  /// ordered without variants (and on every pre-30B order).
+  variantId    String?
+  /// Attribute name snapshot, e.g. "coating".
+  variantName  String?
+  /// Attribute value snapshot, e.g. "Позолота".
+  variantValue String?
+  /// Which inventory level this line decremented at order time (Этап 30B):
+  /// "variant" → ProductVariant.stockQuantity, "product" → Product.stockQuantity,
+  /// `null` → untracked (nothing decremented). Recorded so restock-on-cancel (28C)
+  /// re-increments the EXACT level that was decremented, even if an admin later
+  /// flips a variant between tracked/untracked between order and cancellation.
+  stockSource  String?
+
   unitPrice   Int      // minor units (kopecks) snapshot
   quantity    Int
   lineTotal   Int      // minor units (kopecks) = unitPrice * quantity

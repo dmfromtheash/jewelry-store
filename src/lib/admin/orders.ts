@@ -128,9 +128,16 @@ export async function getAdminOrderStatus(orderCode: string): Promise<OrderStatu
  * Updates ONLY the status. Never touches items, prices, or contact data.
  *
  * Этап 28C — restock on cancel: moving an order INTO `cancelled` returns its
- * reserved stock. Tracked OrderItem products (`stockQuantity != null`) get their
- * ordered `quantity` added back; untracked (null) products and deleted-product
- * lines (`productId == null`) are left untouched. The flip + restock run in ONE
+ * reserved stock. Этап 30B makes this variant-aware: each line is restocked at
+ * the SAME level it was decremented, read from the line's `stockSource` snapshot:
+ *   - `stockSource === 'variant'` → re-increment ProductVariant.stockQuantity
+ *     (by `variantId`); a deleted variant matches 0 rows → safe no-op (the stock
+ *     is simply gone, like a deleted product today);
+ *   - `stockSource === 'product'` OR legacy `null` (pre-30B orders that only ever
+ *     decremented product stock) → re-increment Product.stockQuantity (28C).
+ * Both paths keep the `stockQuantity: { not: null }` guard so an untracked (null)
+ * level is never resurrected to a number, and deleted-product lines
+ * (`productId == null`) are left untouched. The flip + restock run in ONE
  * transaction, and the `status: { not: cancelled }` guard makes the flip happen
  * AT MOST ONCE — so an already-cancelled order can never be restocked twice, even
  * under a hand-crafted concurrent POST. This is defensive on top of the terminal
@@ -158,10 +165,22 @@ export async function updateAdminOrderStatus(orderCode: string, status: OrderSta
     if (flipped.count === 1) {
       const items = await tx.orderItem.findMany({
         where: { order: { orderCode } },
-        select: { productId: true, quantity: true },
+        select: { productId: true, variantId: true, stockSource: true, quantity: true },
       })
       for (const item of items) {
-        // No product to restock (deleted product → snapshot-only line).
+        if (item.stockSource === 'variant' && item.variantId) {
+          // Variant-tracked line (Этап 30B): restock the variant row. A deleted
+          // variant matches 0 rows → safe no-op. `not: null` leaves an untracked
+          // variant untouched.
+          await tx.productVariant.updateMany({
+            where: { id: item.variantId, stockQuantity: { not: null } },
+            data: { stockQuantity: { increment: item.quantity } },
+          })
+          continue
+        }
+        // Product-level path: `stockSource === 'product'` AND legacy null lines
+        // (pre-30B, which only ever decremented product stock). No product to
+        // restock (deleted product → snapshot-only line) is skipped.
         if (!item.productId) continue
         // Restock ONLY tracked products. The `stockQuantity: { not: null }`
         // guard leaves untracked (null) stock null — never resurrected to 0.
