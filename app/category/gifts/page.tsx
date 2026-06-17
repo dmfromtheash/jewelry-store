@@ -17,8 +17,8 @@ export const metadata: Metadata = {
 
 const CHIPS = [
   { label: 'Все подарки', active: true },
-  { label: 'До 1 000 ₽' },
-  { label: 'До 3 000 ₽' },
+  { label: 'До 1 000 ₴' },
+  { label: 'До 3 000 ₴' },
   { label: 'Наборы' },
   { label: 'Сертификаты' },
 ]

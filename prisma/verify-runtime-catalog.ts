@@ -6,7 +6,7 @@
  * the server layer uses, then asserts the mapped, UI-facing shape:
  *   - 10 products, 2 categories
  *   - key slugs present (serogi-kaplya, koltso-volna, kulon-gran)
- *   - price conversion: 249000 kopecks in DB → 2490 RUB in the UI layer
+ *   - price conversion: 249000 minor units in DB → 2490 UAH in the UI layer
  *   - status mapping: coming_soon → 'coming-soon'
  *
  * Uses the mapper (not src/lib/catalog/server, which is `server-only`) so it can
@@ -51,7 +51,7 @@ async function main() {
 
   const bySlug = new Map(products.map((p) => [p.slug, p]))
 
-  // Price conversion: DB stores 249000 kopecks for serogi-kaplya → 2490 RUB.
+  // Price conversion: DB stores 249000 minor units for serogi-kaplya → 2490 UAH.
   const serogi = bySlug.get('serogi-kaplya')
   check(!!serogi, 'missing slug serogi-kaplya')
   if (serogi) {

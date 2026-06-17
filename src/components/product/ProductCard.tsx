@@ -28,7 +28,7 @@ interface ProductCardProps {
   /** real catalog slug → card links to /product/[slug]; absent → coming-soon */
   slug?: string
   status?: ProductStatus
-  /** RUB; a number renders a real price, otherwise the "— ₽" placeholder */
+  /** UAH; a number renders a real price, otherwise the "— ₴" placeholder */
   price?: number | null
   /** real uploaded image URL → rendered in place of the media placeholder */
   imageUrl?: string | null
@@ -127,7 +127,7 @@ export default function ProductCard({
           <span className="au-card-reviews">0 отзывов</span>
         </div>
         <div className="au-card-price">
-          {typeof price === 'number' ? formatPrice(price) : <span className="dim">— ₽</span>}
+          {typeof price === 'number' ? formatPrice(price) : <span className="dim">— ₴</span>}
         </div>
 
         {/* reserved slot keeps layout from jumping when actions appear */}

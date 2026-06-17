@@ -20,7 +20,7 @@ import ProductFavoriteButton from './ProductFavoriteButton'
 
 const PERKS: { icon: ReactNode; text: string }[] = [
   {
-    text: 'Доставка по всей стране — бесплатно от 3 000 ₽',
+    text: 'Доставка по всей стране — бесплатно от 3 000 ₴',
     icon: (
       <>
         <path d="M3 7h11v10H3zM14 10h4l3 3v4h-7z" />
@@ -76,7 +76,7 @@ export default function ProductInfo({ product }: { product?: Product }) {
         {hasPrice ? (
           <span className="au-prod-price">{formatPrice(product!.price as number)}</span>
         ) : (
-          <span className="au-prod-price dim">— ₽</span>
+          <span className="au-prod-price dim">— ₴</span>
         )}
       </div>
       <div className="au-prod-status">

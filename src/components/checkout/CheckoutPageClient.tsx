@@ -251,7 +251,7 @@ export default function CheckoutPageClient() {
                   </p>
                 </div>
                 <span className="au-co-line-price">
-                  {typeof line.product.price === 'number' ? formatPrice(line.lineTotal) : '— ₽'}
+                  {typeof line.product.price === 'number' ? formatPrice(line.lineTotal) : '— ₴'}
                 </span>
               </li>
             ))}
@@ -273,7 +273,7 @@ export default function CheckoutPageClient() {
                     </button>
                   </p>
                 </div>
-                <span className="au-co-line-price">— ₽</span>
+                <span className="au-co-line-price">— ₴</span>
               </li>
             ))}
           </ul>

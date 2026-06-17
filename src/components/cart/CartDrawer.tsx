@@ -105,7 +105,7 @@ export default function CartDrawer() {
                   </div>
                   <div className="au-cart-item-side">
                     <span className="au-cart-item-price">
-                      {typeof line.product.price === 'number' ? formatPrice(line.lineTotal) : '— ₽'}
+                      {typeof line.product.price === 'number' ? formatPrice(line.lineTotal) : '— ₴'}
                     </span>
                     <button
                       type="button"
@@ -133,7 +133,7 @@ export default function CartDrawer() {
                       <p className="au-cart-item-cat">Снят с продажи — удалите из корзины</p>
                     </div>
                     <div className="au-cart-item-side">
-                      <span className="au-cart-item-price">— ₽</span>
+                      <span className="au-cart-item-price">— ₴</span>
                       <button
                         type="button"
                         className="au-cart-remove"

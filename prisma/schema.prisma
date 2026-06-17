@@ -7,7 +7,7 @@
 //
 // Conventions (see DATA_MODEL.md):
 //   - id: cuid; every entity has createdAt / updatedAt
-//   - money: integer MINOR units (kopecks) — never float; currency RUB for now
+//   - money: integer MINOR units — never float; currency UAH (Этап 27A; EUR/USD export-ready)
 //   - slug: unique, latin only (matches the storefront URLs)
 //
 // NOTE: 15A does NOT switch the frontend to the DB. The storefront keeps
@@ -51,7 +51,7 @@ model Product {
   /// surface (home/category/search/PDP); the row + order history stay intact.
   /// Defaults true so existing products and admin-created ones are visible.
   isPublished Boolean       @default(true)
-  currency    String        @default("RUB")
+  currency    String        @default("UAH")
   /// Integer MINOR units (kopecks); null for coming-soon products.
   price       Int?
   sku         String?
@@ -146,7 +146,7 @@ model Order {
 
   subtotalAmount Int         // minor units (kopecks)
   totalAmount    Int         // minor units (kopecks)
-  currency       String      @default("RUB")
+  currency       String      @default("UAH")
 
   items          OrderItem[]
   createdAt      DateTime    @default(now())

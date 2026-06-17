@@ -38,7 +38,7 @@ export default function CategoryFilters() {
       {/* Price */}
       <div className="au-filter-group">
         <div className="au-filter-head">
-          Цена, ₽ <Chevron />
+          Цена, ₴ <Chevron />
         </div>
         <div className="au-filter-body">
           <div className="au-price-inputs">

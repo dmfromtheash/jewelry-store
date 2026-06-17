@@ -39,7 +39,7 @@ export function ProductForm({
   product,
 }: ProductFormProps) {
   const message = errorCode ? ERROR_MESSAGES[errorCode] : undefined
-  // Price is stored in minor units (kopecks); show whole RUB in the input.
+  // Price is stored in minor units; show whole UAH in the input.
   const priceValue = product?.price != null ? String(product.price / 100) : ''
 
   return (
@@ -110,7 +110,7 @@ export function ProductForm({
       </div>
 
       <div className="au-field">
-        <label htmlFor="au-product-price">Цена, ₽</label>
+        <label htmlFor="au-product-price">Цена, ₴</label>
         <input
           id="au-product-price"
           name="price"

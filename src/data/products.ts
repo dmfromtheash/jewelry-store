@@ -12,7 +12,7 @@
  * Rules:
  *   - slug: latin only, unique;
  *   - categorySlug: 'bijouterie' | 'gifts';
- *   - status 'coming-soon' products carry no price (renders "— ₽").
+ *   - status 'coming-soon' products carry no price (renders "— ₴").
  */
 
 import type { Product } from '../lib/catalog/types'

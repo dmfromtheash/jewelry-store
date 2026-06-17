@@ -27,9 +27,9 @@ export function getAllProductSlugs(): string[] {
   return products.map((product) => product.slug)
 }
 
-/** "2 490 ₽" — RUB with thin grouping, frontend display only. */
+/** "2 490 ₴" — UAH with thin grouping, frontend display only. */
 export function formatPrice(price: number): string {
-  return `${new Intl.NumberFormat('ru-RU').format(price)} ₽`
+  return `${new Intl.NumberFormat('ru-RU').format(price)} ₴`
 }
 
 /** Russian plural for the category count, e.g. "6 товаров" / "1 товар". */

@@ -59,7 +59,7 @@ options, unless explicitly marked "future" or "to confirm".
 | **Target buyer** | A small Ukrainian brand of jewelry / bijouterie / accessories / gifts — typically an Instagram/Telegram shop or handmade/fashion seller who wants a real branded site instead of taking orders by hand in DMs. |
 | **Sale positioning** | Sell it as a **ready branded online store + brand adaptation + setup + short support window** — *not* as a "code archive". |
 | **Primary market** | **Ukraine.** |
-| **Primary currency** | **UAH** (target). *Note: the schema default is currently `RUB` — see §2.1.* |
+| **Primary currency** | **UAH.** Schema defaults and the demo catalog baseline are UAH as of **Этап 27A** (migration `switch_currency_to_uah`); the storefront shows ₴ — see §2.1. |
 | **Secondary / future currencies** | EUR / USD as an **export-ready future**, not a required v1 payment path. |
 | **Checkout model** | **Guest checkout is mandatory.** Customer accounts come later. Target flexibility = online payment **and** cash-on-delivery (COD / "оплата при отриманні"). |
 | **Delivery model** | Самовивіз (pickup), **Нова Пошта**, **Укрпошта**, courier / local delivery. Carrier API integration is **later**, not v1. |
@@ -89,14 +89,17 @@ The 26C decision **resolves those open inputs toward Ukraine / UAH.** This means
   verification"**, per `PAYMENT_PROVIDER_DECISION.md §5`).
 - The **delivery shortlist** becomes Нова Пошта / Укрпошта / pickup / local courier
   (again, carrier availability/terms **require current official verification**).
-- The **schema currency default (`RUB`) is now inconsistent with the chosen
-  direction.** This is recorded as a **known data-model implication**, to be handled
-  in a future additive migration — **not** in this docs-only stage. No schema,
-  enum, or default is changed here.
+- The **schema currency default (`RUB`) was inconsistent with the chosen
+  direction.** ✅ **Resolved in Этап 27A** (migration `switch_currency_to_uah`):
+  `Product.currency` and `Order.currency` now default to `"UAH"`, the existing
+  demo/catalog product rows were rebased RUB → UAH (numeric minor-unit amounts
+  unchanged), and the storefront formatter renders the **₴** glyph. Historical
+  `Order` rows were intentionally **not** rewritten — new orders are UAH; old ones
+  keep their original currency. Secondary EUR / USD stay an export-ready future.
 
 > The minor-unit money model and server-authoritative pricing are **currency-
-> agnostic** and survive the pivot unchanged; only the default/label and the
-> provider/carrier shortlists move.
+> agnostic** and survived the pivot unchanged; only the default/label and the
+> provider/carrier shortlists moved.
 
 ---
 

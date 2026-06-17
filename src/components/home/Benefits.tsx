@@ -15,7 +15,7 @@ interface Benefit {
 const BENEFITS: Benefit[] = [
   {
     heading: 'Доставка по всей стране',
-    text: 'Бесплатно от 3 000 ₽, отправка в день заказа',
+    text: 'Бесплатно от 3 000 ₴, отправка в день заказа',
     icon: (
       <>
         <path d="M3 7h11v10H3zM14 10h4l3 3v4h-7z" />

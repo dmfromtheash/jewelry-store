@@ -7,7 +7,7 @@
  * catalog layer AND from the runtime verify script.
  *
  * Conversions applied here (the storefront contract):
- *   - price: integer MINOR units (kopecks) in the DB → whole RUB for the UI
+ *   - price: integer MINOR units in the DB → whole UAH for the UI
  *   - status: Prisma enum `coming_soon` → frontend `'coming-soon'`
  *   - coatings: `coating` variants (ordered) → `string[]`
  *   - categoryLabel → `category`; category.slug → `categorySlug`
@@ -68,7 +68,7 @@ export function mapDbProductToProduct(row: DbProductForMapping): Product {
     category: row.categoryLabel,
     categorySlug: row.category.slug as CategorySlug,
     status: row.status === 'coming_soon' ? 'coming-soon' : 'available',
-    // Minor units (kopecks) → whole RUB; null stays null (coming-soon).
+    // Minor units → whole UAH; null stays null (coming-soon).
     price: row.price == null ? null : row.price / 100,
     sku: row.sku ?? undefined,
     brand: row.brand ?? undefined,

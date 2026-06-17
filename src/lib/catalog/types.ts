@@ -30,7 +30,7 @@ export interface Product {
   category: string
   categorySlug: CategorySlug
   status: ProductStatus
-  /** RUB; null/undefined renders the "— ₽" coming-soon state */
+  /** UAH; null/undefined renders the "— ₴" coming-soon state */
   price?: number | null
   sku?: string
   /** own placeholder brand — always AURELIA for now */

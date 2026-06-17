@@ -6,7 +6,7 @@
  * export async server actions. No Prisma here — just FormData → a validated,
  * normalized shape the actions can persist.
  *
- * Money: the form takes a human-readable RUB amount; the DB stores integer MINOR
+ * Money: the form takes a human-readable UAH amount; the DB stores integer MINOR
  * units (kopecks). Status rules mirror the storefront contract (see catalog/map.ts):
  * an `available` product must have a positive price; `coming_soon` may have none.
  */
@@ -63,7 +63,7 @@ function isStatus(value: string): value is ProductFormStatus {
 }
 
 /**
- * Parses a human-readable RUB amount → integer minor units (kopecks).
+ * Parses a human-readable UAH amount → integer minor units.
  * Accepts grouping spaces and a comma/dot decimal separator. Returns:
  *   - { value: number } on success (>= 0 minor units),
  *   - 'empty' when nothing was entered,

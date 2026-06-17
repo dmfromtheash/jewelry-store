@@ -32,7 +32,7 @@ const CATEGORY_SORT_ORDER: Record<CategorySlug, number> = {
   gifts: 1,
 }
 
-/** Mock prices are whole RUB; the DB stores integer minor units (kopecks). */
+/** Mock prices are whole UAH; the DB stores integer minor units. */
 function toMinorUnits(price: number | null | undefined): number | null {
   if (price === null || price === undefined) return null
   return Math.round(price * 100)
