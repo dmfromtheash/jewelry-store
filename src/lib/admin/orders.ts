@@ -104,6 +104,9 @@ export async function getAdminOrderByCode(orderCode: string) {
           productName: true,
           productSlug: true,
           productSku: true,
+          // Variant snapshot (Этап 30B/30D) so the admin fulfils the exact pick.
+          variantName: true,
+          variantValue: true,
           unitPrice: true,
           quantity: true,
           lineTotal: true,

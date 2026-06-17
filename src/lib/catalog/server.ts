@@ -23,7 +23,18 @@ import type { CategorySlug, Product } from './types'
 const productInclude = {
   category: { select: { slug: true } },
   variants: {
-    select: { name: true, value: true, sortOrder: true },
+    // name/value/sortOrder feed the legacy `coatings` flattening; the rest drive
+    // the 30D storefront selector (id/isDefault/priceDelta/stockQuantity/sku).
+    select: {
+      id: true,
+      name: true,
+      value: true,
+      sortOrder: true,
+      isDefault: true,
+      priceDelta: true,
+      stockQuantity: true,
+      sku: true,
+    },
     orderBy: { sortOrder: 'asc' as const },
   },
   images: {

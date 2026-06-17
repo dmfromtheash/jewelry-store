@@ -1,21 +1,18 @@
 import type { ReactNode } from 'react'
-import { formatPrice } from '../../lib/catalog'
 import type { Product } from '../../lib/catalog'
-import AddToCartButton from '../cart/AddToCartButton'
-import ProductFavoriteButton from './ProductFavoriteButton'
+import ProductBuyPanel from './ProductBuyPanel'
 
 /**
  * AURELIA — ProductInfo (server component)
  * Source: docs/design/aurelia-prototype/05 Product Page.html
  *
- * Right-hand product info: brand, title, rating/sku meta, price, availability
- * status, coating variants, buy row (disabled "Купить" + favorite),
- * "Сообщить о поступлении", and service perks.
+ * Right-hand product info: brand, title, rating/sku meta, then the reactive buy
+ * panel (price, availability status, variant selector, buy row), and service
+ * perks. The price/status/variant/buy block lives in <ProductBuyPanel> (client,
+ * Этап 30D) so variant selection is real WITHOUT any visual change.
  *
- * With a `product` it shows that item's data; without one it keeps the generic
- * coming-soon fallback (used by /product/coming-soon). Visual only — variant
- * and favorite buttons have no client state and "Купить" stays disabled (no
- * cart yet). No backend.
+ * With a `product` it renders the panel; without one it keeps the generic
+ * coming-soon fallback (used by /product/coming-soon) as a static block.
  */
 
 const PERKS: { icon: ReactNode; text: string }[] = [
@@ -56,9 +53,6 @@ export default function ProductInfo({ product }: { product?: Product }) {
   const title = product?.name ?? 'Скоро будет добавлено украшение'
   const sku = product?.sku ?? 'AU-0000'
   const reviewsCount = product?.reviewsCount ?? 0
-  const coatings = product?.coatings ?? DEFAULT_COATINGS
-  const isAvailable = product?.status === 'available'
-  const hasPrice = typeof product?.price === 'number'
 
   return (
     <div>
@@ -72,51 +66,45 @@ export default function ProductInfo({ product }: { product?: Product }) {
         <span>Артикул: {sku}</span>
       </div>
 
-      <div className="au-prod-price-row">
-        {hasPrice ? (
-          <span className="au-prod-price">{formatPrice(product!.price as number)}</span>
-        ) : (
-          <span className="au-prod-price dim">— ₴</span>
-        )}
-      </div>
-      <div className="au-prod-status">
-        <span className="dot" />
-        {isAvailable ? 'В наличии' : 'Появится в продаже в ближайшее время'}
-      </div>
+      {product ? (
+        // Reactive price + status + variant selector + buy row (Этап 30D).
+        <ProductBuyPanel product={product} />
+      ) : (
+        // Generic coming-soon fallback (no product) — unchanged static block.
+        <>
+          <div className="au-prod-price-row">
+            <span className="au-prod-price dim">— ₴</span>
+          </div>
+          <div className="au-prod-status">
+            <span className="dot" />
+            Появится в продаже в ближайшее время
+          </div>
 
-      <div className="au-variants">
-        <div className="lbl">Покрытие</div>
-        <div className="au-variant-row">
-          {coatings.map((coating, i) => (
-            <button key={coating} className={`au-variant${i === 0 ? ' is-active' : ''}`} type="button">
-              {coating}
+          <div className="au-variants">
+            <div className="lbl">Покрытие</div>
+            <div className="au-variant-row">
+              {DEFAULT_COATINGS.map((coating, i) => (
+                <button key={coating} className={`au-variant${i === 0 ? ' is-active' : ''}`} type="button">
+                  {coating}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="au-buy-row">
+            <button className="au-btn au-btn--primary" type="button" disabled>
+              Купить
             </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="au-buy-row">
-        {isAvailable && product ? (
-          <AddToCartButton slug={product.slug} />
-        ) : (
-          <button className="au-btn au-btn--primary" type="button" disabled>
-            Купить
+            <button className="au-act-ico" type="button" aria-label="В избранное">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                <path d="M12 20s-7.5-4.6-9.3-9.2C1.5 7.6 3.6 4.5 6.9 4.5c2 0 3.6 1.1 5.1 3 1.5-1.9 3.1-3 5.1-3 3.3 0 5.4 3.1 4.2 6.3C19.5 15.4 12 20 12 20z" />
+              </svg>
+            </button>
+          </div>
+          <button className="au-btn au-btn--ghost au-btn--block au-prod-notify" type="button">
+            Сообщить о поступлении
           </button>
-        )}
-        {product ? (
-          <ProductFavoriteButton slug={product.slug} />
-        ) : (
-          <button className="au-act-ico" type="button" aria-label="В избранное">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-              <path d="M12 20s-7.5-4.6-9.3-9.2C1.5 7.6 3.6 4.5 6.9 4.5c2 0 3.6 1.1 5.1 3 1.5-1.9 3.1-3 5.1-3 3.3 0 5.4 3.1 4.2 6.3C19.5 15.4 12 20 12 20z" />
-            </svg>
-          </button>
-        )}
-      </div>
-      {!isAvailable && (
-        <button className="au-btn au-btn--ghost au-btn--block au-prod-notify" type="button">
-          Сообщить о поступлении
-        </button>
+        </>
       )}
 
       <div className="au-prod-perks">

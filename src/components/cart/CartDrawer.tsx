@@ -76,19 +76,23 @@ export default function CartDrawer() {
             {lines.length > 0 && (
             <ul className="au-cart-list">
               {lines.map((line) => (
-                <li className="au-cart-item" key={line.slug}>
+                <li className="au-cart-item" key={`${line.slug}::${line.variantId ?? ''}`}>
                   <span className="au-cart-thumb" aria-hidden="true">
                     <GemIcon />
                   </span>
                   <div className="au-cart-item-main">
                     <p className="au-cart-item-name">{line.product.name}</p>
-                    <p className="au-cart-item-cat">{line.product.category}</p>
+                    <p className="au-cart-item-cat">
+                      {line.variantLabel
+                        ? `${line.product.category} · ${line.variantLabel}`
+                        : line.product.category}
+                    </p>
                     <div className="au-cart-qty">
                       <button
                         type="button"
                         className="au-cart-qty-btn"
                         aria-label="Уменьшить количество"
-                        onClick={() => decrement(line.slug)}
+                        onClick={() => decrement(line.slug, line.variantId)}
                       >
                         −
                       </button>
@@ -97,21 +101,19 @@ export default function CartDrawer() {
                         type="button"
                         className="au-cart-qty-btn"
                         aria-label="Увеличить количество"
-                        onClick={() => increment(line.slug)}
+                        onClick={() => increment(line.slug, line.variantId)}
                       >
                         +
                       </button>
                     </div>
                   </div>
                   <div className="au-cart-item-side">
-                    <span className="au-cart-item-price">
-                      {typeof line.product.price === 'number' ? formatPrice(line.lineTotal) : '— ₴'}
-                    </span>
+                    <span className="au-cart-item-price">{formatPrice(line.lineTotal)}</span>
                     <button
                       type="button"
                       className="au-cart-remove"
                       aria-label="Удалить из корзины"
-                      onClick={() => removeItem(line.slug)}
+                      onClick={() => removeItem(line.slug, line.variantId)}
                     >
                       Удалить
                     </button>
@@ -124,7 +126,7 @@ export default function CartDrawer() {
             {unavailable.length > 0 && (
               <ul className="au-cart-list">
                 {unavailable.map((entry) => (
-                  <li className="au-cart-item" key={entry.slug}>
+                  <li className="au-cart-item" key={`${entry.slug}::${entry.variantId ?? ''}`}>
                     <span className="au-cart-thumb" aria-hidden="true">
                       <GemIcon />
                     </span>
@@ -138,7 +140,7 @@ export default function CartDrawer() {
                         type="button"
                         className="au-cart-remove"
                         aria-label="Удалить из корзины"
-                        onClick={() => removeItem(entry.slug)}
+                        onClick={() => removeItem(entry.slug, entry.variantId)}
                       >
                         Удалить
                       </button>

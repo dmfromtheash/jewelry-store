@@ -70,7 +70,12 @@ export default async function AdminOrderDetailPage({
             <tbody>
               {order.items.map((item, i) => (
                 <tr key={`${item.productSlug}-${i}`}>
-                  <td>{item.productName}</td>
+                  <td>
+                    {item.productName}
+                    {item.variantValue && (
+                      <span className="au-adm-sub"> · {item.variantValue}</span>
+                    )}
+                  </td>
                   <td>{item.productSku ?? '—'}</td>
                   <td>{formatPrice(item.unitPrice / 100)}</td>
                   <td>{item.quantity}</td>

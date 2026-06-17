@@ -414,6 +414,46 @@ rows; no seed/reset/drop). 30D remains the storefront selector + cart integratio
 
 ---
 
+## 15. 30D — Implementation Note (DONE)
+
+Storefront variant selection + cart/checkout integration is implemented — Product
+Variants v1 is now complete end-to-end. No schema change (30B fields reused).
+
+**Catalog data:** the frontend `Product` gains `variants?: ProductVariantRef[]`
+(id/name/value/isDefault/sortOrder/priceDelta-in-UAH/stockQuantity/sku). The
+server catalog query (`catalog/server.ts`) selects the full variant rows and the
+mapper (`catalog/map.ts`) builds the refs (priceDelta minor→UAH) while keeping the
+legacy `coatings` flattening. A product without variants serializes exactly as
+before (`variants` absent).
+
+**Selector (`ProductBuyPanel`, client):** the existing `.au-prod-price /
+.au-prod-status / .au-variants / .au-variant / .au-buy-row` markup is reused — no
+visual change. For a variant product the selector is interactive (default
+pre-selected via the same deterministic rule as the server), the price reflects
+the selected `priceDelta`, and Add-to-cart carries the chosen `variantId` (disabled
+when that variant is out of stock). A product without variants keeps the decorative
+coating row and adds with no `variantId`.
+
+**Cart identity = (slug, variantId).** `CartEntry` gains `variantId?`; line identity
+is the composite key `slug::variantId` (`cart/lines.ts`). add/remove/increment/
+decrement act on the composite key, so two coatings are two lines. Old localStorage
+`{ slug, qty }` entries still load (variantId undefined) and resolve through the
+default-variant fallback. A deleted/foreign/out-of-stock variant routes the line to
+the existing "unavailable" bucket (removable, excluded from totals, checkout
+blocked). Totals use the variant unit price. Hidden / coming_soon / stock-0 guards
+are preserved (`resolveCartLine` → `isProductPurchasable`).
+
+**Checkout/order:** the payload forwards `variantId` per line; `createOrderDraft`
+(30B) stays server-authoritative on price/stock/snapshot. Cart/checkout/admin-order
+surfaces show the variant value in the existing metadata subtext. 27A UAH / 27B
+payment-delivery / 27C confirmation unchanged.
+
+**Verify:** `npm run db:verify:product-variant-storefront` (throwaway
+`zzz-verify-pvs-` rows; no seed/reset/drop). Future (post-v1): variant images,
+multi-axis matrix, reservations, per-variant price display on cards.
+
+---
+
 _See also: `docs/backend/DATA_MODEL.md` (ProductVariant / OrderItem),
 `docs/backend/ORDER_DRAFT_FLOW.md` (checkout + inventory), and the 28B/28C/29A
 notes for the guards this feature must preserve._

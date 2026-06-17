@@ -8,7 +8,14 @@
 import { products } from '../../data/products'
 import type { CategorySlug, Product, ProductStatus, ProductSpec, ProductImageRef } from './types'
 
-export type { CategorySlug, Product, ProductStatus, ProductSpec, ProductImageRef }
+export type {
+  CategorySlug,
+  Product,
+  ProductStatus,
+  ProductSpec,
+  ProductImageRef,
+  ProductVariantRef,
+} from './types'
 export * from './search'
 export * from './availability'
 

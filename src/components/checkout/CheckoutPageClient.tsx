@@ -110,7 +110,9 @@ export default function CheckoutPageClient() {
       paymentMethod: form.payment,
       // Only purchasable lines are sent; unavailable items are never included
       // (the server independently re-checks isPublished as the hard guarantee).
-      items: lines.map((line) => ({ slug: line.slug, qty: line.qty })),
+      // variantId is forwarded when present (Этап 30D) — the server resolves the
+      // default when it is absent and recomputes the price either way.
+      items: lines.map((line) => ({ slug: line.slug, qty: line.qty, variantId: line.variantId })),
     }
 
     // Instant UX feedback using the SAME rules the server enforces.
@@ -362,23 +364,23 @@ export default function CheckoutPageClient() {
 
           <ul className="au-co-list">
             {lines.map((line) => (
-              <li className="au-co-line" key={line.slug}>
+              <li className="au-co-line" key={`${line.slug}::${line.variantId ?? ''}`}>
                 <span className="au-co-line-thumb" aria-hidden="true">
                   <GemIcon />
                 </span>
                 <div className="au-co-line-main">
                   <p className="au-co-line-name">{line.product.name}</p>
                   <p className="au-co-line-meta">
-                    {line.product.category} · {line.qty} шт.
+                    {line.variantLabel
+                      ? `${line.product.category} · ${line.variantLabel} · ${line.qty} шт.`
+                      : `${line.product.category} · ${line.qty} шт.`}
                   </p>
                 </div>
-                <span className="au-co-line-price">
-                  {typeof line.product.price === 'number' ? formatPrice(line.lineTotal) : '— ₴'}
-                </span>
+                <span className="au-co-line-price">{formatPrice(line.lineTotal)}</span>
               </li>
             ))}
             {unavailable.map((entry) => (
-              <li className="au-co-line" key={entry.slug}>
+              <li className="au-co-line" key={`${entry.slug}::${entry.variantId ?? ''}`}>
                 <span className="au-co-line-thumb" aria-hidden="true">
                   <GemIcon />
                 </span>
@@ -389,7 +391,7 @@ export default function CheckoutPageClient() {
                     <button
                       type="button"
                       className="au-cart-remove"
-                      onClick={() => removeItem(entry.slug)}
+                      onClick={() => removeItem(entry.slug, entry.variantId)}
                     >
                       удалить
                     </button>

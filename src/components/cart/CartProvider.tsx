@@ -9,20 +9,22 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import { type Product } from '../../lib/catalog'
-import { isProductPurchasable } from '../../lib/catalog/availability'
+import { type Product, type ProductVariantRef } from '../../lib/catalog'
 import { useCatalog } from '../../lib/catalog/CatalogProvider'
+import { cartLineKey, resolveCartLine } from '../../lib/cart/lines'
 import { sendAnalyticsEvent } from '../../lib/analytics/client'
 import { ANALYTICS_EVENTS } from '../../lib/analytics/events'
 import CartDrawer from './CartDrawer'
 
 /**
- * AURELIA — Cart state (client) — Этап 9A
+ * AURELIA — Cart state (client) — Этап 9A; variant identity 30D
  *
- * Frontend-only shopping cart. The cart stores ONLY { slug, qty } pairs and
- * persists them in localStorage; all display data (name, price, category) is
- * resolved from the mock catalog (src/lib/catalog) — never duplicated here.
- * No backend, API, checkout or payment.
+ * Frontend-only shopping cart. Each entry stores { slug, qty, variantId? }; line
+ * identity is the composite (slug, variantId) so the same product in two variants
+ * are two lines. Persisted in localStorage — old `{ slug, qty }` entries (no
+ * variantId) still load and resolve via the default-variant fallback (30B/30D).
+ * All display data (name, price, variant, category) is resolved from the catalog
+ * snapshot — never duplicated here. Price/stock stay server-authoritative.
  */
 
 const STORAGE_KEY = 'aurelia-cart'
@@ -30,32 +32,40 @@ const STORAGE_KEY = 'aurelia-cart'
 export interface CartEntry {
   slug: string
   qty: number
+  /** Selected variant (Этап 30D); absent → product sold as-is OR resolve default. */
+  variantId?: string
 }
 
-/** A cart entry joined with its resolved catalog product, for rendering. */
+/** A cart entry joined with its resolved catalog product + variant, for rendering. */
 export interface CartLine extends CartEntry {
   product: Product
+  /** Resolved variant (null for a no-variant product). */
+  variant: ProductVariantRef | null
+  /** Subtext label for the line (variant value), or null. */
+  variantLabel: string | null
+  /** Unit price in UAH incl. variant priceDelta. */
+  unitPrice: number
   lineTotal: number
 }
 
 interface CartContextValue {
   entries: CartEntry[]
   lines: CartLine[]
-  /** Entries that can't be ordered: either the slug no longer resolves in the
-   *  public catalog snapshot (e.g. a product the admin hid, isPublished=false,
-   *  Этап 26L/26M) OR it resolves but is not purchasable by status/price
-   *  (e.g. `coming_soon`, Этап 28A). Surfaced so the UI can show them as
-   *  unavailable + let the user remove them, instead of silently dropping (and
-   *  still counting/submitting) them. */
+  /** Entries that can't be ordered: the slug no longer resolves in the public
+   *  catalog snapshot (admin-hidden, Этап 26L/26M), is not purchasable by
+   *  status/price (`coming_soon`, 28A), or its selected variant was deleted /
+   *  went out of stock (30D). Surfaced so the UI can show them as unavailable +
+   *  let the user remove them, instead of silently dropping (and still
+   *  counting/submitting) them. */
   unavailable: CartEntry[]
   hasUnavailable: boolean
   count: number
   subtotal: number
   isOpen: boolean
-  addItem: (slug: string, qty?: number) => void
-  removeItem: (slug: string) => void
-  increment: (slug: string) => void
-  decrement: (slug: string) => void
+  addItem: (slug: string, variantId?: string | null, qty?: number) => void
+  removeItem: (slug: string, variantId?: string | null) => void
+  increment: (slug: string, variantId?: string | null) => void
+  decrement: (slug: string, variantId?: string | null) => void
   clear: () => void
   openCart: () => void
   closeCart: () => void
@@ -78,7 +88,12 @@ function readStorage(): CartEntry[] {
     if (!Array.isArray(parsed)) return []
     return parsed
       .filter((e) => e && typeof e.slug === 'string' && typeof e.qty === 'number' && e.qty > 0)
-      .map((e) => ({ slug: e.slug as string, qty: Math.floor(e.qty as number) }))
+      .map((e) => ({
+        slug: e.slug as string,
+        qty: Math.floor(e.qty as number),
+        // Old entries have no variantId → undefined (resolves to default later).
+        variantId: typeof e.variantId === 'string' && e.variantId ? (e.variantId as string) : undefined,
+      }))
   } catch {
     return []
   }
@@ -107,33 +122,44 @@ export default function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [entries, hydrated])
 
-  const addItem = useCallback((slug: string, qty = 1) => {
-    // Only add products that actually resolve AND are purchasable (published +
-    // available status + price, Этап 28A). Defensive: the storefront already
-    // hides "add to cart" for non-purchasable products.
+  const addItem = useCallback((slug: string, variantId?: string | null, qty = 1) => {
+    // Only add a line that actually resolves AND is orderable: published +
+    // purchasable status/price (28A) AND, for a variant product, an existing,
+    // in-stock variant (30D). Defensive — the UI already hides/disables the
+    // button for non-purchasable products / out-of-stock variants.
     const product = getBySlug(slug)
-    if (!product || !isProductPurchasable(product) || qty < 1) return
+    const resolved = resolveCartLine(product, variantId)
+    if (!resolved.available || qty < 1) return
+    const vid = variantId ?? undefined
+    const key = cartLineKey(slug, vid)
     setEntries((prev) => {
-      const found = prev.find((e) => e.slug === slug)
-      if (found) return prev.map((e) => (e.slug === slug ? { ...e, qty: e.qty + qty } : e))
-      return [...prev, { slug, qty }]
+      const found = prev.find((e) => cartLineKey(e.slug, e.variantId) === key)
+      if (found) {
+        return prev.map((e) => (cartLineKey(e.slug, e.variantId) === key ? { ...e, qty: e.qty + qty } : e))
+      }
+      return [...prev, { slug, qty, variantId: vid }]
     })
     // Analytics: slug + quantity only (no customer data). Best-effort.
     sendAnalyticsEvent(ANALYTICS_EVENTS.addToCart, { productSlug: slug, quantity: qty })
   }, [getBySlug])
 
-  const removeItem = useCallback((slug: string) => {
-    setEntries((prev) => prev.filter((e) => e.slug !== slug))
+  const removeItem = useCallback((slug: string, variantId?: string | null) => {
+    const key = cartLineKey(slug, variantId ?? undefined)
+    setEntries((prev) => prev.filter((e) => cartLineKey(e.slug, e.variantId) !== key))
   }, [])
 
-  const increment = useCallback((slug: string) => {
-    setEntries((prev) => prev.map((e) => (e.slug === slug ? { ...e, qty: e.qty + 1 } : e)))
+  const increment = useCallback((slug: string, variantId?: string | null) => {
+    const key = cartLineKey(slug, variantId ?? undefined)
+    setEntries((prev) =>
+      prev.map((e) => (cartLineKey(e.slug, e.variantId) === key ? { ...e, qty: e.qty + 1 } : e)),
+    )
   }, [])
 
-  const decrement = useCallback((slug: string) => {
+  const decrement = useCallback((slug: string, variantId?: string | null) => {
+    const key = cartLineKey(slug, variantId ?? undefined)
     setEntries((prev) =>
       prev
-        .map((e) => (e.slug === slug ? { ...e, qty: e.qty - 1 } : e))
+        .map((e) => (cartLineKey(e.slug, e.variantId) === key ? { ...e, qty: e.qty - 1 } : e))
         .filter((e) => e.qty > 0),
     )
   }, [])
@@ -153,19 +179,23 @@ export default function CartProvider({ children }: { children: ReactNode }) {
   const lines = useMemo<CartLine[]>(() => {
     return entries.flatMap((entry) => {
       const product = getBySlug(entry.slug)
-      if (!product || !isProductPurchasable(product)) return []
-      const lineTotal = typeof product.price === 'number' ? product.price * entry.qty : 0
-      return [{ ...entry, product, lineTotal }]
+      const resolved = resolveCartLine(product, entry.variantId)
+      if (!product || !resolved.available || resolved.unitPrice == null) return []
+      return [
+        {
+          ...entry,
+          product,
+          variant: resolved.variant,
+          variantLabel: resolved.label,
+          unitPrice: resolved.unitPrice,
+          lineTotal: resolved.unitPrice * entry.qty,
+        },
+      ]
     })
   }, [entries, getBySlug])
 
   const unavailable = useMemo<CartEntry[]>(
-    () => {
-      return entries.filter((entry) => {
-        const product = getBySlug(entry.slug)
-        return !product || !isProductPurchasable(product)
-      })
-    },
+    () => entries.filter((entry) => !resolveCartLine(getBySlug(entry.slug), entry.variantId).available),
     [entries, getBySlug],
   )
 

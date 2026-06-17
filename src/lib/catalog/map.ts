@@ -14,7 +14,13 @@
  *   - specs JSON → `ProductSpec[]`
  */
 
-import type { CategorySlug, Product, ProductImageRef, ProductSpec } from './types'
+import type {
+  CategorySlug,
+  Product,
+  ProductImageRef,
+  ProductSpec,
+  ProductVariantRef,
+} from './types'
 
 /** Minimal shape of a Prisma product image row needed for mapping. */
 export interface DbProductImageForMapping {
@@ -42,7 +48,19 @@ export interface DbProductForMapping {
   reviewsCount: number
   specs: unknown
   category: { slug: string }
-  variants: { name: string; value: string; sortOrder: number }[]
+  /** Variant rows. The legacy `coating` flattening only needs name/value/sortOrder;
+   *  the optional 30D fields (id/isDefault/priceDelta/stockQuantity/sku) drive the
+   *  storefront selector. They are optional so older fixtures keep compiling. */
+  variants: {
+    name: string
+    value: string
+    sortOrder: number
+    id?: string
+    isDefault?: boolean
+    priceDelta?: number | null
+    stockQuantity?: number | null
+    sku?: string | null
+  }[]
   /** Optional — only mapped when the catalog query includes images. */
   images?: DbProductImageForMapping[]
 }
@@ -52,6 +70,24 @@ export function mapDbProductToProduct(row: DbProductForMapping): Product {
     .filter((v) => v.name === 'coating')
     .sort((a, b) => a.sortOrder - b.sortOrder)
     .map((v) => v.value)
+
+  // Full variant refs for the storefront selector (Этап 30D). Only mapped when
+  // the rows carry an `id` (real catalog query); price delta is converted from DB
+  // minor units → whole UAH to match Product.price. Ordered like the default
+  // policy (sortOrder, then value).
+  const variantRefs: ProductVariantRef[] = row.variants
+    .filter((v): v is typeof v & { id: string } => typeof v.id === 'string')
+    .sort((a, b) => a.sortOrder - b.sortOrder || a.value.localeCompare(b.value))
+    .map((v) => ({
+      id: v.id,
+      name: v.name,
+      value: v.value,
+      isDefault: v.isDefault ?? false,
+      sortOrder: v.sortOrder,
+      priceDelta: v.priceDelta == null ? null : v.priceDelta / 100,
+      stockQuantity: v.stockQuantity ?? null,
+      sku: v.sku ?? undefined,
+    }))
 
   // Real images only (a row exists per slot but `url` stays null until an asset
   // is uploaded). Ordered by position; primary first so cards use it.
@@ -77,6 +113,7 @@ export function mapDbProductToProduct(row: DbProductForMapping): Product {
     sku: row.sku ?? undefined,
     brand: row.brand ?? undefined,
     coatings: coatings.length > 0 ? coatings : undefined,
+    variants: variantRefs.length > 0 ? variantRefs : undefined,
     description: row.description ?? undefined,
     specs: Array.isArray(row.specs) ? (row.specs as ProductSpec[]) : undefined,
     tag: row.tag ?? undefined,

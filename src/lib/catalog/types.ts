@@ -22,6 +22,27 @@ export interface ProductImageRef {
   alt?: string
 }
 
+/**
+ * A selectable product variant for the storefront (Этап 30D). Mirrors the
+ * orderable subset of the DB ProductVariant the customer can pick. `priceDelta`
+ * is in WHOLE UAH here (same unit as `Product.price`), already converted from the
+ * DB minor units by the mapper. The server stays authoritative on price/stock.
+ */
+export interface ProductVariantRef {
+  id: string
+  /** Attribute group, e.g. "coating". */
+  name: string
+  /** Attribute value shown on the selector, e.g. "Позолота". */
+  value: string
+  isDefault: boolean
+  sortOrder: number
+  /** UAH added to the product price; null/0 = same as product price. */
+  priceDelta?: number | null
+  /** null = not tracked (falls back to product stock); 0 = out of stock. */
+  stockQuantity?: number | null
+  sku?: string
+}
+
 export interface Product {
   /** unique URL id — latin only, used for /product/[slug] */
   slug: string
@@ -40,6 +61,9 @@ export interface Product {
   brand?: string
   /** coating variant labels */
   coatings?: string[]
+  /** Selectable variants (Этап 30D). Absent/empty → product sold as-is (no
+   *  selector); the storefront keeps the exact pre-30D behaviour. */
+  variants?: ProductVariantRef[]
   description?: string
   specs?: ProductSpec[]
   /** Primary image URL (first/primary uploaded asset). Absent → placeholder. */
