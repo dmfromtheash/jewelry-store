@@ -3,6 +3,7 @@ import ProfileButton from '../auth/ProfileButton'
 import CartButton from '../cart/CartButton'
 import FavoritesButton from '../favorites/FavoritesButton'
 import HeaderSearch from '../search/HeaderSearch'
+import { getAdminSession } from '../../lib/admin/auth'
 
 /**
  * AURELIA — Header (server component)
@@ -37,7 +38,14 @@ const NAV_CATEGORIES: { label: string; href: string }[] = [
   { label: 'Бренды', href: '#' },
 ]
 
-export default function Header() {
+export default async function Header() {
+  // Admin-session-aware entry: when a valid admin session exists we surface a
+  // small "Админка" link so the owner can return to the panel from the
+  // storefront. This is independent of the customer profile icon (ProfileButton),
+  // which opens the customer auth modal and is unrelated to the admin session.
+  // Null (and rendered nothing) for everyone without a valid admin session.
+  const adminSession = await getAdminSession()
+
   return (
     <>
       {/* ---- Top service bar ---- */}
@@ -51,6 +59,7 @@ export default function Header() {
             ))}
           </nav>
           <div className="au-topbar-right">
+            {adminSession && <Link href="/admin/dashboard">Админка</Link>}
             <span className="phone">8 800 600-20-26</span>
             <a href="#">RU</a>
           </div>

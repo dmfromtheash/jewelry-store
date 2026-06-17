@@ -155,6 +155,14 @@ export async function requireAdminSession(): Promise<AdminSession> {
   return session
 }
 
+// Cookie path is site-wide ('/') — NOT just '/admin' — so server components on
+// the storefront (e.g. the Header) can detect a valid admin session and offer a
+// "return to admin" entry. This does NOT widen authorization: every admin route
+// and mutation still calls ensureLocalAdmin() + requireAdminSession(), and the
+// cookie stays httpOnly / HMAC-signed / sameSite=lax / secure-in-prod. start and
+// end MUST use the same path or logout would not clear the cookie.
+const SESSION_COOKIE_PATH = '/'
+
 /** Issues a fresh signed session cookie (call only from a server action / route handler). */
 export async function startAdminSession(username: string): Promise<void> {
   const { secret } = readAdminAuthConfig()
@@ -163,7 +171,7 @@ export async function startAdminSession(username: string): Promise<void> {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
-    path: '/admin',
+    path: SESSION_COOKIE_PATH,
     maxAge: SESSION_TTL_SECONDS,
   })
 }
@@ -174,7 +182,7 @@ export async function endAdminSession(): Promise<void> {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
-    path: '/admin',
+    path: SESSION_COOKIE_PATH,
     maxAge: 0,
   })
 }
