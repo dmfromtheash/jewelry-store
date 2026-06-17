@@ -28,12 +28,6 @@ const GemIcon = () => (
   </svg>
 )
 
-const DELIVERY_LABELS: Record<string, string> = {
-  pickup: 'Самовывоз — скоро',
-  courier: 'Курьер — скоро',
-  post: 'Почта — скоро',
-}
-
 export default function CheckoutPageClient() {
   const router = useRouter()
   const { entries, lines, count, subtotal, clear } = useCart()
@@ -82,7 +76,9 @@ export default function CheckoutPageClient() {
       customerPhone: form.phone,
       customerEmail: form.email || undefined,
       deliveryCity: form.city,
-      deliveryMethod: DELIVERY_LABELS[form.delivery] ?? form.delivery,
+      // Send the allowlisted method KEY (pickup/courier/post); the server
+      // validates it against src/lib/orders/methods.ts.
+      deliveryMethod: form.delivery,
       paymentMethod: 'not_connected',
       items: entries.map((entry) => ({ slug: entry.slug, qty: entry.qty })),
     }

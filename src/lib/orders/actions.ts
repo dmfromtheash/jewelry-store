@@ -97,8 +97,10 @@ export async function createOrderDraft(input: OrderDraftInput): Promise<OrderDra
           customerPhone: input.customerPhone.trim(),
           customerEmail: input.customerEmail?.trim() ? input.customerEmail.trim() : null,
           deliveryCity: input.deliveryCity.trim(),
-          deliveryMethod: input.deliveryMethod,
-          paymentMethod: input.paymentMethod,
+          // Allowlisted by validateOrderDraftFields above — store the normalised
+          // key, never a raw/unknown client value.
+          deliveryMethod: input.deliveryMethod.trim(),
+          paymentMethod: input.paymentMethod.trim(),
           subtotalAmount,
           totalAmount,
           items: { create: itemRows },

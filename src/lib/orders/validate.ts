@@ -8,6 +8,7 @@
  */
 
 import type { OrderDraftInput, OrderFieldErrors } from './types'
+import { isAllowedDeliveryMethod, isAllowedPaymentMethod } from './methods'
 
 /** Lenient phone check: 10–18 chars, digits plus + ( ) - and spaces. */
 const PHONE_RE = /^[+\d][\d\s()-]{8,17}$/
@@ -31,6 +32,18 @@ export function validateOrderDraftFields(input: OrderDraftInput): OrderFieldErro
   const city = input.deliveryCity?.trim() ?? ''
   if (city.length < 2) errors.deliveryCity = 'Укажите город доставки.'
   else if (city.length > 80) errors.deliveryCity = 'Название города слишком длинное.'
+
+  // Method allowlists: only values offered by the current checkout are accepted,
+  // so a tampered payload can't write an unknown delivery/payment method.
+  const deliveryMethod = input.deliveryMethod?.trim() ?? ''
+  if (!isAllowedDeliveryMethod(deliveryMethod)) {
+    errors.deliveryMethod = 'Выберите доступный способ доставки.'
+  }
+
+  const paymentMethod = input.paymentMethod?.trim() ?? ''
+  if (!isAllowedPaymentMethod(paymentMethod)) {
+    errors.paymentMethod = 'Этот способ оплаты сейчас недоступен.'
+  }
 
   if (!Array.isArray(input.items) || input.items.length === 0) {
     errors.items = 'Корзина пуста.'

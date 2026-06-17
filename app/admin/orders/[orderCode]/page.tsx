@@ -13,10 +13,11 @@ import { ensureLocalAdmin } from '../../../../src/lib/admin/guard'
 import { requireAdminSession } from '../../../../src/lib/admin/auth'
 import {
   getAdminOrderByCode,
-  ORDER_STATUSES,
   ORDER_STATUS_LABELS,
 } from '../../../../src/lib/admin/orders'
 import { updateOrderStatusAction } from '../../../../src/lib/admin/actions'
+import { getSelectableOrderStatuses } from '../../../../src/lib/orders/transitions'
+import { deliveryMethodLabel, paymentMethodLabel } from '../../../../src/lib/orders/methods'
 import { formatPrice } from '../../../../src/lib/catalog'
 
 export const metadata: Metadata = {
@@ -115,9 +116,9 @@ export default async function AdminOrderDetailPage({
               <dt>Город</dt>
               <dd>{order.deliveryCity}</dd>
               <dt>Способ</dt>
-              <dd>{order.deliveryMethod}</dd>
+              <dd>{deliveryMethodLabel(order.deliveryMethod)}</dd>
               <dt>Оплата</dt>
-              <dd>{order.paymentMethod}</dd>
+              <dd>{paymentMethodLabel(order.paymentMethod)}</dd>
               <dt>Создан</dt>
               <dd>{dateFmt.format(order.createdAt)}</dd>
             </dl>
@@ -128,7 +129,7 @@ export default async function AdminOrderDetailPage({
             <form action={updateOrderStatusAction} className="au-adm-statusform">
               <input type="hidden" name="orderCode" value={order.orderCode} />
               <select className="au-adm-select" name="status" defaultValue={order.status}>
-                {ORDER_STATUSES.map((s) => (
+                {getSelectableOrderStatuses(order.status).map((s) => (
                   <option key={s} value={s}>
                     {ORDER_STATUS_LABELS[s]}
                   </option>

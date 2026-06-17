@@ -24,7 +24,16 @@ export interface OrderDraftInput {
 
 /** Per-field validation messages, keyed by form field name. */
 export type OrderFieldErrors = Partial<
-  Record<'customerName' | 'customerPhone' | 'customerEmail' | 'deliveryCity' | 'items', string>
+  Record<
+    | 'customerName'
+    | 'customerPhone'
+    | 'customerEmail'
+    | 'deliveryCity'
+    | 'deliveryMethod'
+    | 'paymentMethod'
+    | 'items',
+    string
+  >
 >
 
 /** Typed result returned by the server action. */

@@ -18,6 +18,7 @@
     "db:verify:admin-orders": "tsx prisma/verify-admin-orders.ts",
     "db:verify:audit-log": "tsx prisma/verify-audit-log.ts",
     "db:verify:analytics": "tsx prisma/verify-analytics.ts",
+    "db:verify:lifecycle": "tsx prisma/verify-lifecycle.ts",
     "db:studio": "prisma studio",
     "db:start": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/db/aurelia-db-start.ps1",
     "db:stop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/db/aurelia-db-stop.ps1",
