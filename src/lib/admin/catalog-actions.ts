@@ -274,3 +274,52 @@ export async function updateProductAction(formData: FormData) {
   if (input.slug !== existing.slug) revalidatePath(`/product/${existing.slug}`)
   redirect(`${CATALOG_PATH}?ok=updated`)
 }
+
+/**
+ * Toggle a product's storefront visibility (Этап 26L). Soft & reversible: only
+ * the `isPublished` flag changes — the row, its variants/images, and all order
+ * history stay intact (this is NOT a delete). Hiding removes the product from
+ * every public surface; showing returns it with its exact prior status.
+ *
+ * The desired state is explicit in the form (`publish` = "on" → show, else hide)
+ * so a double submit is idempotent rather than flip-flopping.
+ */
+export async function setProductPublishedAction(formData: FormData) {
+  await ensureLocalAdmin()
+  const session = await requireAdminSession()
+
+  const id = String(formData.get('id') ?? '').trim()
+  if (!id) redirect(`${CATALOG_PATH}?err=missing`)
+
+  const publish = String(formData.get('publish') ?? '') === 'on'
+
+  const existing = await prisma.product.findUnique({
+    where: { id },
+    select: { slug: true, isPublished: true },
+  })
+  if (!existing) redirect(`${CATALOG_PATH}?err=notfound`)
+
+  // Already in the desired state → idempotent no-op (no audit noise).
+  if (existing.isPublished === publish) {
+    revalidatePath(CATALOG_PATH)
+    redirect(`${CATALOG_PATH}?ok=noop`)
+  }
+
+  await prisma.product.update({
+    where: { id },
+    data: { isPublished: publish },
+  })
+
+  await recordAuditEvent({
+    actor: session.sub,
+    action: publish ? AUDIT_ACTIONS.productPublished : AUDIT_ACTIONS.productHidden,
+    entityType: 'product',
+    entityId: existing.slug,
+    summary: publish
+      ? `Товар ${existing.slug} возвращён на витрину.`
+      : `Товар ${existing.slug} скрыт с витрины.`,
+  })
+
+  revalidateStorefront(existing.slug)
+  redirect(`${CATALOG_PATH}?ok=${publish ? 'published' : 'hidden'}`)
+}

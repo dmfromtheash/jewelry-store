@@ -17,11 +17,17 @@ export interface AdminProductImageRow {
   name: string
   sku: string | null
   status: 'available' | 'coming_soon'
+  /** Storefront visibility (Этап 26L). Admin sees BOTH published and hidden rows. */
+  isPublished: boolean
   /** Primary image URL, or null when the slot has no uploaded asset yet. */
   imageUrl: string | null
 }
 
-/** All products with their primary (position 0) image, ordered like the catalog. */
+/**
+ * All products with their primary (position 0) image, ordered like the catalog.
+ * Admin-only: deliberately UNFILTERED by visibility so hidden products remain
+ * manageable (and restorable) here.
+ */
 export async function getAdminProductsForImages(): Promise<AdminProductImageRow[]> {
   const rows = await prisma.product.findMany({
     orderBy: { sku: 'asc' },
@@ -31,6 +37,7 @@ export async function getAdminProductsForImages(): Promise<AdminProductImageRow[
       name: true,
       sku: true,
       status: true,
+      isPublished: true,
       images: {
         where: { position: 0 },
         select: { url: true },
@@ -45,6 +52,7 @@ export async function getAdminProductsForImages(): Promise<AdminProductImageRow[
     name: r.name,
     sku: r.sku,
     status: r.status,
+    isPublished: r.isPublished,
     imageUrl: r.images[0]?.url ?? null,
   }))
 }

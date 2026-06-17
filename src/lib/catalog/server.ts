@@ -34,8 +34,15 @@ const productInclude = {
 
 const orderBySku = { sku: 'asc' as const }
 
+// Storefront reads are PUBLIC: they must only ever surface published products
+// (Этап 26L). Hidden products (isPublished = false) stay in the DB and keep their
+// order history, but never appear on home/category/search/PDP. Admin reads live
+// in src/lib/admin/catalog.ts and intentionally do NOT apply this filter.
+const publishedOnly = { isPublished: true } as const
+
 export async function getAllProductsFromDb(): Promise<Product[]> {
   const rows = await prisma.product.findMany({
+    where: publishedOnly,
     include: productInclude,
     orderBy: orderBySku,
   })
@@ -43,8 +50,10 @@ export async function getAllProductsFromDb(): Promise<Product[]> {
 }
 
 export async function getProductBySlugFromDb(slug: string): Promise<Product | null> {
-  const row = await prisma.product.findUnique({
-    where: { slug },
+  // findFirst (not findUnique) so the published filter can combine with the slug;
+  // a hidden product therefore resolves to null → the public PDP returns 404.
+  const row = await prisma.product.findFirst({
+    where: { slug, ...publishedOnly },
     include: productInclude,
   })
   return row ? mapDbProductToProduct(row) : null
@@ -54,7 +63,7 @@ export async function getProductsByCategorySlugFromDb(
   categorySlug: CategorySlug,
 ): Promise<Product[]> {
   const rows = await prisma.product.findMany({
-    where: { category: { slug: categorySlug } },
+    where: { category: { slug: categorySlug }, ...publishedOnly },
     include: productInclude,
     orderBy: orderBySku,
   })
@@ -63,6 +72,7 @@ export async function getProductsByCategorySlugFromDb(
 
 export async function getAllProductSlugsFromDb(): Promise<string[]> {
   const rows = await prisma.product.findMany({
+    where: publishedOnly,
     select: { slug: true },
     orderBy: orderBySku,
   })

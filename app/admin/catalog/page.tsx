@@ -15,6 +15,7 @@ import { getAdminProductsForImages } from '../../../src/lib/admin/catalog'
 import {
   uploadProductImageAction,
   deleteProductImageAction,
+  setProductPublishedAction,
 } from '../../../src/lib/admin/catalog-actions'
 
 export const metadata: Metadata = {
@@ -28,6 +29,8 @@ const NOTICES: Record<string, { kind: 'ok' | 'err'; text: string }> = {
   noop: { kind: 'ok', text: 'Изменений нет.' },
   created: { kind: 'ok', text: 'Товар создан.' },
   updated: { kind: 'ok', text: 'Товар обновлён.' },
+  hidden: { kind: 'ok', text: 'Товар скрыт с витрины.' },
+  published: { kind: 'ok', text: 'Товар возвращён на витрину.' },
   missing: { kind: 'err', text: 'Не указан товар.' },
   notfound: { kind: 'err', text: 'Товар не найден.' },
   upload: { kind: 'err', text: 'Не удалось загрузить файл: разрешены JPG, PNG, WEBP до 5 МБ.' },
@@ -81,6 +84,7 @@ export default async function AdminCatalogPage({
               <th>Фото</th>
               <th>Товар</th>
               <th>Артикул</th>
+              <th>Витрина</th>
               <th>Действия</th>
             </tr>
           </thead>
@@ -107,6 +111,13 @@ export default async function AdminCatalogPage({
                 <td>{p.name}</td>
                 <td>{p.sku ?? '—'}</td>
                 <td>
+                  {p.isPublished ? (
+                    <span>Опубликован</span>
+                  ) : (
+                    <span className="au-adm-sub">Скрыт</span>
+                  )}
+                </td>
+                <td>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
                     <form
                       action={uploadProductImageAction}
@@ -131,6 +142,14 @@ export default async function AdminCatalogPage({
                         </button>
                       </form>
                     )}
+                    <form action={setProductPublishedAction}>
+                      <input type="hidden" name="id" value={p.id} />
+                      {/* publish="on" → show; absent → hide. Toggles to the opposite state. */}
+                      {!p.isPublished && <input type="hidden" name="publish" value="on" />}
+                      <button className="au-btn au-btn--ghost" type="submit">
+                        {p.isPublished ? 'Скрыть' : 'Показать'}
+                      </button>
+                    </form>
                     <Link className="au-adm-link" href={`/admin/catalog/${p.id}/edit`}>
                       Изменить
                     </Link>

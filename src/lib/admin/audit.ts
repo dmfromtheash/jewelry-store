@@ -29,6 +29,8 @@ export const AUDIT_ACTIONS = {
   orderStatusChanged: 'admin.order.status_changed',
   productCreated: 'admin.product.created',
   productUpdated: 'admin.product.updated',
+  productHidden: 'admin.product.hidden',
+  productPublished: 'admin.product.published',
   productImageUpdated: 'admin.product.image_updated',
   productImageRemoved: 'admin.product.image_removed',
 } as const
@@ -41,6 +43,8 @@ export const AUDIT_ACTION_LABELS: Record<string, string> = {
   [AUDIT_ACTIONS.orderStatusChanged]: 'Смена статуса заказа',
   [AUDIT_ACTIONS.productCreated]: 'Товар создан',
   [AUDIT_ACTIONS.productUpdated]: 'Товар обновлён',
+  [AUDIT_ACTIONS.productHidden]: 'Товар скрыт с витрины',
+  [AUDIT_ACTIONS.productPublished]: 'Товар возвращён на витрину',
   [AUDIT_ACTIONS.productImageUpdated]: 'Изображение товара обновлено',
   [AUDIT_ACTIONS.productImageRemoved]: 'Изображение товара удалено',
 }

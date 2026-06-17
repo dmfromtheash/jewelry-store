@@ -47,6 +47,10 @@ model Product {
   /// Storefront caption, e.g. "Серьги · позолота" (mock `category` field).
   categoryLabel String
   status      ProductStatus @default(available)
+  /// Storefront visibility (Этап 26L). false hides the product from every public
+  /// surface (home/category/search/PDP); the row + order history stay intact.
+  /// Defaults true so existing products and admin-created ones are visible.
+  isPublished Boolean       @default(true)
   currency    String        @default("RUB")
   /// Integer MINOR units (kopecks); null for coming-soon products.
   price       Int?
@@ -73,6 +77,7 @@ model Product {
 
   @@index([categoryId])
   @@index([status])
+  @@index([isPublished])
 }
 
 /// Selectable option. Today: coating (Позолота / Родирование / Сталь),
