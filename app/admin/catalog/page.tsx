@@ -42,6 +42,16 @@ function resolveNotice(sp: Record<string, string | string[] | undefined>) {
   return ok ?? err ?? null
 }
 
+/**
+ * Compact stock label (Этап 28C). Product-level only: null = stock not tracked,
+ * 0 = sold out, >0 = quantity on hand. Untracked/sold-out render muted.
+ */
+function stockLabel(stockQuantity: number | null): { text: string; muted: boolean } {
+  if (stockQuantity == null) return { text: 'Не отслеживается', muted: true }
+  if (stockQuantity <= 0) return { text: 'Нет в наличии', muted: true }
+  return { text: `Остаток: ${stockQuantity}`, muted: false }
+}
+
 export default async function AdminCatalogPage({
   searchParams,
 }: {
@@ -84,6 +94,7 @@ export default async function AdminCatalogPage({
               <th>Фото</th>
               <th>Товар</th>
               <th>Артикул</th>
+              <th>Склад</th>
               <th>Витрина</th>
               <th>Действия</th>
             </tr>
@@ -110,6 +121,16 @@ export default async function AdminCatalogPage({
                 </td>
                 <td>{p.name}</td>
                 <td>{p.sku ?? '—'}</td>
+                <td>
+                  {(() => {
+                    const s = stockLabel(p.stockQuantity)
+                    return s.muted ? (
+                      <span className="au-adm-sub">{s.text}</span>
+                    ) : (
+                      <span>{s.text}</span>
+                    )
+                  })()}
+                </td>
                 <td>
                   {p.isPublished ? (
                     <span>Опубликован</span>

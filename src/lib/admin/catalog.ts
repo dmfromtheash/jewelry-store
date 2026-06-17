@@ -19,6 +19,8 @@ export interface AdminProductImageRow {
   status: 'available' | 'coming_soon'
   /** Storefront visibility (Этап 26L). Admin sees BOTH published and hidden rows. */
   isPublished: boolean
+  /** Product-level stock (Этап 28B/28C). null = NOT tracked; 0 = out of stock; >0 = on hand. */
+  stockQuantity: number | null
   /** Primary image URL, or null when the slot has no uploaded asset yet. */
   imageUrl: string | null
 }
@@ -38,6 +40,7 @@ export async function getAdminProductsForImages(): Promise<AdminProductImageRow[
       sku: true,
       status: true,
       isPublished: true,
+      stockQuantity: true,
       images: {
         where: { position: 0 },
         select: { url: true },
@@ -53,6 +56,7 @@ export async function getAdminProductsForImages(): Promise<AdminProductImageRow[
     sku: r.sku,
     status: r.status,
     isPublished: r.isPublished,
+    stockQuantity: r.stockQuantity,
     imageUrl: r.images[0]?.url ?? null,
   }))
 }

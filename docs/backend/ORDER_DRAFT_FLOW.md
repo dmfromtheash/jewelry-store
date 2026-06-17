@@ -68,6 +68,19 @@ concurrent/duplicate submissions cannot oversell (a losing race rolls the whole
 order back). Admin create/edit sets it via the «Остаток» field. **Product-level
 only** — variant-level inventory and reservations/holds remain future stages.
 
+**Restock on cancel (Этап 28C).** When an admin moves an order **into**
+`cancelled`, `updateAdminOrderStatus` returns the reserved stock: each tracked
+`OrderItem` adds its `quantity` back to `Product.stockQuantity`. The flip +
+restock run in ONE transaction, and a `updateMany(where status != cancelled)`
+guard makes the flip — and the restock — happen **at most once**, so an
+already-cancelled order is never restocked twice (defensive on top of the
+terminal transition guard). **Stock is restored only on the transition into
+`cancelled`** — `processing` and `completed` never restock, and untracked
+(`null`) products and deleted-product lines are left untouched. The admin catalog
+list shows the live stock state («Не отслеживается» / «Нет в наличии» /
+«Остаток: N»). **Product-level only** — variant inventory and reservations
+remain future. Verified by `npm run db:verify:inventory-lifecycle`.
+
 ## Data model (16A)
 
 - **Order**: `orderCode` (unique, e.g. `AUR-1A2B3C4D`), `status`

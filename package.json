@@ -24,6 +24,7 @@
     "db:verify:order-lifecycle": "tsx prisma/verify-order-lifecycle.ts",
     "db:verify:product-availability": "tsx prisma/verify-product-availability.ts",
     "db:verify:inventory": "tsx prisma/verify-inventory.ts",
+    "db:verify:inventory-lifecycle": "tsx prisma/verify-inventory-lifecycle.ts",
     "db:verify:runtime": "tsx prisma/verify-runtime-catalog.ts",
     "db:verify:orders": "tsx prisma/verify-orders.ts",
     "db:verify:admin-orders": "tsx prisma/verify-admin-orders.ts",

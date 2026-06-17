@@ -124,12 +124,60 @@ export async function getAdminOrderStatus(orderCode: string): Promise<OrderStatu
   return row?.status ?? null
 }
 
-/** Updates ONLY the status. Never touches items, prices, or contact data. */
+/**
+ * Updates ONLY the status. Never touches items, prices, or contact data.
+ *
+ * Этап 28C — restock on cancel: moving an order INTO `cancelled` returns its
+ * reserved stock. Tracked OrderItem products (`stockQuantity != null`) get their
+ * ordered `quantity` added back; untracked (null) products and deleted-product
+ * lines (`productId == null`) are left untouched. The flip + restock run in ONE
+ * transaction, and the `status: { not: cancelled }` guard makes the flip happen
+ * AT MOST ONCE — so an already-cancelled order can never be restocked twice, even
+ * under a hand-crafted concurrent POST. This is defensive on top of the terminal
+ * transition guard (`canTransitionOrderStatus`), which the caller applies first.
+ * Non-cancelling transitions keep the original status-only update (no stock side
+ * effects on processing/completed).
+ */
 export async function updateAdminOrderStatus(orderCode: string, status: OrderStatus) {
-  return prisma.order.update({
-    where: { orderCode },
-    data: { status },
-    select: { orderCode: true, status: true },
+  if (status !== OrderStatus.cancelled) {
+    return prisma.order.update({
+      where: { orderCode },
+      data: { status },
+      select: { orderCode: true, status: true },
+    })
+  }
+
+  return prisma.$transaction(async (tx) => {
+    // Atomically flip to cancelled ONLY if not already cancelled. `count === 1`
+    // means we own this cancellation, so the restock below runs exactly once.
+    const flipped = await tx.order.updateMany({
+      where: { orderCode, status: { not: OrderStatus.cancelled } },
+      data: { status: OrderStatus.cancelled },
+    })
+
+    if (flipped.count === 1) {
+      const items = await tx.orderItem.findMany({
+        where: { order: { orderCode } },
+        select: { productId: true, quantity: true },
+      })
+      for (const item of items) {
+        // No product to restock (deleted product → snapshot-only line).
+        if (!item.productId) continue
+        // Restock ONLY tracked products. The `stockQuantity: { not: null }`
+        // guard leaves untracked (null) stock null — never resurrected to 0.
+        await tx.product.updateMany({
+          where: { id: item.productId, stockQuantity: { not: null } },
+          data: { stockQuantity: { increment: item.quantity } },
+        })
+      }
+    }
+
+    const row = await tx.order.findUnique({
+      where: { orderCode },
+      select: { orderCode: true, status: true },
+    })
+    // Caller already confirmed the order exists (non-null prior status).
+    return row!
   })
 }
 
