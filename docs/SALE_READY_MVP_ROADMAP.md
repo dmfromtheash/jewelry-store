@@ -293,6 +293,16 @@ Dangerous or low-ROI moves to avoid right now:
 
 ## 8. Sale package structure
 
+> **Update (Этап 32A): a first buyer demo package now exists** under
+> [`sale/`](./sale/) — written against the **current** verified state (variants,
+> images/gallery, UAH baseline, manual payment/delivery, inline confirmation,
+> order lifecycle + restock-on-cancel):
+> [`BUYER_DEMO_SCRIPT.md`](./sale/BUYER_DEMO_SCRIPT.md) ·
+> [`FEATURES_AND_LIMITS.md`](./sale/FEATURES_AND_LIMITS.md) ·
+> [`SETUP_AND_HANDOFF_CHECKLIST.md`](./sale/SETUP_AND_HANDOFF_CHECKLIST.md) ·
+> [`SELLER_OFFER_ONE_PAGER.md`](./sale/SELLER_OFFER_ONE_PAGER.md). Hosted demo URL
+> and polished screenshots remain later items (deploy gated — §5.I).
+
 The future package a buyer receives (designed in §5.C; **not built here**):
 
 - **What the buyer gets:** the repo, a browsable demo, and the docs to adapt it.
