@@ -18,41 +18,41 @@ export function validateOrderDraftFields(input: OrderDraftInput): OrderFieldErro
   const errors: OrderFieldErrors = {}
 
   const name = input.customerName?.trim() ?? ''
-  if (name.length < 2) errors.customerName = 'Укажите имя (минимум 2 символа).'
-  else if (name.length > 80) errors.customerName = 'Имя слишком длинное.'
+  if (name.length < 2) errors.customerName = 'Вкажіть імʼя (мінімум 2 символи).'
+  else if (name.length > 80) errors.customerName = 'Імʼя задовге.'
 
   const phone = input.customerPhone?.trim() ?? ''
-  if (!phone) errors.customerPhone = 'Укажите телефон.'
-  else if (!PHONE_RE.test(phone)) errors.customerPhone = 'Проверьте формат телефона.'
+  if (!phone) errors.customerPhone = 'Вкажіть телефон.'
+  else if (!PHONE_RE.test(phone)) errors.customerPhone = 'Перевірте формат телефону.'
 
   // Email is optional, but if provided it must look valid.
   const email = input.customerEmail?.trim() ?? ''
-  if (email && !EMAIL_RE.test(email)) errors.customerEmail = 'Проверьте формат e-mail.'
+  if (email && !EMAIL_RE.test(email)) errors.customerEmail = 'Перевірте формат e-mail.'
 
   const city = input.deliveryCity?.trim() ?? ''
-  if (city.length < 2) errors.deliveryCity = 'Укажите город доставки.'
-  else if (city.length > 80) errors.deliveryCity = 'Название города слишком длинное.'
+  if (city.length < 2) errors.deliveryCity = 'Вкажіть місто доставки.'
+  else if (city.length > 80) errors.deliveryCity = 'Назва міста задовга.'
 
   // Method allowlists: only values offered by the current checkout are accepted,
   // so a tampered payload can't write an unknown delivery/payment method.
   const deliveryMethod = input.deliveryMethod?.trim() ?? ''
   if (!isAllowedDeliveryMethod(deliveryMethod)) {
-    errors.deliveryMethod = 'Выберите доступный способ доставки.'
+    errors.deliveryMethod = 'Оберіть доступний спосіб доставки.'
   }
 
   const paymentMethod = input.paymentMethod?.trim() ?? ''
   if (!isAllowedPaymentMethod(paymentMethod)) {
-    errors.paymentMethod = 'Этот способ оплаты сейчас недоступен.'
+    errors.paymentMethod = 'Цей спосіб оплати зараз недоступний.'
   }
 
   // Delivery note is optional; only its length is constrained (no address model).
   const deliveryDetails = input.deliveryDetails?.trim() ?? ''
   if (deliveryDetails.length > DELIVERY_DETAILS_MAX) {
-    errors.deliveryDetails = 'Комментарий к доставке слишком длинный.'
+    errors.deliveryDetails = 'Коментар до доставки задовгий.'
   }
 
   if (!Array.isArray(input.items) || input.items.length === 0) {
-    errors.items = 'Корзина пуста.'
+    errors.items = 'Кошик порожній.'
   }
 
   return errors

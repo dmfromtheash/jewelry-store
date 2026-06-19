@@ -38,8 +38,8 @@ export default async function HomePage() {
             adminTitle="Добавить главный баннер"
             adminSub="Для пользователей: скоро появится главный баннер"
             adminHint="Нажмите, чтобы загрузить обложку баннера"
-            customerTitle="Скоро появится главный баннер"
-            customerSub="Мы готовим для вас новую коллекцию"
+            customerTitle="Незабаром зʼявиться головний банер"
+            customerSub="Ми готуємо для вас нову колекцію"
             withRule
             showImageIcon
           />
@@ -58,7 +58,7 @@ export default async function HomePage() {
         <div className="au-container">
           <div className="au-section-head">
             <h2 className="au-section-title">Новинки</h2>
-            <Link className="au-section-link" href="/category/bijouterie">Смотреть все</Link>
+            <Link className="au-section-link" href="/category/bijouterie">Дивитися все</Link>
           </div>
           <div className="au-grid">
             {NEW_ARRIVALS.map((product) => (
@@ -87,14 +87,14 @@ export default async function HomePage() {
             adminTitle="Добавить баннер"
             adminSub="Для пользователей скоро будет добавлен баннер"
             adminHint="Нажмите, чтобы загрузить изображение баннера"
-            customerTitle="Скоро появится новая акция"
+            customerTitle="Незабаром зʼявиться нова акція"
           />
           <Placeholder
             variant="banner"
             adminTitle="Добавить баннер"
             adminSub="Для пользователей скоро будет добавлен баннер"
             adminHint="Нажмите, чтобы загрузить изображение баннера"
-            customerTitle="Скоро появится подборка недели"
+            customerTitle="Незабаром зʼявиться добірка тижня"
           />
         </div>
       </section>
@@ -103,8 +103,8 @@ export default async function HomePage() {
       <section className="au-section">
         <div className="au-container">
           <div className="au-section-head">
-            <h2 className="au-section-title">Бестселлеры</h2>
-            <Link className="au-section-link" href="/category/bijouterie">Смотреть все</Link>
+            <h2 className="au-section-title">Бестселери</h2>
+            <Link className="au-section-link" href="/category/bijouterie">Дивитися все</Link>
           </div>
           <div className="au-grid">
             {BESTSELLERS.map((product) => (

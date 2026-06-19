@@ -42,7 +42,7 @@ export default function ProductPageLayout({ breadcrumbs, similar, product }: Pro
         {/* Reviews */}
         <section className="au-section">
           <div className="au-section-head">
-            <h2 className="au-section-title">Отзывы</h2>
+            <h2 className="au-section-title">Відгуки</h2>
           </div>
           <ReviewsEmpty />
         </section>
@@ -50,14 +50,14 @@ export default function ProductPageLayout({ breadcrumbs, similar, product }: Pro
         {/* Similar products */}
         <section className="au-section">
           <div className="au-section-head">
-            <h2 className="au-section-title">Похожие товары</h2>
+            <h2 className="au-section-title">Схожі товари</h2>
             <Link className="au-section-link" href="/category/bijouterie">
-              Смотреть все
+              Дивитися все
             </Link>
           </div>
           <div className="au-grid">
             {similar.map((category, i) => (
-              <ProductCard key={`similar-${i}`} name="Украшение AURELIA" category={category} />
+              <ProductCard key={`similar-${i}`} name="Прикраса AURELIA" category={category} />
             ))}
           </div>
         </section>

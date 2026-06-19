@@ -23,7 +23,7 @@ import ProductFavoriteButton from './ProductFavoriteButton'
  *    variantId). The server stays authoritative on price/stock.
  */
 
-const DEFAULT_COATINGS = ['Позолота', 'Родирование', 'Сталь']
+const DEFAULT_COATINGS = ['Позолота', 'Родіювання', 'Сталь']
 
 export default function ProductBuyPanel({ product }: { product: Product }) {
   const variants = product.variants ?? []
@@ -61,11 +61,11 @@ export default function ProductBuyPanel({ product }: { product: Product }) {
       </div>
       <div className="au-prod-status">
         <span className="dot" />
-        {isAvailable ? 'В наличии' : 'Появится в продаже в ближайшее время'}
+        {isAvailable ? 'В наявності' : 'Зʼявиться в продажу найближчим часом'}
       </div>
 
       <div className="au-variants">
-        <div className="lbl">Покрытие</div>
+        <div className="lbl">Покриття</div>
         <div className="au-variant-row">
           {hasVariants
             ? variants.map((v) => (
@@ -100,7 +100,7 @@ export default function ProductBuyPanel({ product }: { product: Product }) {
           />
         ) : (
           <button className="au-btn au-btn--primary" type="button" disabled>
-            Купить
+            Додати
           </button>
         )}
         <ProductFavoriteButton slug={product.slug} />

@@ -66,16 +66,16 @@ export default function CategoryBrowser({ products }: { products: Product[] }) {
 
       {visible.length === 0 ? (
         <div className="au-discovery-empty">
-          <p className="au-discovery-empty-title">Ничего не найдено</p>
+          <p className="au-discovery-empty-title">Нічого не знайдено</p>
           <p className="au-discovery-empty-sub">
-            В этой категории нет товаров с выбранным фильтром.
+            У цій категорії немає товарів з обраним фільтром.
           </p>
           <button
             className="au-btn au-btn--ghost"
             type="button"
             onClick={() => setParams({ status: 'all', sort: 'recommended' })}
           >
-            Сбросить фильтры
+            Скинути фільтри
           </button>
         </div>
       ) : (

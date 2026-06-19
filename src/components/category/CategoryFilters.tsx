@@ -12,10 +12,10 @@
  */
 
 const FILTER_GROUPS: { heading: string; options: string[] }[] = [
-  { heading: 'Категория', options: ['Серьги', 'Кольца', 'Браслеты', 'Цепочки', 'Кулоны'] },
-  { heading: 'Стиль', options: ['Минимализм', 'Классика', 'Акцентные'] },
-  { heading: 'Вставка', options: ['Жемчуг', 'Фианит', 'Эмаль', 'Без вставки'] },
-  { heading: 'Покрытие', options: ['Позолота', 'Родирование', 'Сталь'] },
+  { heading: 'Категорія', options: ['Сережки', 'Каблучки', 'Браслети', 'Ланцюжки', 'Кулони'] },
+  { heading: 'Стиль', options: ['Мінімалізм', 'Класика', 'Акцентні'] },
+  { heading: 'Вставка', options: ['Перли', 'Фіаніт', 'Емаль', 'Без вставки'] },
+  { heading: 'Покриття', options: ['Позолота', 'Родіювання', 'Сталь'] },
 ]
 
 const Chevron = () => (
@@ -34,17 +34,17 @@ const Check = () => (
 
 export default function CategoryFilters() {
   return (
-    <aside className="au-filters" id="filters" aria-label="Фильтры">
+    <aside className="au-filters" id="filters" aria-label="Фільтри">
       {/* Price */}
       <div className="au-filter-group">
         <div className="au-filter-head">
-          Цена, ₴ <Chevron />
+          Ціна, ₴ <Chevron />
         </div>
         <div className="au-filter-body">
           <div className="au-price-inputs">
-            <input type="text" placeholder="от 0" aria-label="Цена от" />
+            <input type="text" placeholder="від 0" aria-label="Ціна від" />
             <span className="dash">—</span>
-            <input type="text" placeholder="до 10 000" aria-label="Цена до" />
+            <input type="text" placeholder="до 10 000" aria-label="Ціна до" />
           </div>
         </div>
       </div>
@@ -69,7 +69,7 @@ export default function CategoryFilters() {
       ))}
 
       <button className="au-btn au-btn--ghost au-filter-apply" type="button">
-        Применить фильтры
+        Застосувати фільтри
       </button>
     </aside>
   )

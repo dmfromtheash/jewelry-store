@@ -56,7 +56,7 @@ export default function RecentlyViewed({ currentSlug }: { currentSlug: string })
   return (
     <section className="au-section au-recent">
       <div className="au-section-head">
-        <h2 className="au-section-title">Вы недавно смотрели</h2>
+        <h2 className="au-section-title">Ви нещодавно дивилися</h2>
       </div>
       <div className="au-grid">
         {products.map((product) => (

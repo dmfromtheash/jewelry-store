@@ -17,7 +17,7 @@ export default function ProductFavoriteButton({ slug }: { slug: string }) {
       className={`au-act-ico au-fav-toggle${favorited ? ' is-active' : ''}`}
       type="button"
       aria-pressed={favorited}
-      aria-label={favorited ? 'Убрать из избранного' : 'В избранное'}
+      aria-label={favorited ? 'Прибрати з обраного' : 'До обраного'}
       onClick={() => toggleFavorite(slug)}
     >
       <svg

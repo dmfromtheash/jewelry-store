@@ -15,29 +15,29 @@ import Link from 'next/link'
 // (their pages do not exist yet — no fake routes).
 const FOOTER_COLUMNS: { heading: string; links: { label: string; href: string }[] }[] = [
   {
-    heading: 'Покупателям',
+    heading: 'Покупцям',
     links: [
-      { label: 'Доставка и оплата', href: '/delivery' },
-      { label: 'Возврат и обмен', href: '/returns' },
-      { label: 'Помощь', href: '/help' },
+      { label: 'Доставка та оплата', href: '/delivery' },
+      { label: 'Повернення та обмін', href: '/returns' },
+      { label: 'Допомога', href: '/help' },
     ],
   },
   {
-    heading: 'Компания',
+    heading: 'Компанія',
     links: [
-      { label: 'О бренде', href: '/about' },
-      { label: 'Магазины', href: '/stores' },
-      { label: 'Контакты', href: '/contacts' },
+      { label: 'Про бренд', href: '/about' },
+      { label: 'Магазини', href: '/stores' },
+      { label: 'Контакти', href: '/contacts' },
     ],
   },
   {
     heading: 'Каталог',
     links: [
-      { label: 'Бижутерия', href: '/category/bijouterie' },
-      { label: 'Серьги', href: '#' },
-      { label: 'Кольца', href: '#' },
-      { label: 'Подарки', href: '/category/gifts' },
-      { label: 'Бренды', href: '#' },
+      { label: 'Біжутерія', href: '/category/bijouterie' },
+      { label: 'Сережки', href: '#' },
+      { label: 'Каблучки', href: '#' },
+      { label: 'Подарунки', href: '/category/gifts' },
+      { label: 'Бренди', href: '#' },
     ],
   },
 ]
@@ -49,15 +49,15 @@ export default function Footer() {
       <div className="au-footer-sub">
         <div className="au-container au-footer-sub-in">
           <div>
-            <p className="h">Будьте первыми</p>
+            <p className="h">Будьте першими</p>
             <p className="p">
-              Новые коллекции, закрытые распродажи и идеи подарков — раз в неделю
+              Нові колекції, закриті розпродажі та ідеї подарунків — раз на тиждень
             </p>
           </div>
           <div className="au-sub-form">
-            <input type="email" placeholder="Ваш e-mail" aria-label="E-mail для рассылки" />
+            <input type="email" placeholder="Ваш e-mail" aria-label="E-mail для розсилки" />
             <button className="au-btn au-btn--primary" type="button">
-              Подписаться
+              Підписатися
             </button>
           </div>
         </div>
@@ -69,7 +69,7 @@ export default function Footer() {
           <div className="name">AURELIA</div>
           <div className="tag">Bijouterie without limits</div>
           <p className="p">
-            Современная бижутерия и аксессуары. Дизайн-прототип интернет-магазина.
+            Сучасна біжутерія та аксесуари. Дизайн-прототип інтернет-магазину.
           </p>
         </div>
 
@@ -97,7 +97,7 @@ export default function Footer() {
       <div className="au-footer-bottom">
         <div className="au-container au-footer-bottom-in">
           <span>© 2026 AURELIA. Дизайн-прототип.</span>
-          <div className="au-pay" aria-label="Способы оплаты">
+          <div className="au-pay" aria-label="Способи оплати">
             <span />
             <span />
             <span />

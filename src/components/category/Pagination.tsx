@@ -13,7 +13,7 @@ const Arrow = ({ dir }: { dir: 'prev' | 'next' }) => (
 
 export default function Pagination() {
   return (
-    <nav className="au-pagination" aria-label="Страницы">
+    <nav className="au-pagination" aria-label="Сторінки">
       <button className="au-page-btn" type="button" aria-label="Назад">
         <Arrow dir="prev" />
       </button>
@@ -22,7 +22,7 @@ export default function Pagination() {
       <button className="au-page-btn" type="button">3</button>
       <button className="au-page-btn dots" type="button">…</button>
       <button className="au-page-btn" type="button">12</button>
-      <button className="au-page-btn" type="button" aria-label="Вперёд">
+      <button className="au-page-btn" type="button" aria-label="Вперед">
         <Arrow dir="next" />
       </button>
     </nav>

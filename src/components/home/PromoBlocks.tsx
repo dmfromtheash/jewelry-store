@@ -15,7 +15,7 @@ export default function PromoBlocks() {
   return (
     <section className="au-section">
       <div className="au-section-head au-container">
-        <h2 className="au-section-title">Специальные подборки</h2>
+        <h2 className="au-section-title">Спеціальні добірки</h2>
       </div>
       <div className="au-container au-home-squares">
         {Array.from({ length: PROMO_COUNT }).map((_, i) => (
@@ -25,7 +25,7 @@ export default function PromoBlocks() {
             adminTitle="Добавить промо-блок"
             adminSub="Для пользователей: скоро появится контент"
             adminHint="Нажмите, чтобы загрузить квадратное изображение"
-            customerTitle="Скоро появится контент"
+            customerTitle="Незабаром зʼявиться контент"
             withRule
           />
         ))}

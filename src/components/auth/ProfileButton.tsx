@@ -12,7 +12,7 @@ export default function ProfileButton() {
   const { openLogin } = useAuthModal()
 
   return (
-    <button className="au-icon-btn" type="button" aria-label="Профиль" onClick={openLogin}>
+    <button className="au-icon-btn" type="button" aria-label="Профіль" onClick={openLogin}>
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
         <circle cx="12" cy="8" r="3.6" />
         <path d="M4.5 20c1.4-3.4 4.2-5 7.5-5s6.1 1.6 7.5 5" />

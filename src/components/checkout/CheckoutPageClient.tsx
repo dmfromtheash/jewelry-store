@@ -142,7 +142,7 @@ export default function CheckoutPageClient() {
       setGeneralError(result.error)
       setPending(false)
     } catch {
-      setGeneralError('Не удалось отправить заказ. Попробуйте ещё раз.')
+      setGeneralError('Не вдалося надіслати замовлення. Спробуйте ще раз.')
       setPending(false)
     }
   }
@@ -157,14 +157,14 @@ export default function CheckoutPageClient() {
           <span className="au-co-empty-ico">
             <GemIcon />
           </span>
-          <h1 className="au-co-empty-title">Заказ принят</h1>
+          <h1 className="au-co-empty-title">Замовлення прийнято</h1>
           <p className="au-co-empty-sub">
-            Спасибо! Мы свяжемся с вами для подтверждения заказа.
+            Дякуємо! Ми звʼяжемося з вами для підтвердження замовлення.
           </p>
 
           <ul className="au-co-list" style={{ width: '100%', maxWidth: 480, textAlign: 'left' }}>
             <li className="au-co-line">
-              <span className="au-co-line-meta">Номер заказа</span>
+              <span className="au-co-line-meta">Номер замовлення</span>
               <span className="au-co-line-name"><strong>{confirmation.orderCode}</strong></span>
             </li>
             <li className="au-co-line">
@@ -177,7 +177,7 @@ export default function CheckoutPageClient() {
             </li>
             {confirmation.deliveryDetails && (
               <li className="au-co-line">
-                <span className="au-co-line-meta">Детали доставки</span>
+                <span className="au-co-line-meta">Деталі доставки</span>
                 <span className="au-co-line-name">{confirmation.deliveryDetails}</span>
               </li>
             )}
@@ -185,16 +185,16 @@ export default function CheckoutPageClient() {
 
           <p className="au-co-note" style={{ marginTop: 16 }}>
             {isManualOnline
-              ? 'Автоматическая онлайн-оплата на сайте пока не подключена. Реквизиты для оплаты отправит менеджер после подтверждения заказа.'
-              : 'Оплата при получении — с вас сейчас ничего не списано.'}
+              ? 'Автоматична онлайн-оплата на сайті поки не підключена. Реквізити для оплати надішле менеджер після підтвердження замовлення.'
+              : 'Оплата при отриманні — з вас зараз нічого не списано.'}
           </p>
 
           <div className="au-co-empty-actions">
             <Link className="au-btn au-btn--primary" href="/category/bijouterie">
-              В каталог
+              До каталогу
             </Link>
             <Link className="au-btn au-btn--ghost" href="/">
-              На главную
+              На головну
             </Link>
           </div>
         </div>
@@ -209,16 +209,16 @@ export default function CheckoutPageClient() {
           <span className="au-co-empty-ico">
             <GemIcon />
           </span>
-          <h1 className="au-co-empty-title">Корзина пуста</h1>
+          <h1 className="au-co-empty-title">Кошик порожній</h1>
           <p className="au-co-empty-sub">
-            Добавьте украшения в корзину, чтобы оформить заказ.
+            Додайте прикраси в кошик, щоб оформити замовлення.
           </p>
           <div className="au-co-empty-actions">
             <Link className="au-btn au-btn--primary" href="/category/bijouterie">
-              В каталог
+              До каталогу
             </Link>
             <Link className="au-btn au-btn--ghost" href="/">
-              На главную
+              На головну
             </Link>
           </div>
         </div>
@@ -228,20 +228,20 @@ export default function CheckoutPageClient() {
 
   return (
     <div className="au-container au-checkout">
-      <h1 className="au-co-title">Оформление заказа</h1>
+      <h1 className="au-co-title">Оформлення замовлення</h1>
 
       <div className="au-checkout-grid">
         {/* ---- Left: forms ---- */}
         <form id="au-checkout-form" className="au-co-form" onSubmit={handleSubmit} noValidate>
           {/* Contacts */}
           <section className="au-co-section">
-            <h2 className="au-co-section-title">Контакты</h2>
+            <h2 className="au-co-section-title">Контакти</h2>
             <div className="au-field">
-              <label htmlFor="co-name">Имя</label>
+              <label htmlFor="co-name">Імʼя</label>
               <input
                 id="co-name"
                 type="text"
-                placeholder="Как к вам обращаться"
+                placeholder="Як до вас звертатися"
                 autoComplete="name"
                 value={form.name}
                 onChange={set('name')}
@@ -255,7 +255,7 @@ export default function CheckoutPageClient() {
                 <input
                   id="co-phone"
                   type="tel"
-                  placeholder="+7 ___ ___-__-__"
+                  placeholder="+380 __ ___ __ __"
                   autoComplete="tel"
                   value={form.phone}
                   onChange={set('phone')}
@@ -283,11 +283,11 @@ export default function CheckoutPageClient() {
           <section className="au-co-section">
             <h2 className="au-co-section-title">Доставка</h2>
             <div className="au-field">
-              <label htmlFor="co-city">Город</label>
+              <label htmlFor="co-city">Місто</label>
               <input
                 id="co-city"
                 type="text"
-                placeholder="Город доставки"
+                placeholder="Місто доставки"
                 autoComplete="address-level2"
                 value={form.city}
                 onChange={set('city')}
@@ -296,7 +296,7 @@ export default function CheckoutPageClient() {
               {errors.deliveryCity && <p className="au-field-error">{errors.deliveryCity}</p>}
             </div>
             <div className="au-field">
-              <label htmlFor="co-delivery">Способ доставки</label>
+              <label htmlFor="co-delivery">Спосіб доставки</label>
               <select
                 id="co-delivery"
                 className="au-co-select"
@@ -313,11 +313,11 @@ export default function CheckoutPageClient() {
               {errors.deliveryMethod && <p className="au-field-error">{errors.deliveryMethod}</p>}
             </div>
             <div className="au-field">
-              <label htmlFor="co-delivery-details">Отделение / адрес / комментарий</label>
+              <label htmlFor="co-delivery-details">Відділення / адреса / коментар</label>
               <input
                 id="co-delivery-details"
                 type="text"
-                placeholder="Напр.: Новая Почта, отделение №12"
+                placeholder="Напр.: Нова Пошта, відділення №12"
                 value={form.deliveryDetails}
                 onChange={set('deliveryDetails')}
                 aria-invalid={!!errors.deliveryDetails}
@@ -332,7 +332,7 @@ export default function CheckoutPageClient() {
           <section className="au-co-section">
             <h2 className="au-co-section-title">Оплата</h2>
             <div className="au-field">
-              <label htmlFor="co-payment">Способ оплаты</label>
+              <label htmlFor="co-payment">Спосіб оплати</label>
               <select
                 id="co-payment"
                 className="au-co-select"
@@ -350,8 +350,8 @@ export default function CheckoutPageClient() {
             </div>
             <div className="au-co-payment-note">
               {form.payment === 'manual_online'
-                ? 'Автоматическая онлайн-оплата на сайте не подключена. Реквизиты для перевода пришлём после оформления; оплата подтверждается вручную.'
-                : 'Оплата при получении. Оплата через сайт не списывается — расчёт происходит при получении заказа.'}
+                ? 'Автоматична онлайн-оплата на сайті не підключена. Реквізити для переказу надішлемо після оформлення; оплата підтверджується вручну.'
+                : 'Оплата при отриманні. Оплата через сайт не списується — розрахунок відбувається при отриманні замовлення.'}
             </div>
           </section>
         </form>
@@ -359,7 +359,7 @@ export default function CheckoutPageClient() {
         {/* ---- Right: order summary ---- */}
         <aside className="au-co-summary">
           <h2 className="au-co-section-title">
-            Ваш заказ{count > 0 && <span className="au-co-summary-count">{count}</span>}
+            Ваше замовлення{count > 0 && <span className="au-co-summary-count">{count}</span>}
           </h2>
 
           <ul className="au-co-list">
@@ -385,15 +385,15 @@ export default function CheckoutPageClient() {
                   <GemIcon />
                 </span>
                 <div className="au-co-line-main">
-                  <p className="au-co-line-name">Товар недоступен</p>
+                  <p className="au-co-line-name">Товар недоступний</p>
                   <p className="au-co-line-meta">
-                    Снят с продажи ·{' '}
+                    Знято з продажу ·{' '}
                     <button
                       type="button"
                       className="au-cart-remove"
                       onClick={() => removeItem(entry.slug, entry.variantId)}
                     >
-                      удалить
+                      видалити
                     </button>
                   </p>
                 </div>
@@ -404,12 +404,12 @@ export default function CheckoutPageClient() {
 
           {hasUnavailable && (
             <p className="au-field-error" role="alert">
-              В корзине есть недоступные товары. Удалите их, чтобы оформить заказ.
+              У кошику є недоступні товари. Видаліть їх, щоб оформити замовлення.
             </p>
           )}
 
           <div className="au-co-total">
-            <span>Итого</span>
+            <span>Разом</span>
             <span className="au-co-total-val">{formatPrice(subtotal)}</span>
           </div>
 
@@ -425,13 +425,13 @@ export default function CheckoutPageClient() {
             form="au-checkout-form"
             disabled={!canSubmit}
           >
-            {pending ? 'Создаём заказ…' : 'Оформить заказ'}
+            {pending ? 'Створюємо замовлення…' : 'Оформити замовлення'}
           </button>
           <p className="au-co-note">
-            Демо-режим: заказ сохраняется, оплата подключается позже.
+            Демо-режим: замовлення зберігається, оплата підключається пізніше.
           </p>
           <p className="au-co-info-link">
-            <Link href="/delivery">Подробнее о доставке и оплате</Link>
+            <Link href="/delivery">Докладніше про доставку та оплату</Link>
           </p>
         </aside>
       </div>

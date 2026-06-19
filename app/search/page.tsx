@@ -11,8 +11,8 @@ import type { Metadata } from 'next'
 import SearchPageClient from '../../src/components/search/SearchPageClient'
 
 export const metadata: Metadata = {
-  title: 'Поиск — AURELIA',
-  description: 'Поиск украшений в каталоге AURELIA.',
+  title: 'Пошук — AURELIA',
+  description: 'Пошук прикрас у каталозі AURELIA.',
 }
 
 export default function SearchPage() {

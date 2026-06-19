@@ -16,8 +16,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Заказ создан — AURELIA',
-  description: 'Заказ AURELIA принят (демо-режим).',
+  title: 'Замовлення створено — AURELIA',
+  description: 'Замовлення AURELIA прийнято (демо-режим).',
   robots: { index: false, follow: false },
 }
 
@@ -41,29 +41,29 @@ export default async function CheckoutSuccessPage({
         <span className="au-co-empty-ico">
           <GemIcon />
         </span>
-        <h1 className="au-co-empty-title">Заказ принят</h1>
+        <h1 className="au-co-empty-title">Замовлення прийнято</h1>
 
         <p className="au-co-empty-sub">
           {orderCode ? (
             <>
-              Номер заказа: <strong>{orderCode}</strong>. Мы свяжемся с вами для подтверждения.
+              Номер замовлення: <strong>{orderCode}</strong>. Ми звʼяжемося з вами для підтвердження.
             </>
           ) : (
-            'Спасибо! Мы свяжемся с вами для подтверждения заказа.'
+            'Дякуємо! Ми звʼяжемося з вами для підтвердження замовлення.'
           )}
         </p>
 
         <p className="au-co-note" style={{ marginTop: 16 }}>
-          Заказ оформлен в демо-режиме. Оплата подтверждается вручную по выбранному способу —
-          сейчас с вас ничего не списано.
+          Замовлення оформлено в демо-режимі. Оплата підтверджується вручну за обраним способом —
+          зараз з вас нічого не списано.
         </p>
 
         <div className="au-co-empty-actions">
           <Link className="au-btn au-btn--primary" href="/category/bijouterie">
-            В каталог
+            До каталогу
           </Link>
           <Link className="au-btn au-btn--ghost" href="/">
-            На главную
+            На головну
           </Link>
         </div>
       </div>

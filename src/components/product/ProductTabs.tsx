@@ -17,21 +17,21 @@ import type { ProductSpec } from '../../lib/catalog/types'
 type TabId = 'desc' | 'specs' | 'delivery'
 
 const TABS: { id: TabId; label: string }[] = [
-  { id: 'desc', label: 'Описание' },
+  { id: 'desc', label: 'Опис' },
   { id: 'specs', label: 'Характеристики' },
-  { id: 'delivery', label: 'Доставка и возврат' },
+  { id: 'delivery', label: 'Доставка та повернення' },
 ]
 
 const DEFAULT_DESCRIPTION =
-  'Описание украшения появится после добавления товара. Здесь будет рассказ о форме, ' +
-  'покрытии, вставках и о том, с чем украшение лучше сочетать.'
+  'Опис прикраси зʼявиться після додавання товару. Тут буде розповідь про форму, ' +
+  'покриття, вставки та про те, з чим прикрасу краще поєднувати.'
 
 const DEFAULT_SPECS: ProductSpec[] = [
   { label: 'Тип', value: '—' },
-  { label: 'Покрытие', value: '—' },
+  { label: 'Покриття', value: '—' },
   { label: 'Вставка', value: '—' },
-  { label: 'Размер', value: '—' },
-  { label: 'Вес', value: '—' },
+  { label: 'Розмір', value: '—' },
+  { label: 'Вага', value: '—' },
 ]
 
 export default function ProductTabs({
@@ -79,9 +79,9 @@ export default function ProductTabs({
 
       <div className="au-tab-panel" role="tabpanel" hidden={active !== 'delivery'}>
         <p>
-          Отправляем заказы в день оформления. Доставка курьером, в пункты выдачи и почтой по всей
-          стране. Бесплатно — при заказе от 3 000 ₴. Обмен и возврат — в течение 30 дней с момента
-          покупки.
+          Відправляємо замовлення в день оформлення. Доставка курʼєром, у пункти видачі та поштою по
+          всій країні. Безкоштовно — при замовленні від 3 000 ₴. Обмін і повернення — протягом 30 днів
+          з моменту покупки.
         </p>
       </div>
     </div>

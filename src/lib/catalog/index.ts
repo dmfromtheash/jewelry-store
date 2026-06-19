@@ -40,12 +40,12 @@ export function formatPrice(price: number): string {
   return `${new Intl.NumberFormat('ru-RU').format(price)} ₴`
 }
 
-/** Russian plural for the category count, e.g. "6 товаров" / "1 товар". */
+/** Ukrainian plural for the category count, e.g. "6 товарів" / "1 товар". */
 export function productCountLabel(count: number): string {
   const mod10 = count % 10
   const mod100 = count % 100
-  let word = 'товаров'
+  let word = 'товарів'
   if (mod10 === 1 && mod100 !== 11) word = 'товар'
-  else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) word = 'товара'
+  else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) word = 'товари'
   return `${count} ${word}`
 }

@@ -53,12 +53,12 @@ export default function CartDrawer() {
         if (e.target === e.currentTarget) closeCart()
       }}
     >
-      <aside className="au-cart" role="dialog" aria-modal="true" aria-label="Корзина">
+      <aside className="au-cart" role="dialog" aria-modal="true" aria-label="Кошик">
         <header className="au-cart-head">
           <h2 className="au-cart-title">
-            Корзина{count > 0 && <span className="au-cart-count">{count}</span>}
+            Кошик{count > 0 && <span className="au-cart-count">{count}</span>}
           </h2>
-          <button className="au-cart-close" type="button" aria-label="Закрыть" onClick={closeCart}>
+          <button className="au-cart-close" type="button" aria-label="Закрити" onClick={closeCart}>
             <CloseIcon />
           </button>
         </header>
@@ -68,8 +68,8 @@ export default function CartDrawer() {
             <span className="au-cart-empty-ico">
               <GemIcon />
             </span>
-            <p className="au-cart-empty-title">В корзине пока пусто</p>
-            <p className="au-cart-empty-sub">Добавьте украшения из каталога — они появятся здесь.</p>
+            <p className="au-cart-empty-title">У кошику поки порожньо</p>
+            <p className="au-cart-empty-sub">Додайте прикраси з каталогу — вони зʼявляться тут.</p>
           </div>
         ) : (
           <>
@@ -91,7 +91,7 @@ export default function CartDrawer() {
                       <button
                         type="button"
                         className="au-cart-qty-btn"
-                        aria-label="Уменьшить количество"
+                        aria-label="Зменшити кількість"
                         onClick={() => decrement(line.slug, line.variantId)}
                       >
                         −
@@ -100,7 +100,7 @@ export default function CartDrawer() {
                       <button
                         type="button"
                         className="au-cart-qty-btn"
-                        aria-label="Увеличить количество"
+                        aria-label="Збільшити кількість"
                         onClick={() => increment(line.slug, line.variantId)}
                       >
                         +
@@ -112,10 +112,10 @@ export default function CartDrawer() {
                     <button
                       type="button"
                       className="au-cart-remove"
-                      aria-label="Удалить из корзины"
+                      aria-label="Видалити з кошика"
                       onClick={() => removeItem(line.slug, line.variantId)}
                     >
-                      Удалить
+                      Видалити
                     </button>
                   </div>
                 </li>
@@ -131,18 +131,18 @@ export default function CartDrawer() {
                       <GemIcon />
                     </span>
                     <div className="au-cart-item-main">
-                      <p className="au-cart-item-name">Товар недоступен</p>
-                      <p className="au-cart-item-cat">Снят с продажи — удалите из корзины</p>
+                      <p className="au-cart-item-name">Товар недоступний</p>
+                      <p className="au-cart-item-cat">Знято з продажу — видаліть із кошика</p>
                     </div>
                     <div className="au-cart-item-side">
                       <span className="au-cart-item-price">— ₴</span>
                       <button
                         type="button"
                         className="au-cart-remove"
-                        aria-label="Удалить из корзины"
+                        aria-label="Видалити з кошика"
                         onClick={() => removeItem(entry.slug, entry.variantId)}
                       >
-                        Удалить
+                        Видалити
                       </button>
                     </div>
                   </li>
@@ -152,7 +152,7 @@ export default function CartDrawer() {
 
             <footer className="au-cart-foot">
               <div className="au-cart-total">
-                <span>Итого</span>
+                <span>Разом</span>
                 <span className="au-cart-total-val">{formatPrice(subtotal)}</span>
               </div>
               {lines.length > 0 ? (
@@ -161,20 +161,20 @@ export default function CartDrawer() {
                   href="/checkout"
                   onClick={closeCart}
                 >
-                  Оформить заказ
+                  Оформити замовлення
                 </Link>
               ) : (
                 <p className="au-cart-note">
-                  В корзине нет доступных товаров — добавьте украшения из каталога.
+                  У кошику немає доступних товарів — додайте прикраси з каталогу.
                 </p>
               )}
               {unavailable.length > 0 && lines.length > 0 && (
                 <p className="au-cart-note">
-                  Удалите недоступные товары, чтобы перейти к оформлению.
+                  Видаліть недоступні товари, щоб перейти до оформлення.
                 </p>
               )}
               {lines.length > 0 && (
-                <p className="au-cart-note">Демо-оформление — оплата подключается позже.</p>
+                <p className="au-cart-note">Демо-оформлення — оплата підключається пізніше.</p>
               )}
             </footer>
           </>

@@ -11,24 +11,24 @@ import type { Metadata } from 'next'
 import ProductPageLayout from '../../../src/components/product/ProductPageLayout'
 
 export const metadata: Metadata = {
-  title: 'Скоро будет добавлено украшение — AURELIA',
-  description: 'Украшение скоро появится в продаже. Подпишитесь, чтобы узнать о поступлении.',
+  title: 'Незабаром буде додано прикрасу — AURELIA',
+  description: 'Прикраса незабаром зʼявиться в продажу. Підпишіться, щоб дізнатися про надходження.',
 }
 
 const SIMILAR = [
-  'Серьги · позолота',
-  'Кольцо · родирование',
-  'Кулон · жемчуг',
-  'Браслет · эмаль',
+  'Сережки · позолота',
+  'Каблучка · родіювання',
+  'Кулон · перли',
+  'Браслет · емаль',
 ]
 
 export default function ProductComingSoonPage() {
   return (
     <ProductPageLayout
       breadcrumbs={[
-        { label: 'Главная', href: '/' },
-        { label: 'Бижутерия', href: '/category/bijouterie' },
-        { label: 'Скоро будет добавлено украшение' },
+        { label: 'Головна', href: '/' },
+        { label: 'Біжутерія', href: '/category/bijouterie' },
+        { label: 'Незабаром буде додано прикрасу' },
       ]}
       similar={SIMILAR}
     />

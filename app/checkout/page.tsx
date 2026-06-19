@@ -10,8 +10,8 @@ import type { Metadata } from 'next'
 import CheckoutPageClient from '../../src/components/checkout/CheckoutPageClient'
 
 export const metadata: Metadata = {
-  title: 'Оформление заказа — AURELIA',
-  description: 'Оформление заказа AURELIA.',
+  title: 'Оформлення замовлення — AURELIA',
+  description: 'Оформлення замовлення AURELIA.',
 }
 
 export default function CheckoutPage() {

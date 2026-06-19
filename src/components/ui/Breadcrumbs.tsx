@@ -16,7 +16,7 @@ export interface Crumb {
 
 export default function Breadcrumbs({ items }: { items: Crumb[] }) {
   return (
-    <nav className="au-crumbs" aria-label="Хлебные крошки">
+    <nav className="au-crumbs" aria-label="Навігаційні крихти">
       {items.map((item, i) => (
         <Fragment key={`${item.label}-${i}`}>
           {i > 0 && <span className="sep">/</span>}

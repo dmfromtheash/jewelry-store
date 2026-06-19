@@ -12,16 +12,16 @@ export default function CategoryToolbar() {
   return (
     <div className="au-toolbar">
       <div className="au-sort">
-        <span>Сортировка:</span>
-        <select aria-label="Сортировка" defaultValue="По популярности">
-          <option>По популярности</option>
-          <option>Сначала новинки</option>
-          <option>Сначала дешевле</option>
-          <option>Сначала дороже</option>
+        <span>Сортування:</span>
+        <select aria-label="Сортування" defaultValue="За популярністю">
+          <option>За популярністю</option>
+          <option>Спочатку новинки</option>
+          <option>Спочатку дешевші</option>
+          <option>Спочатку дорожчі</option>
         </select>
       </div>
       <a className="au-btn au-btn--ghost au-filters-jump" href="#filters">
-        Фильтры
+        Фільтри
       </a>
     </div>
   )

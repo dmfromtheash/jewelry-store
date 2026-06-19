@@ -17,7 +17,7 @@ import ProductBuyPanel from './ProductBuyPanel'
 
 const PERKS: { icon: ReactNode; text: string }[] = [
   {
-    text: 'Доставка по всей стране — бесплатно от 3 000 ₴',
+    text: 'Доставка по всій країні — безкоштовно від 3 000 ₴',
     icon: (
       <>
         <path d="M3 7h11v10H3zM14 10h4l3 3v4h-7z" />
@@ -27,7 +27,7 @@ const PERKS: { icon: ReactNode; text: string }[] = [
     ),
   },
   {
-    text: 'Обмен и возврат в течение 30 дней',
+    text: 'Обмін і повернення протягом 30 днів',
     icon: (
       <>
         <path d="M4 9a8 8 0 0 1 15.3-2M20 15a8 8 0 0 1-15.3 2" />
@@ -36,7 +36,7 @@ const PERKS: { icon: ReactNode; text: string }[] = [
     ),
   },
   {
-    text: 'Фирменная подарочная упаковка к каждому заказу',
+    text: 'Фірмове подарункове пакування до кожного замовлення',
     icon: (
       <>
         <rect x="4" y="9" width="16" height="11" rx="1.5" />
@@ -46,11 +46,11 @@ const PERKS: { icon: ReactNode; text: string }[] = [
   },
 ]
 
-const DEFAULT_COATINGS = ['Позолота', 'Родирование', 'Сталь']
+const DEFAULT_COATINGS = ['Позолота', 'Родіювання', 'Сталь']
 
 export default function ProductInfo({ product }: { product?: Product }) {
   const brand = product?.brand ?? 'AURELIA'
-  const title = product?.name ?? 'Скоро будет добавлено украшение'
+  const title = product?.name ?? 'Незабаром буде додано прикрасу'
   const sku = product?.sku ?? 'AU-0000'
   const reviewsCount = product?.reviewsCount ?? 0
 
@@ -61,7 +61,7 @@ export default function ProductInfo({ product }: { product?: Product }) {
 
       <div className="au-prod-meta">
         <span className="au-stars" aria-hidden="true">★★★★★</span>
-        <span>{reviewsCount} отзывов</span>
+        <span>{reviewsCount} відгуків</span>
         <span>·</span>
         <span>Артикул: {sku}</span>
       </div>
@@ -77,11 +77,11 @@ export default function ProductInfo({ product }: { product?: Product }) {
           </div>
           <div className="au-prod-status">
             <span className="dot" />
-            Появится в продаже в ближайшее время
+            Зʼявиться в продажу найближчим часом
           </div>
 
           <div className="au-variants">
-            <div className="lbl">Покрытие</div>
+            <div className="lbl">Покриття</div>
             <div className="au-variant-row">
               {DEFAULT_COATINGS.map((coating, i) => (
                 <button key={coating} className={`au-variant${i === 0 ? ' is-active' : ''}`} type="button">
@@ -93,16 +93,16 @@ export default function ProductInfo({ product }: { product?: Product }) {
 
           <div className="au-buy-row">
             <button className="au-btn au-btn--primary" type="button" disabled>
-              Купить
+              Додати
             </button>
-            <button className="au-act-ico" type="button" aria-label="В избранное">
+            <button className="au-act-ico" type="button" aria-label="До обраного">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
                 <path d="M12 20s-7.5-4.6-9.3-9.2C1.5 7.6 3.6 4.5 6.9 4.5c2 0 3.6 1.1 5.1 3 1.5-1.9 3.1-3 5.1-3 3.3 0 5.4 3.1 4.2 6.3C19.5 15.4 12 20 12 20z" />
               </svg>
             </button>
           </div>
           <button className="au-btn au-btn--ghost au-btn--block au-prod-notify" type="button">
-            Сообщить о поступлении
+            Повідомити про надходження
           </button>
         </>
       )}

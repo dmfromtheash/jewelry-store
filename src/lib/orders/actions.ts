@@ -42,7 +42,7 @@ export async function createOrderDraft(input: OrderDraftInput): Promise<OrderDra
   const fieldErrors = validateOrderDraftFields(input)
   if (hasErrors(fieldErrors)) {
     await recordCheckoutError({ errorType: 'validation' })
-    return { ok: false, error: 'Проверьте поля формы.', fieldErrors }
+    return { ok: false, error: 'Перевірте поля форми.', fieldErrors }
   }
 
   // 2) Normalise the requested items. Line identity is the composite
@@ -58,7 +58,7 @@ export async function createOrderDraft(input: OrderDraftInput): Promise<OrderDra
     const qty = Math.floor(Number(item?.qty))
     if (!slug || !Number.isFinite(qty) || qty < QTY_MIN || qty > QTY_MAX) {
       await recordCheckoutError({ errorType: 'invalid_quantity' })
-      return { ok: false, error: 'Некорректное количество товара в заказе.' }
+      return { ok: false, error: 'Некоректна кількість товару в замовленні.' }
     }
     const key = `${slug}::${variantId ?? ''}`
     const existing = requested.get(key)
@@ -66,7 +66,7 @@ export async function createOrderDraft(input: OrderDraftInput): Promise<OrderDra
   }
   if (requested.size === 0) {
     await recordCheckoutError({ errorType: 'empty_cart', itemCount: 0 })
-    return { ok: false, error: 'Корзина пуста.', fieldErrors: { items: 'Корзина пуста.' } }
+    return { ok: false, error: 'Кошик порожній.', fieldErrors: { items: 'Кошик порожній.' } }
   }
 
   // 3) Pull the real products from the DB — never trust client price/name/status.
@@ -124,13 +124,13 @@ export async function createOrderDraft(input: OrderDraftInput): Promise<OrderDra
     const product = bySlug.get(slug)
     if (!product) {
       await recordCheckoutError({ errorType: 'product_unavailable' })
-      return { ok: false, error: `Товар «${slug}» больше не доступен.` }
+      return { ok: false, error: `Товар «${slug}» більше не доступний.` }
     }
     // Status + price gate (Этап 28A). Stock is checked variant-aware below, so it
     // is intentionally NOT folded into this status/price guard.
     if (!isPurchasableStatus(product.status) || product.price == null) {
       await recordCheckoutError({ errorType: 'product_unavailable' })
-      return { ok: false, error: `Товар «${product.name}» сейчас нельзя заказать.` }
+      return { ok: false, error: `Товар «${product.name}» зараз не можна замовити.` }
     }
     // Server-authoritative variant resolution (Этап 30B): default fallback when
     // the line omits a variantId, rejection of an unknown/foreign id, and the
@@ -145,8 +145,8 @@ export async function createOrderDraft(input: OrderDraftInput): Promise<OrderDra
       await recordCheckoutError({ errorType: 'product_unavailable' })
       const msg =
         resolved.reason === 'invalid_price'
-          ? `Товар «${product.name}» сейчас нельзя заказать.`
-          : `Выбранный вариант товара «${product.name}» недоступен.`
+          ? `Товар «${product.name}» зараз не можна замовити.`
+          : `Обраний варіант товару «${product.name}» недоступний.`
       return { ok: false, error: msg }
     }
     const { variant, unitPrice, stockSource, availableStock } = resolved
@@ -156,7 +156,7 @@ export async function createOrderDraft(input: OrderDraftInput): Promise<OrderDra
     // transaction below; this is the early, friendly rejection from the snapshot.
     if (stockSource && availableStock != null && availableStock < qty) {
       await recordCheckoutError({ errorType: 'product_unavailable' })
-      return { ok: false, error: `Товар «${product.name}»: на складе недостаточно (${availableStock} шт.).` }
+      return { ok: false, error: `Товар «${product.name}»: на складі недостатньо (${availableStock} шт.).` }
     }
     if (stockSource === 'variant' && variant) {
       stockDecrements.push({ source: 'variant', id: variant.id, name: product.name, qty })
@@ -239,12 +239,12 @@ export async function createOrderDraft(input: OrderDraftInput): Promise<OrderDra
       // Lost a stock race (someone else took the last unit while we checked out).
       if (e instanceof OutOfStockError) {
         await recordCheckoutError({ errorType: 'product_unavailable', itemCount })
-        return { ok: false, error: `Товар «${e.productName}» закончился. Обновите корзину.` }
+        return { ok: false, error: `Товар «${e.productName}» закінчився. Оновіть кошик.` }
       }
       if (isUniqueViolation(e) && attempt < 4) continue
       console.error('createOrderDraft failed:', e)
       await recordCheckoutError({ errorType: 'server', itemCount })
-      return { ok: false, error: 'Не удалось создать заказ. Попробуйте ещё раз.' }
+      return { ok: false, error: 'Не вдалося створити замовлення. Спробуйте ще раз.' }
     }
   }
   await recordCheckoutError({ errorType: 'server', itemCount })

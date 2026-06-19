@@ -9,8 +9,8 @@ import type { Metadata } from 'next'
 import FavoritesPageClient from '../../src/components/favorites/FavoritesPageClient'
 
 export const metadata: Metadata = {
-  title: 'Избранное — AURELIA',
-  description: 'Сохранённые украшения AURELIA.',
+  title: 'Обране — AURELIA',
+  description: 'Збережені прикраси AURELIA.',
 }
 
 export default function FavoritesPage() {

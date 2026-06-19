@@ -36,16 +36,16 @@ export default function FavoritesPageClient() {
           <span className="au-fav-empty-ico">
             <GemIcon />
           </span>
-          <h1 className="au-fav-empty-title">В избранном пока пусто</h1>
+          <h1 className="au-fav-empty-title">В обраному поки порожньо</h1>
           <p className="au-fav-empty-sub">
-            Отмечайте украшения сердечком — они сохранятся здесь.
+            Позначайте прикраси сердечком — вони збережуться тут.
           </p>
           <div className="au-fav-empty-actions">
             <Link className="au-btn au-btn--primary" href="/category/bijouterie">
-              В каталог
+              До каталогу
             </Link>
             <Link className="au-btn au-btn--ghost" href="/">
-              На главную
+              На головну
             </Link>
           </div>
         </div>
@@ -57,10 +57,10 @@ export default function FavoritesPageClient() {
     <div className="au-container au-fav-page">
       <div className="au-fav-head">
         <h1 className="au-fav-title">
-          Избранное <span className="au-fav-count">· {count}</span>
+          Обране <span className="au-fav-count">· {count}</span>
         </h1>
         <button className="au-btn au-btn--ghost au-fav-clear" type="button" onClick={clearFavorites}>
-          Очистить избранное
+          Очистити обране
         </button>
       </div>
 

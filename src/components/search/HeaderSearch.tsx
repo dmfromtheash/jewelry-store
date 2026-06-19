@@ -44,7 +44,7 @@ export default function HeaderSearch() {
         if (!e.currentTarget.contains(e.relatedTarget as Node)) setOpen(false)
       }}
     >
-      <button className="au-search-submit" type="submit" aria-label="Искать">
+      <button className="au-search-submit" type="submit" aria-label="Шукати">
         <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
           <circle cx="9" cy="9" r="6.5" />
           <path d="M14 14l4.5 4.5" />
@@ -52,8 +52,8 @@ export default function HeaderSearch() {
       </button>
       <input
         type="search"
-        placeholder="Поиск украшений"
-        aria-label="Поиск украшений"
+        placeholder="Пошук прикрас"
+        aria-label="Пошук прикрас"
         value={query}
         onChange={(e) => {
           setQuery(e.target.value)
@@ -65,7 +65,7 @@ export default function HeaderSearch() {
       {open && trimmed && (
         <div className="au-search-suggest">
           {suggestions.length === 0 ? (
-            <p className="au-search-suggest-empty">Ничего не найдено</p>
+            <p className="au-search-suggest-empty">Нічого не знайдено</p>
           ) : (
             <>
               <ul className="au-search-suggest-list">
@@ -86,7 +86,7 @@ export default function HeaderSearch() {
                 ))}
               </ul>
               <button className="au-search-suggest-all" type="submit">
-                Показать все результаты
+                Показати всі результати
               </button>
             </>
           )}

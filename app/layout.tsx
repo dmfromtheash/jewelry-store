@@ -10,8 +10,8 @@ import { getCatalogSnapshotForClient } from '../src/lib/catalog/server'
 
 export const metadata: Metadata = {
   title: 'AURELIA — Bijouterie Without Limits',
-  description: 'Интернет-магазин бижутерии, украшений и аксессуаров AURELIA',
-  keywords: ['бижутерия', 'украшения', 'кольца', 'серьги', 'браслеты', 'aurelia'],
+  description: 'Інтернет-магазин біжутерії, прикрас та аксесуарів AURELIA',
+  keywords: ['біжутерія', 'прикраси', 'каблучки', 'сережки', 'браслети', 'aurelia'],
 }
 
 export default async function RootLayout({
@@ -24,7 +24,7 @@ export default async function RootLayout({
   const catalog = await getCatalogSnapshotForClient()
 
   return (
-    <html lang="ru">
+    <html lang="uk">
       <head>
         {/* Google Fonts: Manrope (UI) + Cormorant Garamond (display/logo) */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />

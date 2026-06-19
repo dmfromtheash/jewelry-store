@@ -31,7 +31,7 @@ export default function AddToCartButton({
         openCart()
       }}
     >
-      Купить
+      Додати
     </button>
   )
 }

@@ -13,17 +13,17 @@ export type SortKey = 'recommended' | 'price-asc' | 'price-desc' | 'new' | 'avai
 export type StatusFilter = 'all' | 'available' | 'coming-soon'
 
 export const SORT_OPTIONS: { value: SortKey; label: string }[] = [
-  { value: 'recommended', label: 'Рекомендуемые' },
-  { value: 'new', label: 'Сначала новинки' },
-  { value: 'price-asc', label: 'Сначала дешевле' },
-  { value: 'price-desc', label: 'Сначала дороже' },
-  { value: 'available-first', label: 'Сначала в наличии' },
+  { value: 'recommended', label: 'Рекомендовані' },
+  { value: 'new', label: 'Спочатку новинки' },
+  { value: 'price-asc', label: 'Спочатку дешевші' },
+  { value: 'price-desc', label: 'Спочатку дорожчі' },
+  { value: 'available-first', label: 'Спочатку в наявності' },
 ]
 
 export const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
-  { value: 'all', label: 'Все' },
-  { value: 'available', label: 'В наличии' },
-  { value: 'coming-soon', label: 'Скоро' },
+  { value: 'all', label: 'Усі' },
+  { value: 'available', label: 'В наявності' },
+  { value: 'coming-soon', label: 'Незабаром' },
 ]
 
 /** lowercase + trim; toLowerCase handles Cyrillic correctly. */

@@ -17,25 +17,25 @@ import { getAdminSession } from '../../lib/admin/auth'
  */
 
 const TOPBAR_LINKS = [
-  { label: 'Доставка и оплата', href: '/delivery' },
-  { label: 'Возврат', href: '/returns' },
-  { label: 'Магазины', href: '/stores' },
-  { label: 'Помощь', href: '/help' },
+  { label: 'Доставка та оплата', href: '/delivery' },
+  { label: 'Повернення', href: '/returns' },
+  { label: 'Магазини', href: '/stores' },
+  { label: 'Допомога', href: '/help' },
 ]
 
 // Only categories with a real route link to a page; the rest stay on "#"
 // until their pages exist (no fake routes).
 const NAV_CATEGORIES: { label: string; href: string }[] = [
-  { label: 'Бижутерия', href: '/category/bijouterie' },
-  { label: 'Серьги', href: '#' },
-  { label: 'Кольца', href: '#' },
-  { label: 'Браслеты', href: '#' },
-  { label: 'Цепочки', href: '#' },
-  { label: 'Кулоны', href: '#' },
-  { label: 'Наборы', href: '#' },
-  { label: 'Аксессуары', href: '#' },
-  { label: 'Подарки', href: '/category/gifts' },
-  { label: 'Бренды', href: '#' },
+  { label: 'Біжутерія', href: '/category/bijouterie' },
+  { label: 'Сережки', href: '#' },
+  { label: 'Каблучки', href: '#' },
+  { label: 'Браслети', href: '#' },
+  { label: 'Ланцюжки', href: '#' },
+  { label: 'Кулони', href: '#' },
+  { label: 'Набори', href: '#' },
+  { label: 'Аксесуари', href: '#' },
+  { label: 'Подарунки', href: '/category/gifts' },
+  { label: 'Бренди', href: '#' },
 ]
 
 export default async function Header() {
@@ -51,7 +51,7 @@ export default async function Header() {
       {/* ---- Top service bar ---- */}
       <div className="au-topbar">
         <div className="au-container au-topbar-in">
-          <nav className="au-topbar-links" aria-label="Сервис">
+          <nav className="au-topbar-links" aria-label="Сервіс">
             {TOPBAR_LINKS.map((link) => (
               <Link key={link.label} href={link.href}>
                 {link.label}
@@ -60,8 +60,8 @@ export default async function Header() {
           </nav>
           <div className="au-topbar-right">
             {adminSession && <Link href="/admin/dashboard">Админка</Link>}
-            <span className="phone">8 800 600-20-26</span>
-            <a href="#">RU</a>
+            <span className="phone">0 800 000 00 00</span>
+            <a href="#">UA</a>
           </div>
         </div>
       </div>
@@ -85,7 +85,7 @@ export default async function Header() {
       </header>
 
       {/* ---- Category nav ---- */}
-      <nav className="au-nav" aria-label="Категории">
+      <nav className="au-nav" aria-label="Категорії">
         <div className="au-container au-nav-in">
           {NAV_CATEGORIES.map((category) =>
             category.href === '#' ? (

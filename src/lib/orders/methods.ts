@@ -28,15 +28,15 @@ export type PaymentMethod = (typeof PAYMENT_METHODS)[number]
 
 /** Human labels for admin + checkout display. */
 export const DELIVERY_METHOD_LABELS: Record<DeliveryMethod, string> = {
-  self_pickup: 'Самовывоз',
-  nova_poshta: 'Новая Почта',
-  ukrposhta: 'Укрпочта',
-  local_courier: 'Курьер / локальная доставка',
+  self_pickup: 'Самовивіз',
+  nova_poshta: 'Нова Пошта',
+  ukrposhta: 'Укрпошта',
+  local_courier: 'Курʼєрська доставка',
 }
 
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
-  cash_on_delivery: 'Оплата при получении',
-  manual_online: 'Онлайн-оплата по реквизитам',
+  cash_on_delivery: 'Оплата при отриманні',
+  manual_online: 'Оплата за реквізитами',
 }
 
 /**

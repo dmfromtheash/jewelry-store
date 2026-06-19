@@ -61,15 +61,15 @@ export default function SearchPageClient() {
   if (!q) {
     return (
       <div className="au-container au-search-page">
-        <h1 className="au-search-title">Поиск</h1>
+        <h1 className="au-search-title">Пошук</h1>
         <div className="au-search-state">
-          <p className="au-search-state-title">Введите запрос в поиске</p>
+          <p className="au-search-state-title">Введіть запит у пошуку</p>
           <p className="au-search-state-sub">
-            Например: «кольцо», «серьги», «набор» — или загляните в каталог.
+            Наприклад: «каблучка», «сережки», «набір» — або загляньте до каталогу.
           </p>
           <div className="au-search-state-actions">
             <Link className="au-btn au-btn--primary" href="/category/bijouterie">
-              В каталог
+              До каталогу
             </Link>
           </div>
         </div>
@@ -80,7 +80,7 @@ export default function SearchPageClient() {
   return (
     <div className="au-container au-search-page">
       <h1 className="au-search-title">
-        Результаты по запросу <span className="au-search-q">«{q}»</span>
+        Результати за запитом <span className="au-search-q">«{q}»</span>
       </h1>
 
       <DiscoveryControls
@@ -93,10 +93,10 @@ export default function SearchPageClient() {
 
       {results.length === 0 ? (
         <div className="au-search-state">
-          <p className="au-search-state-title">Ничего не найдено</p>
+          <p className="au-search-state-title">Нічого не знайдено</p>
           <p className="au-search-state-sub">
-            По запросу «{q}» с выбранным фильтром товаров нет. Попробуйте изменить запрос
-            или сбросить фильтр.
+            За запитом «{q}» з обраним фільтром товарів немає. Спробуйте змінити запит
+            або скинути фільтр.
           </p>
           <div className="au-search-state-actions">
             <button
@@ -104,10 +104,10 @@ export default function SearchPageClient() {
               type="button"
               onClick={() => setParams({ status: 'all', sort: 'recommended' })}
             >
-              Сбросить фильтры
+              Скинути фільтри
             </button>
             <Link className="au-btn au-btn--ghost" href="/category/bijouterie">
-              В каталог
+              До каталогу
             </Link>
           </div>
         </div>

@@ -18,7 +18,7 @@ interface Category {
 
 const CATEGORIES: Category[] = [
   {
-    label: 'Бижутерия',
+    label: 'Біжутерія',
     href: '/category/bijouterie',
     icon: (
       <>
@@ -28,7 +28,7 @@ const CATEGORIES: Category[] = [
     ),
   },
   {
-    label: 'Серьги',
+    label: 'Сережки',
     href: '#',
     icon: (
       <>
@@ -38,7 +38,7 @@ const CATEGORIES: Category[] = [
     ),
   },
   {
-    label: 'Кольца',
+    label: 'Каблучки',
     href: '#',
     icon: (
       <>
@@ -48,7 +48,7 @@ const CATEGORIES: Category[] = [
     ),
   },
   {
-    label: 'Браслеты',
+    label: 'Браслети',
     href: '#',
     icon: (
       <>
@@ -58,7 +58,7 @@ const CATEGORIES: Category[] = [
     ),
   },
   {
-    label: 'Цепочки',
+    label: 'Ланцюжки',
     href: '#',
     icon: (
       <>
@@ -69,7 +69,7 @@ const CATEGORIES: Category[] = [
     ),
   },
   {
-    label: 'Кулоны',
+    label: 'Кулони',
     href: '#',
     icon: (
       <>
@@ -79,7 +79,7 @@ const CATEGORIES: Category[] = [
     ),
   },
   {
-    label: 'Наборы',
+    label: 'Набори',
     href: '#',
     icon: (
       <>
@@ -89,7 +89,7 @@ const CATEGORIES: Category[] = [
     ),
   },
   {
-    label: 'Аксессуары',
+    label: 'Аксесуари',
     href: '#',
     icon: (
       <>
@@ -99,7 +99,7 @@ const CATEGORIES: Category[] = [
     ),
   },
   {
-    label: 'Подарки',
+    label: 'Подарунки',
     href: '/category/gifts',
     icon: (
       <>
@@ -109,7 +109,7 @@ const CATEGORIES: Category[] = [
     ),
   },
   {
-    label: 'Бренды',
+    label: 'Бренди',
     href: '#',
     icon: <path d="M12 3l2.2 5.4L20 9l-4.4 3.8L17 19l-5-3.2L7 19l1.4-6.2L4 9l5.8-.6L12 3z" />,
   },

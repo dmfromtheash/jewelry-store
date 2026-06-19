@@ -115,6 +115,39 @@ Practical MVP order:
 
 > Keep each as a separate, design-preserving stage. Do not attempt all at once.
 
+### 39B result (done)
+
+**Storefront + checkout customer-facing copy localized to uk-UA** (copy-only, design
+preserved — no CSS/layout/schema changes):
+
+- **Header / nav / footer:** topbar + category nav + footer columns; header phone
+  placeholder `8 800…` → `0 800 000 00 00` and language label `RU` → `UA`.
+- **Home:** section titles, benefits, category circles, promo/SEO blocks, placeholder
+  customer states.
+- **Category / product:** titles, chips, SEO paragraphs, breadcrumbs (`Главная` →
+  `Головна`), category labels, tabs/specs, perks, status (`В наявності`), variant
+  label (`Покриття`), reviews-empty, recently-viewed; buy CTA → `Додати`.
+- **Cart drawer:** title `Кошик`, item/qty/empty/unavailable states, totals, CTA
+  `Оформити замовлення`.
+- **Checkout:** all field labels/placeholders, delivery/payment **labels**
+  (`src/lib/orders/methods.ts`), validation messages (`validate.ts`), server order
+  errors (`actions.ts`), manual-payment notes; phone placeholder `+7…` → `+380…`.
+- **Order confirmation:** inline confirmation + `/checkout/success` fallback.
+- **Search / favorites / auth modals:** states, buttons, aria-labels.
+- **Info pages** (`src/data/info-pages.ts`): delivery, returns, stores, help, about,
+  contacts — fully translated (mock pre-launch copy).
+- **Metadata:** `html lang="ru"` → `"uk"`; page `title`/`description`/keywords.
+- Currency stays **₴ (UAH)**; enum/code values unchanged (only labels translated).
+- Validated: `npm run typecheck` ✅ and `npm run build` ✅.
+
+**Deferred / unchanged:**
+- **Admin** stays Russian/internal (out of scope, per decision).
+- **Product demo data** (`src/data/products.ts` + DB catalog) stays Russian — handled
+  in **39C** (or replaced by the buyer's real UA catalog).
+- One Russian developer **comment** remains in `app/layout.tsx` (not user-facing).
+- **Screenshots need re-capture** to reflect the Ukrainian UI (dev set 35B and
+  production set 36A still show the previous Russian copy).
+
 ## 9. Readiness gates before code
 
 - [ ] **Target language confirmed:** uk-UA only **vs** bilingual ru/uk (decides whether

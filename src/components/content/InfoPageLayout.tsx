@@ -55,7 +55,7 @@ export default function InfoPageLayout({ page }: { page: InfoPage }) {
   return (
     <div className="au-info-page">
       <div className="au-container au-info-inner">
-        <Breadcrumbs items={[{ label: 'Главная', href: '/' }, { label: page.title }]} />
+        <Breadcrumbs items={[{ label: 'Головна', href: '/' }, { label: page.title }]} />
 
         <h1 className="au-info-title">{page.title}</h1>
         {page.intro && <p className="au-info-intro">{page.intro}</p>}

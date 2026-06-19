@@ -26,8 +26,8 @@ import type { CategorySlug } from '../../../src/lib/catalog'
 export const dynamicParams = true
 
 const CATEGORY_META: Record<CategorySlug, { label: string; href: string }> = {
-  bijouterie: { label: 'Бижутерия', href: '/category/bijouterie' },
-  gifts: { label: 'Подарки', href: '/category/gifts' },
+  bijouterie: { label: 'Біжутерія', href: '/category/bijouterie' },
+  gifts: { label: 'Подарунки', href: '/category/gifts' },
 }
 
 export async function generateStaticParams() {
@@ -45,7 +45,7 @@ export async function generateMetadata({
   if (!product) return {}
   return {
     title: `${product.name} — AURELIA`,
-    description: product.description ?? 'Украшение AURELIA — бижутерия без границ.',
+    description: product.description ?? 'Прикраса AURELIA — біжутерія без меж.',
   }
 }
 
@@ -69,7 +69,7 @@ export default async function ProductPage({
       <TrackView event={ANALYTICS_EVENTS.productView} payload={{ productSlug: product.slug }} />
       <ProductPageLayout
         breadcrumbs={[
-          { label: 'Главная', href: '/' },
+          { label: 'Головна', href: '/' },
           { label: category.label, href: category.href },
           { label: product.name },
         ]}

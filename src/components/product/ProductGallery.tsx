@@ -33,8 +33,8 @@ export default function ProductGallery({ images }: { images?: ProductImageRef[] 
           adminTitle="Добавить фото товара"
           adminSub="Основное фото украшения, квадратный формат, светлый фон"
           adminHint="Нажмите, чтобы загрузить фото товара"
-          customerTitle="Скоро появится украшение"
-          customerSub="Фотографии будут добавлены в ближайшее время"
+          customerTitle="Незабаром зʼявиться прикраса"
+          customerSub="Фотографії буде додано найближчим часом"
           withRule
           showImageIcon
         />
@@ -56,12 +56,12 @@ export default function ProductGallery({ images }: { images?: ProductImageRef[] 
         className="au-ph au-ph--gallery"
         style={{ overflow: 'hidden', padding: 0 }}
       >
-        <img src={main.url} alt={main.alt || 'Фото товара'} style={fill} />
+        <img src={main.url} alt={main.alt || 'Фото товару'} style={fill} />
       </div>
       <div className="au-gallery-thumbs">
         {images!.map((img, i) => (
           <span key={img.url} className={`thumb${i === 0 ? ' is-active' : ''}`} style={{ overflow: 'hidden' }}>
-            <img src={img.url} alt={img.alt || 'Миниатюра'} style={fill} />
+            <img src={img.url} alt={img.alt || 'Мініатюра'} style={fill} />
           </span>
         ))}
       </div>

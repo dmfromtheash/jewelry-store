@@ -14,14 +14,14 @@ interface LoginModalProps {
 export default function LoginModal({ onClose, onSwitch }: LoginModalProps) {
   return (
     <div className="au-modal" role="dialog" aria-modal="true" aria-labelledby="au-login-title">
-      <button className="au-modal-close" type="button" aria-label="Закрыть" onClick={onClose}>
+      <button className="au-modal-close" type="button" aria-label="Закрити" onClick={onClose}>
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
           <path d="M3 3l10 10M13 3L3 13" />
         </svg>
       </button>
 
       <div className="au-modal-brand">AURELIA</div>
-      <h2 id="au-login-title">Вход в личный кабинет</h2>
+      <h2 id="au-login-title">Вхід в особистий кабінет</h2>
 
       <form onSubmit={(e) => e.preventDefault()}>
         <div className="au-field">
@@ -33,17 +33,17 @@ export default function LoginModal({ onClose, onSwitch }: LoginModalProps) {
           <input id="au-login-pass" type="password" placeholder="••••••••" autoComplete="current-password" />
         </div>
         <button className="au-btn au-btn--primary au-btn--block" type="submit">
-          Войти
+          Увійти
         </button>
       </form>
 
       <div className="au-modal-aux">
         <a href="#" onClick={(e) => e.preventDefault()}>
-          Забыли пароль?
+          Забули пароль?
         </a>
       </div>
       <div className="au-modal-switch">
-        Нет аккаунта?{' '}
+        Немає акаунту?{' '}
         <a
           href="#"
           onClick={(e) => {
@@ -51,7 +51,7 @@ export default function LoginModal({ onClose, onSwitch }: LoginModalProps) {
             onSwitch()
           }}
         >
-          Зарегистрироваться
+          Зареєструватися
         </a>
       </div>
     </div>

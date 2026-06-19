@@ -53,7 +53,7 @@ export default function CategoryLayout({
                 adminTitle="Добавить баннер категории"
                 adminSub="Для пользователей скоро будет добавлен баннер"
                 adminHint="Нажмите, чтобы загрузить изображение баннера"
-                customerTitle="Скоро здесь появится новая коллекция"
+                customerTitle="Незабаром тут зʼявиться нова колекція"
               />
             </div>
 

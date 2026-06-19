@@ -25,7 +25,7 @@ export default function DiscoveryControls({
 }: DiscoveryControlsProps) {
   return (
     <div className="au-discovery">
-      <div className="au-discovery-status" role="group" aria-label="Наличие">
+      <div className="au-discovery-status" role="group" aria-label="Наявність">
         {STATUS_OPTIONS.map((opt) => (
           <button
             key={opt.value}
@@ -42,9 +42,9 @@ export default function DiscoveryControls({
       <div className="au-discovery-right">
         <span className="au-discovery-count">{countLabel}</span>
         <label className="au-sort">
-          <span>Сортировка:</span>
+          <span>Сортування:</span>
           <select
-            aria-label="Сортировка"
+            aria-label="Сортування"
             value={sort}
             onChange={(e) => onSortChange(e.target.value as SortKey)}
           >

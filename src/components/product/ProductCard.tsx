@@ -80,7 +80,7 @@ export default function ProductCard({
           className={`au-card-fav${favorited ? ' is-active' : ''}`}
           type="button"
           aria-pressed={favorited}
-          aria-label={favorited ? 'Убрать из избранного' : 'В избранное'}
+          aria-label={favorited ? 'Прибрати з обраного' : 'До обраного'}
           onClick={() => toggleFavorite(slug)}
         >
           <HeartIcon filled={favorited} />
@@ -113,7 +113,7 @@ export default function ProductCard({
               <span className="au-ph-gem">
                 <GemIcon />
               </span>
-              <span className="t-cust">Скоро будет добавлен товар</span>
+              <span className="t-cust">Товар незабаром зʼявиться</span>
             </div>
           </>
         )}
@@ -124,7 +124,7 @@ export default function ProductCard({
         <p className="au-card-cat">{category}</p>
         <div className="au-card-meta">
           <span className="au-stars" aria-hidden="true">★★★★★</span>
-          <span className="au-card-reviews">0 отзывов</span>
+          <span className="au-card-reviews">0 відгуків</span>
         </div>
         <div className="au-card-price">
           {typeof price === 'number' ? formatPrice(price) : <span className="dim">— ₴</span>}
@@ -142,14 +142,14 @@ export default function ProductCard({
                 openCart()
               }}
             >
-              Купить
+              Додати
             </button>
           ) : (
             <Link className="au-btn au-btn--primary buy" href={href}>
-              Купить
+              Додати
             </Link>
           )}
-          <Link className="au-act-ico" href={href} aria-label="Быстрый просмотр">
+          <Link className="au-act-ico" href={href} aria-label="Швидкий перегляд">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
               <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" />
               <circle cx="12" cy="12" r="2.8" />
