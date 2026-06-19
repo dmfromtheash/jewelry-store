@@ -93,6 +93,7 @@ These are deliberate, separately-scoped next steps — not hidden defects. See
 - [ ] **Delivery & refund / return policy** (and who pays shipping / COD fee).
 
 Full provider context: [`PAYMENT_DELIVERY_PROVIDER_RESEARCH.md`](./PAYMENT_DELIVERY_PROVIDER_RESEARCH.md);
+practical decision checklist: [`OWNER_DECISION_CHECKLIST.md`](./OWNER_DECISION_CHECKLIST.md);
 adaptation steps: [`SETUP_AND_HANDOFF_CHECKLIST.md`](./SETUP_AND_HANDOFF_CHECKLIST.md).
 
 ---
