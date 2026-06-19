@@ -74,7 +74,8 @@ owner must decide before a real launch.
 - **Notifications** (email / SMS).
 - **Production deploy** (no live hosted shop).
 - **Fiscalization (РРО/ПРРО)** / legal-compliance guarantees.
-- Full **uk-UA / EN localization** and secondary currencies.
+- Full **uk-UA / EN localization** and secondary currencies (storefront copy is
+  currently Russian; UAH already used) — see [`UK_UA_LOCALIZATION_READINESS.md`](./UK_UA_LOCALIZATION_READINESS.md).
 
 These are deliberate, separately-scoped next steps — not hidden defects. See
 [`FEATURES_AND_LIMITS.md`](./FEATURES_AND_LIMITS.md).
