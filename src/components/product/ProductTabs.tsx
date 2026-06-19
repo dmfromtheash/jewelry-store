@@ -19,7 +19,7 @@ type TabId = 'desc' | 'specs' | 'delivery'
 const TABS: { id: TabId; label: string }[] = [
   { id: 'desc', label: 'Опис' },
   { id: 'specs', label: 'Характеристики' },
-  { id: 'delivery', label: 'Доставка та повернення' },
+  { id: 'delivery', label: 'Доставка/повернення' },
 ]
 
 const DEFAULT_DESCRIPTION =

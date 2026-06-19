@@ -167,6 +167,16 @@ info page) on the dev server.
   product descriptions are still Russian (demo data), so Ukrainian search terms
   (e.g. «сереж») return few/zero matches until 39C.
 
+### 39B-F product tab copy fix (done)
+
+- Addressed the 39B-V mobile finding: the product details tab label
+  **«Доставка та повернення» → «Доставка/повернення»** (`src/components/product/ProductTabs.tsx`).
+- **Copy-only** — no CSS, layout, component, schema, or data changes; design unchanged.
+- Re-checked at **390px**: the shorter label reduces the overhang at the default
+  scroll position. Note the mobile tab strip (`.au-tabs`) is already
+  `overflow-x: auto` (horizontally scrollable, scrollbar hidden), so the last tab is
+  reachable by swipe — it was never a hard/inaccessible clip. No CSS was touched.
+
 ## 9. Readiness gates before code
 
 - [ ] **Target language confirmed:** uk-UA only **vs** bilingual ru/uk (decides whether
