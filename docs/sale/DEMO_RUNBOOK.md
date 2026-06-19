@@ -120,9 +120,11 @@
 - `09-product-variants-mobile.png` — товар + варианты (mobile);
 - `10-checkout-empty-mobile.png` — чекаут (mobile).
 
-Ещё **не сняты** интерактивные и админские экраны (корзина с вариантом, чекаут с
-заполненной оплатой/доставкой, подтверждение заказа, авторизованная админка) —
-их ручная досъёмка описана в
+**Набор скриншотов дополнен (этап 35B):** теперь сняты и интерактивные, и админские
+экраны — `cart-with-variant.png` (+`-mobile`), `filled-checkout.png` (+`-mobile`),
+`order-confirmation.png`, `admin-dashboard.png`, `admin-catalog.png`,
+`admin-product-edit-gallery-variants-stock.png`, `admin-order-detail.png`. Это
+по-прежнему **локальные dev-снимки** (виден индикатор «N»), детали и оговорки — в
 [`DEMO_SCREENSHOT_CHECKLIST.md`](./DEMO_SCREENSHOT_CHECKLIST.md).
 
 > **Это локальные dev-скриншоты, а не финальные маркетинговые ассеты.** В углу виден
