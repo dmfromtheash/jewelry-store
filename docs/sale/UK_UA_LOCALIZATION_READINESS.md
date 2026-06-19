@@ -148,6 +148,25 @@ preserved — no CSS/layout/schema changes):
 - **Screenshots need re-capture** to reflect the Ukrainian UI (dev set 35B and
   production set 36A still show the previous Russian copy).
 
+### 39B-V responsive visual check (done)
+
+Checked the localized customer-facing pages at **390 / 768 / 1366 px** (home,
+categories, product, search, cart drawer, checkout, order confirmation, favorites,
+info page) on the dev server.
+
+- **No blockers.** Ukrainian chrome fits at all three widths — no header/nav wrap,
+  no button overflow, no broken breadcrumbs, cart drawer + checkout form render
+  cleanly, currency stays **₴**.
+- **One non-blocking issue:** on **mobile (390px)** the product page's third tab
+  **«Доставка та повернення»** is clipped at the right edge (longer than the former
+  RU «Доставка и возврат»). The tab row is the standard overflow component; **not
+  fixed in 39B-V** (would require a CSS/UX decision). Candidate for a later
+  copy-shortening (e.g. «Доставка/повернення») **or** a small tab-row scroll/spacing
+  tweak — only with explicit approval, since design is locked.
+- **Expected (deferred to 39C):** product names/categories/variant values and
+  product descriptions are still Russian (demo data), so Ukrainian search terms
+  (e.g. «сереж») return few/zero matches until 39C.
+
 ## 9. Readiness gates before code
 
 - [ ] **Target language confirmed:** uk-UA only **vs** bilingual ru/uk (decides whether
