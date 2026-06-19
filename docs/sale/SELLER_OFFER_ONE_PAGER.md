@@ -49,3 +49,7 @@
 10–15 минут по сценарию [`BUYER_DEMO_SCRIPT.md`](./BUYER_DEMO_SCRIPT.md):
 витрина → товар → варианты → корзина → оформление → подтверждение → обработка
 заказа в админке.
+
+Скриншоты витрины (desktop + mobile) — в [`screenshots/`](./screenshots/);
+список снятого и чек-лист ручной досъёмки интерактивных/админских экранов —
+[`DEMO_SCREENSHOT_CHECKLIST.md`](./DEMO_SCREENSHOT_CHECKLIST.md).

@@ -300,8 +300,12 @@ Dangerous or low-ROI moves to avoid right now:
 > [`BUYER_DEMO_SCRIPT.md`](./sale/BUYER_DEMO_SCRIPT.md) ·
 > [`FEATURES_AND_LIMITS.md`](./sale/FEATURES_AND_LIMITS.md) ·
 > [`SETUP_AND_HANDOFF_CHECKLIST.md`](./sale/SETUP_AND_HANDOFF_CHECKLIST.md) ·
-> [`SELLER_OFFER_ONE_PAGER.md`](./sale/SELLER_OFFER_ONE_PAGER.md). Hosted demo URL
-> and polished screenshots remain later items (deploy gated — §5.I).
+> [`SELLER_OFFER_ONE_PAGER.md`](./sale/SELLER_OFFER_ONE_PAGER.md).
+> **Update (Этап 33A): storefront demo screenshots captured** (desktop + mobile)
+> under [`sale/screenshots/`](./sale/screenshots/), with a manual capture
+> checklist for interactive/authenticated screens in
+> [`DEMO_SCREENSHOT_CHECKLIST.md`](./sale/DEMO_SCREENSHOT_CHECKLIST.md). Hosted demo
+> URL remains a later item (deploy gated — §5.I).
 
 The future package a buyer receives (designed in §5.C; **not built here**):
 
