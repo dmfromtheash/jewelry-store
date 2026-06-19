@@ -117,7 +117,7 @@ Operational detail: [`DEMO_RUNBOOK.md`](./DEMO_RUNBOOK.md); narrated version:
 
 ## 8. Current clean snapshot
 
-- **Current HEAD:** `c193d5e docs: add production demo screenshots`
+- **Sale package baseline:** `3a754d8 docs: add sale package index` (this README/index).
 - Two local demo orders exist for screenshots (`AUR-C205BFBF`, `AUR-C33C3360`) — safe
   fictional data; the owner may cancel them in admin (cancel returns stock).
 - *Update this line only when preparing a new formal handoff snapshot.*
