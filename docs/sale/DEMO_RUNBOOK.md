@@ -120,11 +120,18 @@
 - `09-product-variants-mobile.png` — товар + варианты (mobile);
 - `10-checkout-empty-mobile.png` — чекаут (mobile).
 
-**Набор скриншотов дополнен (этап 35B):** теперь сняты и интерактивные, и админские
-экраны — `cart-with-variant.png` (+`-mobile`), `filled-checkout.png` (+`-mobile`),
+**Набор скриншотов дополнен (этап 35B):** сняты интерактивные и админские экраны —
+`cart-with-variant.png` (+`-mobile`), `filled-checkout.png` (+`-mobile`),
 `order-confirmation.png`, `admin-dashboard.png`, `admin-catalog.png`,
 `admin-product-edit-gallery-variants-stock.png`, `admin-order-detail.png`. Это
-по-прежнему **локальные dev-снимки** (виден индикатор «N»), детали и оговорки — в
+**локальные dev-снимки** (виден индикатор «N»).
+
+**«Чистые» production-ассеты (этап 36A):** в
+[`screenshots/production/`](./screenshots/production/) лежат версии витрины и
+интерактива, снятые против production-сборки (`npm run build` → `npm start`) —
+**без индикатора «N»**. Админка в production отдаёт `404` **by design**
+(локальный гейт `ensureLocalAdmin`), поэтому эталон админских экранов — dev-снимки
+35B. Детали и оговорки — в
 [`DEMO_SCREENSHOT_CHECKLIST.md`](./DEMO_SCREENSHOT_CHECKLIST.md).
 
 > **Это локальные dev-скриншоты, а не финальные маркетинговые ассеты.** В углу виден

@@ -121,8 +121,9 @@ Edge + DevTools Protocol (реальные клик «Купить» / запо�
 - Обязательные: §2 (корзина с вариантом, чекаут с оплатой/доставкой), §3 (все четыре
   админских экрана) — **сняты (35B)**.
 - Опциональные: подтверждение заказа — **снято**; мобильные дубли корзины и
-  чекаута — **сняты**. Остаётся опциональным: пересъёмка против production-сборки для
-  «чистых» ассетов без индикатора «N».
+  чекаута — **сняты**. Пересъёмка против production-сборки для «чистых» ассетов без
+  индикатора «N» — **сделана для витрины/интерактива (этап 36A, см. §5)**; админка в
+  production недоступна по дизайну (см. §5).
 
 **Дев-режим / честность ассетов**
 - Это локальные dev-снимки; в углу виден индикатор Next.js dev «N» — артефакт
@@ -139,3 +140,43 @@ Edge + DevTools Protocol (реальные клик «Купить» / запо�
    Node 22 `fetch`/`WebSocket`) — клик «Купить», заполнение формы, вход в админку,
    `Page.captureScreenshot`. **Новые npm-зависимости не ставились; E2E-харнесс в
    репозиторий не добавлялся** (управляющий скрипт — одноразовый, вне репозитория).
+
+---
+
+## 5. Production-build скриншоты (этап 36A) — без индикатора «N»
+
+Папка: [`./screenshots/production/`](./screenshots/production/). Сняты против
+**production-сборки** (`npm run build` → `npm start`, `http://127.0.0.1:3000`), тем
+же способом (Edge + DevTools Protocol, без новых зависимостей). Это «чистые» ассеты:
+**индикатора Next.js dev «N» нет** (проверено программно — `devIndicator=false` для
+каждого кадра). dev-снимки 35B (§1–§3) **сохранены** как рабочие/отладочные ассеты.
+
+**Сняты (production):**
+
+| Файл | Экран |
+|---|---|
+| `home-production.png` | Главная (витрина из БД) |
+| `category-bijouterie-production.png` | Категория «Бижутерия» |
+| `category-gifts-production.png` | Категория «Подарки» |
+| `product-variants-production.png` | Товар + селектор варианта, цена ₴ |
+| `cart-with-variant-production.png` | Корзина с выбранным вариантом |
+| `filled-checkout-production.png` | Чекаут, заполненный безопасными демо-данными |
+| `order-confirmation-production.png` | Подтверждение заказа (демо-заказ `AUR-C33C3360`) |
+
+> Для подтверждения был оформлен отдельный **демо-заказ** `AUR-C33C3360` на тех же
+> вымышленных контактах. Заказ 35B `AUR-C205BFBF` **не изменялся**.
+
+**Админка в production НЕ снимается — это by design (не баг):**
+- Гейт `ensureLocalAdmin()` (`src/lib/admin/guard.ts`) при `NODE_ENV=production`
+  вызывает `notFound()` — все маршруты `/admin/*` отдают **404** в production
+  (проверено: `/admin/login` и `/admin/dashboard` → `404`). Это сознательная мера
+  безопасности: админка существует только в локальной dev-сборке.
+- Поэтому production-версий админских экранов нет; **эталон админки — dev-снимки 35B**
+  (`admin-dashboard.png`, `admin-catalog.png`,
+  `admin-product-edit-gallery-variants-stock.png`, `admin-order-detail.png`).
+
+**Как воспроизвести (production):**
+1. `npm run db:start` → `npm run db:health` (БД **6700**; dm-bot 5432 не трогаем).
+2. `npm run build` → `npm start` (`http://127.0.0.1:3000`).
+3. Витрина/интерактив: Edge + DevTools Protocol, `Page.captureScreenshot` (как в §4).
+4. Админку в production снять нельзя (404 by design) — использовать dev-снимки 35B.
