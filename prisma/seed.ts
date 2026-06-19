@@ -23,8 +23,8 @@ const prisma = new PrismaClient()
 
 /** Top-level category display names (today only these two exist). */
 const CATEGORY_NAMES: Record<CategorySlug, string> = {
-  bijouterie: 'Бижутерия',
-  gifts: 'Подарки',
+  bijouterie: 'Біжутерія',
+  gifts: 'Подарунки',
 }
 
 const CATEGORY_SORT_ORDER: Record<CategorySlug, number> = {

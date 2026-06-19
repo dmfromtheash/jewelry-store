@@ -177,6 +177,31 @@ info page) on the dev server.
   `overflow-x: auto` (horizontally scrollable, scrollbar hidden), so the last tab is
   reachable by swipe — it was never a hard/inaccessible clip. No CSS was touched.
 
+### 39C result (done)
+
+**Product/demo catalog data localized to Ukrainian** — closes the last customer-facing
+Russian area:
+
+- **Source** (`src/data/products.ts`): product names, category labels, descriptions,
+  specs (labels + values), `COATINGS` (`Родирование` → `Родіювання`), tag
+  `Хит` → `Хіт`. Kept: slug, sku, price, `tag: 'New'`, stock, IDs.
+- **Seed source** (`prisma/seed.ts`): `CATEGORY_NAMES` → `Біжутерія` / `Подарунки`
+  (for future fresh seeds; logic unchanged, **seed not run**).
+- **Running local DB**: updated **in place** by a guarded one-off script
+  (`scripts/catalog/localize-catalog-uk.ts`, idempotent, single transaction):
+  Category.name, Product name/categoryLabel/description/specs/tag by slug, and
+  `ProductVariant.value` coating `Родирование` → `Родіювання` via in-place
+  `updateMany` (Позолота/Сталь identical RU/UA). **`db:seed` deliberately NOT used**
+  (the variant upsert key includes `value` → would duplicate renamed variants).
+- **Integrity preserved:** variant count 18 → 18 (no duplicates), slugs/SKUs/prices/
+  stock/variant IDs unchanged; **demo orders `AUR-C205BFBF` / `AUR-C33C3360` frozen
+  `OrderItem` snapshots verified unchanged** (still «Серьги AURELIA «Капля»» /
+  `coating/Родирование`). `ProductVariant.name` stays `coating`.
+- **Verified:** `db:verify` ✅, `db:verify:product-variants` ✅, `db:verify:orders` ✅,
+  `typecheck` ✅, `build` ✅. Backup taken before the write (`backups/db/`).
+- **Deferred:** **screenshots need re-capture in 39D** (35B dev + 36A production sets
+  still show the old Russian catalog). **Admin** localization still deferred.
+
 ## 9. Readiness gates before code
 
 - [ ] **Target language confirmed:** uk-UA only **vs** bilingual ru/uk (decides whether

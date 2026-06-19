@@ -1,30 +1,35 @@
 /**
- * AURELIA — Product catalog SEED SOURCE (Этапы 8A → 15D)
+ * AURELIA — Product catalog SEED SOURCE (Этапы 8A → 15D; uk-UA 39C)
  *
  * As of 15D this file is the **seed source / reference**, NOT the runtime
  * catalog. The storefront now reads products from PostgreSQL via Prisma
  * (src/lib/catalog/server.ts); `prisma/seed.ts` imports this array to populate
- * the DB. Keep it in sync if you change seeded products, then re-run db:seed.
+ * the DB. Keep it in sync if you change seeded products.
+ *
+ * Этап 39C — demo catalog copy localized to Ukrainian (names, category labels,
+ * descriptions, specs, coatings, tags). The running local DB is updated in place
+ * by `scripts/catalog/localize-catalog-uk.ts` (NOT db:seed — the variant upsert
+ * key includes `value`, so a fresh seed would duplicate renamed variants).
  *
  * These are placeholder products: names, prices and specs are mock content. The
  * only brand is AURELIA (the store's own placeholder brand).
  *
  * Rules:
- *   - slug: latin only, unique;
+ *   - slug: latin only, unique (URLs depend on it — never change);
  *   - categorySlug: 'bijouterie' | 'gifts';
  *   - status 'coming-soon' products carry no price (renders "— ₴").
  */
 
 import type { Product } from '../lib/catalog/types'
 
-const COATINGS = ['Позолота', 'Родирование', 'Сталь']
+const COATINGS = ['Позолота', 'Родіювання', 'Сталь']
 
 export const products: Product[] = [
-  // ---- Бижутерия ----
+  // ---- Біжутерія ----
   {
     slug: 'serogi-kaplya',
-    name: 'Серьги AURELIA «Капля»',
-    category: 'Серьги · позолота',
+    name: 'Сережки AURELIA «Крапля»',
+    category: 'Сережки · позолота',
     categorySlug: 'bijouterie',
     status: 'available',
     price: 2490,
@@ -36,19 +41,19 @@ export const products: Product[] = [
     rating: 0,
     reviewsCount: 0,
     description:
-      'Лёгкие серьги-капли — образец будущего описания товара. Здесь появится рассказ о форме, покрытии и сочетаниях. Текст-заглушка для этапа каталога.',
+      'Легкі сережки-краплі — зразок майбутнього опису товару. Тут зʼявиться розповідь про форму, покриття та поєднання. Текст-заглушка для етапу каталогу.',
     specs: [
-      { label: 'Тип', value: 'Серьги' },
-      { label: 'Покрытие', value: 'Позолота' },
+      { label: 'Тип', value: 'Сережки' },
+      { label: 'Покриття', value: 'Позолота' },
       { label: 'Вставка', value: 'Без вставки' },
-      { label: 'Размер', value: '24 мм' },
-      { label: 'Вес', value: '3 г (пара)' },
+      { label: 'Розмір', value: '24 мм' },
+      { label: 'Вага', value: '3 г (пара)' },
     ],
   },
   {
     slug: 'koltso-volna',
-    name: 'Кольцо AURELIA «Волна»',
-    category: 'Кольцо · родирование',
+    name: 'Каблучка AURELIA «Хвиля»',
+    category: 'Каблучка · родіювання',
     categorySlug: 'bijouterie',
     status: 'available',
     price: 1890,
@@ -58,40 +63,40 @@ export const products: Product[] = [
     rating: 0,
     reviewsCount: 0,
     description:
-      'Тонкое кольцо с волнистой линией — placeholder-описание для витрины каталога AURELIA.',
+      'Тонка каблучка з хвилястою лінією — placeholder-опис для вітрини каталогу AURELIA.',
     specs: [
-      { label: 'Тип', value: 'Кольцо' },
-      { label: 'Покрытие', value: 'Родирование' },
-      { label: 'Размер', value: '16–18' },
-      { label: 'Вес', value: '2 г' },
+      { label: 'Тип', value: 'Каблучка' },
+      { label: 'Покриття', value: 'Родіювання' },
+      { label: 'Розмір', value: '16–18' },
+      { label: 'Вага', value: '2 г' },
     ],
   },
   {
     slug: 'braslet-zhemchug',
-    name: 'Браслет AURELIA «Жемчуг»',
-    category: 'Браслет · жемчуг',
+    name: 'Браслет AURELIA «Перли»',
+    category: 'Браслет · перли',
     categorySlug: 'bijouterie',
     status: 'available',
     price: 2190,
     sku: 'AU-1003',
     brand: 'AURELIA',
     coatings: COATINGS,
-    tag: 'Хит',
+    tag: 'Хіт',
     rating: 0,
     reviewsCount: 0,
     description:
-      'Браслет с искусственным жемчугом — текст-заглушка описания. Реальный контент появится позже.',
+      'Браслет зі штучними перлами — текст-заглушка опису. Реальний контент зʼявиться пізніше.',
     specs: [
       { label: 'Тип', value: 'Браслет' },
-      { label: 'Вставка', value: 'Искусственный жемчуг' },
-      { label: 'Длина', value: '17 + 3 см' },
-      { label: 'Вес', value: '5 г' },
+      { label: 'Вставка', value: 'Штучні перли' },
+      { label: 'Довжина', value: '17 + 3 см' },
+      { label: 'Вага', value: '5 г' },
     ],
   },
   {
     slug: 'tsepochka-luch',
-    name: 'Цепочка AURELIA «Луч»',
-    category: 'Цепочка · позолота',
+    name: 'Ланцюжок AURELIA «Промінь»',
+    category: 'Ланцюжок · позолота',
     categorySlug: 'bijouterie',
     status: 'available',
     price: 2790,
@@ -100,18 +105,18 @@ export const products: Product[] = [
     coatings: COATINGS,
     rating: 0,
     reviewsCount: 0,
-    description: 'Цепочка плетения «Луч» — placeholder-описание для каталога.',
+    description: 'Ланцюжок плетіння «Промінь» — placeholder-опис для каталогу.',
     specs: [
-      { label: 'Тип', value: 'Цепочка' },
-      { label: 'Покрытие', value: 'Позолота' },
-      { label: 'Длина', value: '45 см' },
-      { label: 'Вес', value: '4 г' },
+      { label: 'Тип', value: 'Ланцюжок' },
+      { label: 'Покриття', value: 'Позолота' },
+      { label: 'Довжина', value: '45 см' },
+      { label: 'Вага', value: '4 г' },
     ],
   },
   {
     slug: 'kulon-gran',
     name: 'Кулон AURELIA «Грань»',
-    category: 'Кулон · фианит',
+    category: 'Кулон · фіаніт',
     categorySlug: 'bijouterie',
     status: 'coming-soon',
     price: null,
@@ -120,12 +125,12 @@ export const products: Product[] = [
     rating: 0,
     reviewsCount: 0,
     description:
-      'Кулон «Грань» скоро появится в продаже. Описание-заглушка для будущего товара.',
+      'Кулон «Грань» незабаром зʼявиться в продажу. Опис-заглушка для майбутнього товару.',
   },
   {
     slug: 'serogi-emal',
-    name: 'Серьги AURELIA «Эмаль»',
-    category: 'Серьги · эмаль',
+    name: 'Сережки AURELIA «Емаль»',
+    category: 'Сережки · емаль',
     categorySlug: 'bijouterie',
     status: 'coming-soon',
     price: null,
@@ -134,14 +139,14 @@ export const products: Product[] = [
     rating: 0,
     reviewsCount: 0,
     description:
-      'Серьги с цветной эмалью готовятся к запуску. Текст-заглушка описания.',
+      'Сережки з кольоровою емаллю готуються до запуску. Текст-заглушка опису.',
   },
 
-  // ---- Подарки ----
+  // ---- Подарунки ----
   {
     slug: 'nabor-serogi-kulon',
-    name: 'Набор AURELIA «Серьги + кулон»',
-    category: 'Набор серьги + кулон',
+    name: 'Набір AURELIA «Сережки + кулон»',
+    category: 'Набір сережки + кулон',
     categorySlug: 'gifts',
     status: 'available',
     price: 3990,
@@ -153,17 +158,17 @@ export const products: Product[] = [
     rating: 0,
     reviewsCount: 0,
     description:
-      'Подарочный набор из серёг и кулона в фирменной упаковке — placeholder-описание.',
+      'Подарунковий набір із сережок і кулона у фірмовому пакуванні — placeholder-опис.',
     specs: [
-      { label: 'Состав', value: 'Серьги + кулон' },
-      { label: 'Покрытие', value: 'Позолота' },
-      { label: 'Упаковка', value: 'Подарочная коробка AURELIA' },
+      { label: 'Склад', value: 'Сережки + кулон' },
+      { label: 'Покриття', value: 'Позолота' },
+      { label: 'Пакування', value: 'Подарункова коробка AURELIA' },
     ],
   },
   {
     slug: 'nabor-braslet-koltso',
-    name: 'Набор AURELIA «Браслет + кольцо»',
-    category: 'Набор браслет + кольцо',
+    name: 'Набір AURELIA «Браслет + каблучка»',
+    category: 'Набір браслет + каблучка',
     categorySlug: 'gifts',
     status: 'available',
     price: 3490,
@@ -173,17 +178,17 @@ export const products: Product[] = [
     rating: 0,
     reviewsCount: 0,
     description:
-      'Набор из браслета и кольца — текст-заглушка описания для витрины подарков.',
+      'Набір із браслета та каблучки — текст-заглушка опису для вітрини подарунків.',
     specs: [
-      { label: 'Состав', value: 'Браслет + кольцо' },
-      { label: 'Покрытие', value: 'Родирование' },
-      { label: 'Упаковка', value: 'Подарочная коробка AURELIA' },
+      { label: 'Склад', value: 'Браслет + каблучка' },
+      { label: 'Покриття', value: 'Родіювання' },
+      { label: 'Пакування', value: 'Подарункова коробка AURELIA' },
     ],
   },
   {
     slug: 'sertifikat-podarochnyj',
-    name: 'Подарочный сертификат AURELIA',
-    category: 'Подарочный сертификат',
+    name: 'Подарунковий сертифікат AURELIA',
+    category: 'Подарунковий сертифікат',
     categorySlug: 'gifts',
     status: 'available',
     price: 1000,
@@ -192,16 +197,16 @@ export const products: Product[] = [
     rating: 0,
     reviewsCount: 0,
     description:
-      'Электронный подарочный сертификат — placeholder-описание. Номинал и условия появятся позже.',
+      'Електронний подарунковий сертифікат — placeholder-опис. Номінал і умови зʼявляться пізніше.',
     specs: [
-      { label: 'Тип', value: 'Сертификат' },
-      { label: 'Срок действия', value: '12 месяцев' },
+      { label: 'Тип', value: 'Сертифікат' },
+      { label: 'Термін дії', value: '12 місяців' },
     ],
   },
   {
     slug: 'nabor-zhemchug',
-    name: 'Набор AURELIA «Жемчуг»',
-    category: 'Набор «Жемчуг»',
+    name: 'Набір AURELIA «Перли»',
+    category: 'Набір «Перли»',
     categorySlug: 'gifts',
     status: 'coming-soon',
     price: null,
@@ -210,6 +215,6 @@ export const products: Product[] = [
     rating: 0,
     reviewsCount: 0,
     description:
-      'Жемчужный набор скоро появится в продаже. Текст-заглушка описания.',
+      'Перловий набір незабаром зʼявиться в продажу. Текст-заглушка опису.',
   },
 ]
