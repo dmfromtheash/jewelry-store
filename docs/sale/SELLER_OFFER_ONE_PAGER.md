@@ -53,3 +53,6 @@
 Скриншоты витрины (desktop + mobile) — в [`screenshots/`](./screenshots/);
 список снятого и чек-лист ручной досъёмки интерактивных/админских экранов —
 [`DEMO_SCREENSHOT_CHECKLIST.md`](./DEMO_SCREENSHOT_CHECKLIST.md).
+
+Операционный раннбук показа (запуск, пред-демо чек-лист, траблшутинг,
+готовность демо-URL) — [`DEMO_RUNBOOK.md`](./DEMO_RUNBOOK.md).
