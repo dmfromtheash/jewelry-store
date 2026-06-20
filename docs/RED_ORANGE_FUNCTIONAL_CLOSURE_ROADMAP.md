@@ -207,6 +207,10 @@ persistence pattern is established.
 content records; an admin form under the existing `/admin/settings`; a read helper
 consumed by existing components. Audit each change via the existing `AdminAuditLog`.
 
+> **Full spec:** [`admin/ADMIN_CMS_SITE_SETTINGS_SPEC.md`](./admin/ADMIN_CMS_SITE_SETTINGS_SPEC.md)
+> (stage 46B) details the data model, admin UI, validation, storefront fallback, and
+> the 46C–46G implementation stages.
+
 ---
 
 ## 9. Customer Account scope proposal (for 47A/47B)
