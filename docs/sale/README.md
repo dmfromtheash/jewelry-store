@@ -20,6 +20,7 @@ owner must decide before a real launch.
 
 ## 2. Recommended reading order
 
+0. [`FINAL_BUYER_HANDOFF.md`](./FINAL_BUYER_HANDOFF.md) — **start here**: the top-level sale/demo handoff (readiness, what to show, what's deferred, what the owner must provide).
 1. [`SELLER_OFFER_ONE_PAGER.md`](./SELLER_OFFER_ONE_PAGER.md) — what the buyer gets, in one page.
 2. [`BUYER_DEMO_SCRIPT.md`](./BUYER_DEMO_SCRIPT.md) — 10–15 min storyline for showing the project.
 3. [`FEATURES_AND_LIMITS.md`](./FEATURES_AND_LIMITS.md) — honest list of what works vs. what's deferred.
