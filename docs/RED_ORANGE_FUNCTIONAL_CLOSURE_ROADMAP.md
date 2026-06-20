@@ -210,6 +210,9 @@ consumed by existing components. Audit each change via the existing `AdminAuditL
 > **Full spec:** [`admin/ADMIN_CMS_SITE_SETTINGS_SPEC.md`](./admin/ADMIN_CMS_SITE_SETTINGS_SPEC.md)
 > (stage 46B) details the data model, admin UI, validation, storefront fallback, and
 > the 46C–46G implementation stages.
+>
+> **Status:** 46C done — `SiteSetting` model + `/admin/settings` editor for the 11 v1
+> keys shipped (admin-side only; storefront integration is 46D).
 
 ---
 

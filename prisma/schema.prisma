@@ -294,3 +294,38 @@ model OrderItem {
 
   @@index([orderId])
 }
+
+/// Value/validation kind for a SiteSetting (Этап 46C). Lowercase members match the
+/// repo enum convention (cf. ProductStatus / OrderStatus).
+enum SiteSettingType {
+  text
+  long_text
+  email
+  phone
+  url
+}
+
+/// Owner-editable site setting (Этап 46C — Admin CMS foundation). Safe key-value
+/// store for PUBLIC business copy/settings ONLY (brand name, contacts, social
+/// links, footer copy). NEVER secrets, NEVER markup/layout/design. Keys come from
+/// a FIXED code allowlist (src/lib/site-settings/defaults.ts); values are plain
+/// text, validated + audited on write. Additive: the storefront does not read this
+/// yet — header/footer/contact integration is the separate 46D stage.
+model SiteSetting {
+  id        String          @id @default(cuid())
+  /// Stable dotted key from the code allowlist, e.g. "brand.displayName".
+  key       String          @unique
+  /// Admin-facing field label (code-owned, not user-edited).
+  label     String
+  /// UI grouping: brand | contacts | social | footer (code-owned).
+  group     String
+  /// Validation/render type for the value.
+  type      SiteSettingType
+  /// Plain-text value (no HTML). Empty allowed for optional fields.
+  value     String
+  /// Whether the value is safe to render publicly. Always true in v1 (these are
+  /// public business fields); reserved so 46D fallback can skip unpublished rows.
+  isPublic  Boolean         @default(true)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+}

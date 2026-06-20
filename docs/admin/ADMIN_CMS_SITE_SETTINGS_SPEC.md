@@ -384,3 +384,31 @@ Manual + COD remain unaffected; no provider/auth work is introduced by any 46-st
 - **Sequence reminder:** keep 46C minimal (model + admin form), push storefront
   integration to 46D, info pages to 46E. Preserve the design lock and the honest
   manual payment/delivery framing throughout.
+
+---
+
+## 16. 46C result note (implemented)
+
+Delivered as **stage 46C** (commit `feat: add admin site settings foundation`):
+
+- **Data model added** — additive `SiteSetting` model + `SiteSettingType` enum
+  (`text/long_text/email/phone/url`, lowercase to match the `ProductStatus`/
+  `OrderStatus` repo convention), migration `20260620052005_add_site_settings`.
+  No existing model/table changed; no `AdminUser`; no JSON blob.
+- **Admin settings foundation added** — `/admin/settings` placeholder replaced with a
+  grouped form (Бренд / Контакты / Соцсети / Футер, 11 v1 keys). Single server action
+  `updateSiteSettingsAction` mirrors the catalog pattern (guard + session → pure
+  validator → upsert by key → audit `admin.settings.updated` → revalidate → `?ok/?err`).
+  Shared helpers: `src/lib/site-settings/defaults.ts` (allowlist + defaults),
+  `src/lib/site-settings/server.ts` (admin read, default-fallback),
+  `src/lib/admin/settings-form.ts` (validation).
+- **Defaults** seeded from current static copy (brand/footer from `Footer.tsx`);
+  contact/social default to **empty** (honest — no real contacts exist yet). Idempotent
+  `db:seed:site-settings` (fills missing, re-syncs metadata, never overwrites edits) +
+  `db:verify:site-settings` (keys present/unique/strict/typed/plain-text-safe).
+- **Storefront integration deferred to 46D** — saving persists values but the
+  storefront (`Footer`, info pages) is **unchanged**; it still renders its static copy.
+- **No design changes** — built only from existing admin primitives (`au-adm-*`,
+  `au-field`, `au-btn`); no CSS added; storefront untouched.
+- **No raw HTML / no page builder** — plain-text only, `<`/`>` and `javascript:`/
+  `data:` rejected; only the fixed key allowlist is writable.
