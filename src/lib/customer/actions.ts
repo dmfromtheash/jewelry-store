@@ -22,7 +22,7 @@ import {
   DuplicateEmailError,
   findCustomerCredentials,
   getCustomerCredentialsById,
-  updateCustomerPassword,
+  updateCustomerPasswordAndBumpVersion,
   updateCustomerProfile,
 } from './repo'
 import { getCurrentCustomer, startCustomerSession, endCustomerSession } from './session'
@@ -117,7 +117,7 @@ export async function registerCustomerAction(input: {
       phone: value.phone,
     })
     clearAttempts(key)
-    await startCustomerSession(customer.id)
+    await startCustomerSession(customer.id, customer.sessionVersion)
     return { ok: true }
   } catch (e) {
     if (e instanceof DuplicateEmailError) {
@@ -159,7 +159,7 @@ export async function loginCustomerAction(input: {
     }
 
     clearAttempts(key)
-    await startCustomerSession(creds.id)
+    await startCustomerSession(creds.id, creds.sessionVersion)
     return { ok: true }
   } catch (e) {
     if (e instanceof CustomerAuthConfigError) return { ok: false, error: CONFIG_ERROR }
@@ -199,15 +199,16 @@ export async function updateCustomerProfileAction(input: {
 }
 
 /**
- * Changes the logged-in customer's password (Этап 47B). Requires the CURRENT
- * password, verified against the stored hash before any write. The new password is
- * hashed with the existing scrypt helper (never stored/logged in plaintext). On
- * success the session is RE-ISSUED so the current device keeps a fresh, valid token.
+ * Changes the logged-in customer's password (Этап 47B; session revocation in 47C).
+ * Requires the CURRENT password, verified against the stored hash before any write.
+ * The new password is hashed with the existing scrypt helper (never stored/logged
+ * in plaintext).
  *
- * Limitation (documented): the session token is stateless, so this does NOT revoke
- * sessions already issued to OTHER devices — there is no global revocation list yet
- * (would need an additive sessionVersion/passwordChangedAt column + a check in
- * getCurrentCustomer). Out of scope for 47B; see the spec's "remaining gaps".
+ * Session security (Этап 47C): the same UPDATE that stores the new hash also
+ * increments `sessionVersion`, which invalidates EVERY token signed with the old
+ * version — including sessions on OTHER devices (they resolve to "logged out" on
+ * their next request via getCurrentCustomer). The current device is then re-issued a
+ * fresh token bound to the NEW version, so it stays logged in. No email reset here.
  */
 export async function changeCustomerPasswordAction(input: {
   currentPassword: string
@@ -230,9 +231,11 @@ export async function changeCustomerPasswordAction(input: {
     }
 
     const newHash = await hashPassword(value.newPassword)
-    await updateCustomerPassword(customer.id, newHash)
-    // Re-issue the session so the current device stays logged in with a fresh token.
-    await startCustomerSession(customer.id)
+    // Atomic: new hash + sessionVersion++ + passwordChangedAt in ONE update. This is
+    // what revokes all previously issued tokens (this device and any other).
+    const { sessionVersion } = await updateCustomerPasswordAndBumpVersion(customer.id, newHash)
+    // Re-issue THIS device a fresh token bound to the new version so it stays in.
+    await startCustomerSession(customer.id, sessionVersion)
     return { ok: true }
   } catch (e) {
     if (e instanceof CustomerAuthConfigError) return { ok: false, error: CONFIG_ERROR }

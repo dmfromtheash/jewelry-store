@@ -36,6 +36,9 @@ export class CustomerAuthConfigError extends Error {
 export interface CustomerSession {
   /** Customer id (subject). */
   sub: string
+  /** Session version (Этап 47C). Must match Customer.sessionVersion in the DB, else
+   *  the token is treated as stale (e.g. after a password change on any device). */
+  ver: number
   /** Issued-at (unix seconds). */
   iat: number
   /** Expiry (unix seconds). */
@@ -74,11 +77,16 @@ function sign(body: string, secret: string): string {
   return createHmac('sha256', secret).update(body).digest('base64url')
 }
 
-/** Builds a signed `<payload>.<hmac>` token for the given customer id. */
-export function createCustomerToken(customerId: string, secret: string): string {
+/**
+ * Builds a signed `<payload>.<hmac>` token for the given customer id, binding it to
+ * the customer's CURRENT `sessionVersion` (Этап 47C). A later password change bumps
+ * that version in the DB, which invalidates this token on the next read.
+ */
+export function createCustomerToken(customerId: string, sessionVersion: number, secret: string): string {
   const now = Math.floor(Date.now() / 1000)
   const payload: CustomerSession = {
     sub: customerId,
+    ver: sessionVersion,
     iat: now,
     exp: now + CUSTOMER_SESSION_TTL_SECONDS,
   }
@@ -110,6 +118,10 @@ export function verifyCustomerToken(token: string, secret: string): CustomerSess
     typeof payload !== 'object' ||
     payload === null ||
     typeof (payload as CustomerSession).sub !== 'string' ||
+    // `ver` is REQUIRED from Этап 47C: a token without it (pre-47C) fails closed →
+    // the holder is logged out and must sign in again. There are no live customer
+    // sessions to break, and this keeps the revocation check non-bypassable.
+    typeof (payload as CustomerSession).ver !== 'number' ||
     typeof (payload as CustomerSession).exp !== 'number' ||
     typeof (payload as CustomerSession).iat !== 'number'
   ) {

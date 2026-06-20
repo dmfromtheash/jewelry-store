@@ -23,6 +23,12 @@ const PUBLIC_CUSTOMER_SELECT = {
 
 export type PublicCustomer = Prisma.CustomerGetPayload<{ select: typeof PUBLIC_CUSTOMER_SELECT }>
 
+/** Public projection + the session version (Этап 47C). Used ONLY by the session
+ *  validator; `sessionVersion` is stripped before anything is returned to a client. */
+const SESSION_CUSTOMER_SELECT = { ...PUBLIC_CUSTOMER_SELECT, sessionVersion: true } as const
+
+export type SessionCustomer = Prisma.CustomerGetPayload<{ select: typeof SESSION_CUSTOMER_SELECT }>
+
 /** Thrown by createCustomer when the email is already registered. */
 export class DuplicateEmailError extends Error {
   constructor() {
@@ -41,7 +47,7 @@ export async function createCustomer(input: {
   passwordHash: string
   name: string | null
   phone: string | null
-}): Promise<PublicCustomer> {
+}): Promise<{ id: string; sessionVersion: number }> {
   try {
     return await prisma.customer.create({
       data: {
@@ -50,7 +56,9 @@ export async function createCustomer(input: {
         name: input.name,
         phone: input.phone,
       },
-      select: PUBLIC_CUSTOMER_SELECT,
+      // id + sessionVersion: the caller issues the first session token bound to the
+      // new account's version (Этап 47C). No client-facing fields are needed here.
+      select: { id: true, sessionVersion: true },
     })
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
@@ -67,10 +75,11 @@ export async function createCustomer(input: {
  */
 export async function findCustomerCredentials(
   email: string,
-): Promise<{ id: string; passwordHash: string } | null> {
+): Promise<{ id: string; passwordHash: string; sessionVersion: number } | null> {
   return prisma.customer.findUnique({
     where: { email },
-    select: { id: true, passwordHash: true },
+    // sessionVersion is included so login can bind the issued token to it (Этап 47C).
+    select: { id: true, passwordHash: true, sessionVersion: true },
   })
 }
 
@@ -80,6 +89,19 @@ export async function getCustomerById(id: string): Promise<PublicCustomer | null
   return prisma.customer.findUnique({
     where: { id },
     select: PUBLIC_CUSTOMER_SELECT,
+  })
+}
+
+/**
+ * Reads the public profile PLUS `sessionVersion` for session validation (Этап 47C).
+ * Only getCurrentCustomer consumes this; it compares the version against the token
+ * and strips it before returning the public customer. Null when the account is gone.
+ */
+export async function getCustomerForSession(id: string): Promise<SessionCustomer | null> {
+  if (!id) return null
+  return prisma.customer.findUnique({
+    where: { id },
+    select: SESSION_CUSTOMER_SELECT,
   })
 }
 
@@ -114,9 +136,26 @@ export async function getCustomerCredentialsById(
   })
 }
 
-/** Replaces the stored password hash (Этап 47B). `passwordHash` is already hashed. */
-export async function updateCustomerPassword(id: string, passwordHash: string): Promise<void> {
-  await prisma.customer.update({ where: { id }, data: { passwordHash } })
+/**
+ * Replaces the stored password hash AND atomically bumps the session version
+ * (Этап 47C): a single UPDATE sets the new hash, increments `sessionVersion` and
+ * stamps `passwordChangedAt`. Incrementing the version invalidates EVERY token that
+ * was signed with the old version (on any device). Returns the NEW version so the
+ * caller can immediately re-issue the current device a fresh, valid token.
+ */
+export async function updateCustomerPasswordAndBumpVersion(
+  id: string,
+  passwordHash: string,
+): Promise<{ sessionVersion: number }> {
+  return prisma.customer.update({
+    where: { id },
+    data: {
+      passwordHash,
+      sessionVersion: { increment: 1 },
+      passwordChangedAt: new Date(),
+    },
+    select: { sessionVersion: true },
+  })
 }
 
 /**

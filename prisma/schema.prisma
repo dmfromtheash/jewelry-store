@@ -209,6 +209,15 @@ model Customer {
   name         String?
   /// Optional contact phone (used to prefill checkout).
   phone        String?
+  /// Session generation counter (Этап 47C). Signed into the customer session token
+  /// (`ver`) and re-checked on every read in getCurrentCustomer. Incremented on
+  /// password change, which makes EVERY previously issued token (on any device)
+  /// stale → logged out. New accounts start at 1; the current device is re-issued a
+  /// fresh token bound to the new value right after a password change.
+  sessionVersion Int    @default(1)
+  /// When the password was last changed (Этап 47C). Audit/marker only — the
+  /// authoritative revocation check is `sessionVersion`. Null until first change.
+  passwordChangedAt DateTime?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

@@ -1,9 +1,14 @@
 /**
- * AURELIA — Customer auth verification (Этап 47A + 47B)
+ * AURELIA — Customer auth verification (Этап 47A + 47B + 47C)
  *
  * Non-destructive checks for the customer auth + account cabinet:
  *   - password hashing: hash is NOT plaintext, verifies correct, rejects wrong;
- *   - customer session token: signs/verifies, rejects wrong key + tampering;
+ *   - customer session token: signs/verifies, rejects wrong key + tampering, carries
+ *     a session version, and rejects a legacy pre-47C token that lacks one (47C);
+ *   - session invalidation (47C): a password change increments sessionVersion, which
+ *     makes the pre-change token stale (token.ver !== db.sessionVersion) while a
+ *     re-issued token for the new version is accepted — the exact getCurrentCustomer
+ *     revocation check, reproduced inside a rolled-back transaction;
  *   - validation: short password / unsafe name rejected, email normalised;
  *   - 47B profile editing validation: unsafe name / bad phone rejected, normalised,
  *     optional fields clearable;
@@ -30,7 +35,7 @@
  * data layer via the scoped queries below.
  */
 
-import { randomBytes } from 'crypto'
+import { createHmac, randomBytes } from 'crypto'
 import { Prisma, PrismaClient } from '@prisma/client'
 import { hashPassword, verifyPassword } from '../src/lib/customer/password'
 import {
@@ -73,11 +78,18 @@ async function main() {
   // --- 2) Session token (pure) ---
   const secret = randomBytes(32).toString('hex')
   const otherSecret = randomBytes(32).toString('hex')
-  const token = createCustomerToken('cust_test_123', secret)
+  const token = createCustomerToken('cust_test_123', 1, secret)
   const session = verifyCustomerToken(token, secret)
   check('token verifies with correct key + subject', session?.sub === 'cust_test_123')
+  check('token carries session version (Этап 47C)', session?.ver === 1)
   check('token rejected with wrong key', verifyCustomerToken(token, otherSecret) === null)
   check('tampered token rejected', verifyCustomerToken(token.slice(0, -2) + 'xy', secret) === null)
+
+  // Legacy pre-47C token (no `ver`) must fail closed under the strict 47C verifier.
+  const legacyPayload = { sub: 'cust_legacy', iat: Math.floor(Date.now() / 1000), exp: Math.floor(Date.now() / 1000) + 3600 }
+  const legacyBody = Buffer.from(JSON.stringify(legacyPayload), 'utf8').toString('base64url')
+  const legacySig = createHmac('sha256', secret).update(legacyBody).digest('base64url')
+  check('legacy token without session version rejected', verifyCustomerToken(`${legacyBody}.${legacySig}`, secret) === null)
 
   // Secret resolution: an explicit CUSTOMER_SESSION_SECRET is preferred.
   const prevSecret = process.env.CUSTOMER_SESSION_SECRET
@@ -242,6 +254,59 @@ async function main() {
   check('order detail: owner loads own order (scoped by orderCode + customerId)', ownerSeesOwnOrder)
   check('order detail: customer A cannot load customer B order by code', foreignOrderHidden)
   check('order detail: customer cannot load a guest order by code', guestOrderHidden)
+
+  // --- 5c) DB: password change bumps sessionVersion → stale token invalid (Этап 47C, rolled back) ---
+  // Reproduces getCurrentCustomer's revocation check: a token is valid only while
+  // its `ver` equals the customer's DB sessionVersion. A password change increments
+  // that version, so the pre-change token is stale and a re-issued token is valid.
+  let versionStartsAtOne = false
+  let versionBumped = false
+  let staleTokenRejected = false
+  let freshTokenAccepted = false
+  try {
+    await prisma.$transaction(async (tx) => {
+      const oldHash = await hashPassword(`Old-${randomBytes(5).toString('hex')}`)
+      const c = await tx.customer.create({
+        data: { email: emailA, passwordHash: oldHash },
+        select: { id: true, sessionVersion: true },
+      })
+      versionStartsAtOne = c.sessionVersion === 1
+
+      // Token issued for the CURRENT version (what login/register sign into the cookie).
+      const tokenBefore = createCustomerToken(c.id, c.sessionVersion, secret)
+
+      // Password change: atomic new hash + sessionVersion++ + passwordChangedAt,
+      // mirroring updateCustomerPasswordAndBumpVersion.
+      const updated = await tx.customer.update({
+        where: { id: c.id },
+        data: {
+          passwordHash: await hashPassword(`New-${randomBytes(5).toString('hex')}`),
+          sessionVersion: { increment: 1 },
+          passwordChangedAt: new Date(),
+        },
+        select: { sessionVersion: true },
+      })
+      versionBumped = updated.sessionVersion === c.sessionVersion + 1
+
+      // The pre-change token still has a VALID signature, but its version is stale →
+      // getCurrentCustomer (token.ver !== db.sessionVersion) treats it as logged out.
+      const before = verifyCustomerToken(tokenBefore, secret)
+      staleTokenRejected = !!before && before.ver !== updated.sessionVersion
+
+      // A token re-issued for the NEW version passes the same check.
+      const tokenAfter = createCustomerToken(c.id, updated.sessionVersion, secret)
+      const after = verifyCustomerToken(tokenAfter, secret)
+      freshTokenAccepted = !!after && after.ver === updated.sessionVersion
+
+      throw new Error(ROLLBACK)
+    })
+  } catch (e) {
+    if (!(e instanceof Error) || e.message !== ROLLBACK) throw e
+  }
+  check('new customer starts at sessionVersion 1', versionStartsAtOne)
+  check('password change bumps sessionVersion', versionBumped)
+  check('stale token (old version) is invalidated after password change', staleTokenRejected)
+  check('re-issued token (new version) is accepted after password change', freshTokenAccepted)
 
   // --- 6) Nothing committed ---
   const customerCountAfter = await prisma.customer.count()

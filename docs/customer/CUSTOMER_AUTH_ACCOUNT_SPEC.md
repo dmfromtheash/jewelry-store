@@ -168,3 +168,71 @@ foreign customer's and a guest's orders are NOT loadable by code).
 - **No guest-order linking by email** into a newly created account.
 - Account/order-detail **route guards** (redirect/`notFound`) depend on request
   cookies and are not exercised by the verify script — covered at the data layer.
+
+---
+
+# Этап 47C — Customer Account Security Completion Pack
+
+Status: **implemented**. Closes the **47B.5 "no global session revocation" gap**.
+Additive schema only. **No email/password-reset flow, no external provider**, no
+payment/delivery APIs, no design/CSS changes.
+
+## 47C.1 Session invalidation model
+
+- **Additive schema** (`prisma/schema.prisma`, migration
+  `20260620202427_add_customer_session_version`): `Customer.sessionVersion Int
+  @default(1)` + `Customer.passwordChangedAt DateTime?`. Two new columns only — no
+  drop/rename, no data loss; existing rows default to version `1`.
+- **`sessionVersion` is the authoritative revocation counter**; `passwordChangedAt`
+  is an audit marker only.
+
+## 47C.2 Token / session changes
+
+- The signed customer token payload now carries **`ver`** (the session version)
+  alongside `sub`/`iat`/`exp` (`src/lib/customer/token.ts`).
+  `createCustomerToken(customerId, sessionVersion, secret)` binds a token to the
+  version; `verifyCustomerToken` **requires** `ver` to be a number — a legacy pre-47C
+  token without it **fails closed** (holder is logged out, must sign in again; there
+  are no live customer sessions to break).
+- **`getCurrentCustomer`** (`session.ts`) now loads the customer via
+  `getCustomerForSession` (public projection **+** `sessionVersion`) and returns
+  `null` unless `token.ver === customer.sessionVersion`. The `sessionVersion` is
+  **stripped** before the public customer is returned — it never crosses to the
+  client. A stale cookie is ignored on read (read paths don't mutate cookies) and is
+  overwritten on the next login.
+- Cookie flags unchanged: **`au_customer_session`** (separate from admin), `httpOnly`,
+  `sameSite=lax`, `secure` in production, 30-day `maxAge`.
+
+## 47C.3 Password change behaviour
+
+- `changeCustomerPasswordAction` still verifies the **current password** first, then
+  performs **one atomic UPDATE** (`updateCustomerPasswordAndBumpVersion`) that stores
+  the new scrypt hash **and** `sessionVersion: { increment: 1 }` **and**
+  `passwordChangedAt`. The version bump **invalidates every token signed with the old
+  version — on this device and all others** (they resolve to "logged out" on their
+  next request). The current device is immediately **re-issued** a fresh token bound
+  to the new version, so it stays logged in. Passwords are never logged; errors stay
+  generic. **No email reset involved.**
+
+## 47C.4 Verification
+
+`npm run db:verify:customer-auth` (now 37 checks; all writes in always-rolled-back
+transactions, counts asserted unchanged) adds: token carries/verifies `ver`; a legacy
+token without `ver` is rejected; a new customer starts at version 1; a password change
+bumps the version; the pre-change token is **stale/rejected** (`token.ver !==
+db.sessionVersion`) while a re-issued token for the new version is **accepted**. The
+47A/47B checks (hashing, scoping, guest-null, order-detail scoping) still pass.
+
+## 47C.5 Remaining gaps (carried forward)
+
+- **No password reset / email verification** ("Забули пароль?" is still a no-op) —
+  deliberately deferred (no email provider added in 47C).
+- **No email change** (immutable in v1).
+- **Throttle is still in-memory** (per-process, fails open on restart).
+- **No guest-order linking by email** into a newly created account.
+- Revocation is **all-or-nothing per account** (a single counter): there is no
+  per-device session list, so "log out my other devices" is implicit in a password
+  change rather than a standalone action. A full session table is intentionally **not**
+  added (out of scope; the counter closes the security gap without it).
+- Route guards still depend on request cookies (not exercised by the verify script;
+  covered at the data layer).

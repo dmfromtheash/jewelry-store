@@ -150,6 +150,13 @@ security-sensitive or schema-touching.
      `orderCode + customerId`), account page panels + order links; guest checkout +
      admin/customer separation preserved; no schema change, no design change. See
      `docs/customer/CUSTOMER_AUTH_ACCOUNT_SPEC.md` (Этап 47B).
+   - **47C done:** customer session invalidation / security hardening — additive
+     `Customer.sessionVersion` + `passwordChangedAt`; the session token carries `ver`,
+     re-checked against the DB in `getCurrentCustomer`; a password change atomically
+     bumps the version (revoking stale tokens on all devices) and re-issues the current
+     device. Email password-reset still deferred (no provider). Guest checkout +
+     admin/customer separation intact; no design change. See `…CUSTOMER_AUTH_ACCOUNT_SPEC.md`
+     (Этап 47C).
 5. **48A — Manual delivery/payment UX hardening** *(copy/validation within locked
    layout; keep COD + manual selectable)*.
 6. **48B — E2E smoke harness** *(optional; storefront→checkout happy path)*.

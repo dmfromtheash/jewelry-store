@@ -28,16 +28,21 @@ import {
   resolveCustomerSessionSecret,
   verifyCustomerToken,
 } from './token'
-import { getCustomerById, type PublicCustomer } from './repo'
+import { getCustomerForSession, type PublicCustomer } from './repo'
 
 // Site-wide path so both the storefront (Header/account/checkout) and any future
 // surface can see the session. Start and end MUST use the same path.
 const SESSION_COOKIE_PATH = '/'
 
-/** Issues a fresh signed session cookie. Call only from a server action / route. */
-export async function startCustomerSession(customerId: string): Promise<void> {
+/**
+ * Issues a fresh signed session cookie bound to the customer's CURRENT
+ * `sessionVersion` (Этап 47C). Call only from a server action / route. The caller
+ * passes the authoritative version it just read/wrote, so a token is never issued
+ * with a stale version.
+ */
+export async function startCustomerSession(customerId: string, sessionVersion: number): Promise<void> {
   const secret = requireCustomerSessionSecret()
-  const token = createCustomerToken(customerId, secret)
+  const token = createCustomerToken(customerId, sessionVersion, secret)
   ;(await cookies()).set(CUSTOMER_SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: 'lax',
@@ -60,9 +65,12 @@ export async function endCustomerSession(): Promise<void> {
 
 /**
  * Reads + verifies the current customer session and confirms the account still
- * exists. Returns the safe public customer, or null when there is no valid
- * session (absent/invalid/expired cookie, unconfigured secret, or deleted
- * account). Never throws — read paths fail closed to "logged out".
+ * exists AND the token's session version still matches the DB. Returns the safe
+ * public customer, or null when there is no valid session (absent/invalid/expired
+ * cookie, unconfigured secret, deleted account, or a STALE token whose version was
+ * superseded by a password change — Этап 47C). Never throws — read paths fail
+ * closed to "logged out". A stale cookie is simply ignored here (read paths must
+ * not mutate cookies); it is overwritten on the next successful login.
  */
 export async function getCurrentCustomer(): Promise<PublicCustomer | null> {
   const secret = resolveCustomerSessionSecret()
@@ -74,8 +82,15 @@ export async function getCurrentCustomer(): Promise<PublicCustomer | null> {
   const session = verifyCustomerToken(value, secret)
   if (!session) return null
 
-  // Confirm the account still exists (defends against stale tokens after delete).
-  return getCustomerById(session.sub)
+  // Confirm the account still exists (defends against stale tokens after delete)
+  // AND that the token's version is current (defends against tokens issued before a
+  // password change — on this or any other device).
+  const row = await getCustomerForSession(session.sub)
+  if (!row) return null
+  if (row.sessionVersion !== session.ver) return null
+
+  const { sessionVersion: _sessionVersion, ...publicCustomer } = row
+  return publicCustomer
 }
 
 /**
