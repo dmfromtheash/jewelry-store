@@ -216,7 +216,10 @@ consumed by existing components. Audit each change via the existing `AdminAuditL
 > Header/Footer read site settings (brand, tagline, blurb, copyright, public phone)
 > with static fallback; design unchanged. 46E done — info pages (delivery/returns/
 > stores/help/about/contacts) editable from `/admin/content`; public pages read
-> `SitePage` from DB with static fallback; design unchanged.
+> `SitePage` from DB with static fallback; design unchanged. 46F done — manual
+> checkout payment/delivery copy editable via `/admin/settings` (titles, notes,
+> confirmation notice) with static fallback; method keys/allowlist unchanged; honest
+> manual model preserved; design unchanged.
 
 ---
 

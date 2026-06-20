@@ -14,6 +14,7 @@
 
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { getCheckoutCopySettings } from '../../../src/lib/site-settings/server'
 
 export const metadata: Metadata = {
   title: 'Замовлення створено — AURELIA',
@@ -34,6 +35,8 @@ export default async function CheckoutSuccessPage({
   searchParams: Promise<{ order?: string }>
 }) {
   const { order: orderCode } = await searchParams
+  // Этап 46F: confirmation payment notice is editable (DB + static fallback).
+  const copy = await getCheckoutCopySettings()
 
   return (
     <div className="au-container au-checkout">
@@ -54,8 +57,7 @@ export default async function CheckoutSuccessPage({
         </p>
 
         <p className="au-co-note" style={{ marginTop: 16 }}>
-          Замовлення оформлено в демо-режимі. Оплата підтверджується вручну за обраним способом —
-          зараз з вас нічого не списано.
+          {copy.confirmationPaymentNotice}
         </p>
 
         <div className="au-co-empty-actions">

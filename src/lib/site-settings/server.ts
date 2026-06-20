@@ -26,6 +26,7 @@ import {
   type SiteSettingGroup,
   type SiteSettingType,
 } from './defaults'
+import { buildCheckoutCopy, type CheckoutCopy } from './checkout-copy'
 
 interface StoredRow {
   key: string
@@ -143,4 +144,17 @@ export async function getPublicSiteSettings(): Promise<PublicSiteSettings> {
     socialFacebook: v('social.facebook'),
     socialTelegram: v('social.telegram'),
   }
+}
+
+/**
+ * Loads the editable checkout/manual payment & delivery copy (Этап 46F) as a typed,
+ * method-keyed object. PUBLIC rows only; empty → static default; never throws.
+ * Method KEYS and the server allowlist are untouched — this is presentation copy.
+ */
+export async function getCheckoutCopySettings(): Promise<CheckoutCopy> {
+  const rows = await loadStoredRows()
+  const publicStored = new Map<string, string>(
+    rows.filter((r) => r.isPublic).map((r) => [r.key, r.value]),
+  )
+  return buildCheckoutCopy((key) => publicValue(key, publicStored))
 }

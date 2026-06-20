@@ -15,7 +15,14 @@
 export type SiteSettingType = 'text' | 'long_text' | 'email' | 'phone' | 'url'
 
 /** UI grouping in the admin settings form. */
-export type SiteSettingGroup = 'brand' | 'contacts' | 'social' | 'footer'
+export type SiteSettingGroup =
+  | 'brand'
+  | 'contacts'
+  | 'social'
+  | 'footer'
+  | 'payment'
+  | 'delivery'
+  | 'checkout'
 
 export interface SiteSettingDef {
   /** Stable dotted key — the ONLY keys the CMS may ever write. */
@@ -34,12 +41,15 @@ export interface SiteSettingDef {
   hint?: string
 }
 
-/** Admin labels for the four groups (section headings). */
+/** Admin labels for the groups (section headings). */
 export const SITE_SETTING_GROUP_LABELS: Record<SiteSettingGroup, string> = {
   brand: 'Бренд',
   contacts: 'Контакты',
   social: 'Соцсети',
   footer: 'Футер',
+  payment: 'Оплата (чекаут)',
+  delivery: 'Доставка (чекаут)',
+  checkout: 'Сообщения оформления',
 }
 
 /**
@@ -157,10 +167,117 @@ export const SITE_SETTING_DEFS: readonly SiteSettingDef[] = [
     maxLength: 200,
     hint: 'https://t.me/…',
   },
+  // ── Payment / checkout (Этап 46F) ───────────────────────────────────────────
+  // Editable PUBLIC copy for the MANUAL payment model. Honest by default — no
+  // claim of online acquiring. Method KEYS/allowlist (orders/methods.ts) unchanged.
+  {
+    key: 'checkout.payment.cashOnDeliveryTitle',
+    label: 'Оплата при отриманні — название',
+    group: 'payment',
+    type: 'text',
+    defaultValue: 'Оплата при отриманні',
+    optional: false,
+    maxLength: 80,
+  },
+  {
+    key: 'checkout.payment.cashOnDeliveryDescription',
+    label: 'Оплата при отриманні — описание',
+    group: 'payment',
+    type: 'long_text',
+    defaultValue:
+      'Оплата при отриманні. Оплата через сайт не списується — розрахунок відбувається при отриманні замовлення.',
+    optional: true,
+    maxLength: 400,
+  },
+  {
+    key: 'checkout.payment.manualOnlineTitle',
+    label: 'Оплата за реквізитами — название',
+    group: 'payment',
+    type: 'text',
+    defaultValue: 'Оплата за реквізитами',
+    optional: false,
+    maxLength: 80,
+  },
+  {
+    key: 'checkout.payment.manualOnlineDescription',
+    label: 'Оплата за реквізитами — описание',
+    group: 'payment',
+    type: 'long_text',
+    defaultValue:
+      'Автоматична онлайн-оплата на сайті не підключена. Реквізити для переказу надішлемо після оформлення; оплата підтверджується вручну.',
+    optional: true,
+    maxLength: 400,
+  },
+  // ── Delivery / checkout (Этап 46F) ──────────────────────────────────────────
+  // Method TITLES only (the select labels). No carrier API — manual choice.
+  {
+    key: 'checkout.delivery.selfPickupTitle',
+    label: 'Самовивіз — название',
+    group: 'delivery',
+    type: 'text',
+    defaultValue: 'Самовивіз',
+    optional: false,
+    maxLength: 80,
+  },
+  {
+    key: 'checkout.delivery.novaPoshtaTitle',
+    label: 'Нова Пошта — название',
+    group: 'delivery',
+    type: 'text',
+    defaultValue: 'Нова Пошта',
+    optional: false,
+    maxLength: 80,
+  },
+  {
+    key: 'checkout.delivery.ukrposhtaTitle',
+    label: 'Укрпошта — название',
+    group: 'delivery',
+    type: 'text',
+    defaultValue: 'Укрпошта',
+    optional: false,
+    maxLength: 80,
+  },
+  {
+    key: 'checkout.delivery.localCourierTitle',
+    label: 'Курʼєрська доставка — название',
+    group: 'delivery',
+    type: 'text',
+    defaultValue: 'Курʼєрська доставка',
+    optional: false,
+    maxLength: 80,
+  },
+  // ── Checkout notices (Этап 46F) ─────────────────────────────────────────────
+  {
+    key: 'checkout.payment.notice',
+    label: 'Заметка под кнопкой оформления',
+    group: 'checkout',
+    type: 'long_text',
+    defaultValue: 'Демо-режим: замовлення зберігається, оплата підключається пізніше.',
+    optional: true,
+    maxLength: 400,
+  },
+  {
+    key: 'checkout.confirmation.paymentNotice',
+    label: 'Заметка на странице «Замовлення прийнято»',
+    group: 'checkout',
+    type: 'long_text',
+    defaultValue:
+      'Замовлення оформлено в демо-режимі. Оплата підтверджується вручну за обраним способом — зараз з вас нічого не списано.',
+    optional: true,
+    maxLength: 400,
+  },
 ] as const
 
-/** Ordered list of the four groups for stable rendering. */
-export const SITE_SETTING_GROUPS: readonly SiteSettingGroup[] = ['brand', 'contacts', 'social', 'footer']
+/** Ordered list of the groups for stable rendering. */
+export const SITE_SETTING_GROUPS: readonly SiteSettingGroup[] = [
+  'brand',
+  'contacts',
+  'social',
+  'footer',
+  'payment',
+  'delivery',
+  'checkout',
+]
 
 /** All allowlisted keys (used by the verify script for strict checks). */
 export const SITE_SETTING_KEYS: readonly string[] = SITE_SETTING_DEFS.map((d) => d.key)

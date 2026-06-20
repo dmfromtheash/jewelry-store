@@ -9,12 +9,13 @@ import { validateOrderDraftFields, hasErrors } from '../../lib/orders/validate'
 import type { OrderDraftInput, OrderFieldErrors } from '../../lib/orders/types'
 import {
   DELIVERY_METHODS,
-  DELIVERY_METHOD_LABELS,
   PAYMENT_METHODS,
-  PAYMENT_METHOD_LABELS,
   deliveryMethodLabel,
   paymentMethodLabel,
+  type DeliveryMethod,
+  type PaymentMethod,
 } from '../../lib/orders/methods'
+import type { CheckoutCopy } from '../../lib/site-settings/checkout-copy'
 import { sendAnalyticsEvent } from '../../lib/analytics/client'
 import { ANALYTICS_EVENTS } from '../../lib/analytics/events'
 
@@ -47,9 +48,19 @@ const GemIcon = () => (
   </svg>
 )
 
-export default function CheckoutPageClient() {
+export default function CheckoutPageClient({ copy }: { copy: CheckoutCopy }) {
   const { lines, unavailable, hasUnavailable, count, subtotal, removeItem, clear } = useCart()
   const [confirmation, setConfirmation] = useState<OrderConfirmation | null>(null)
+
+  // Editable copy with safe fallbacks (Этап 46F). The setting values already fall
+  // back to the static defaults server-side; these helpers add a final guard for
+  // any legacy/unknown method key stored on an old order.
+  const paymentTitle = (key: string) =>
+    copy.paymentTitles[key as PaymentMethod] ?? paymentMethodLabel(key)
+  const deliveryTitle = (key: string) =>
+    copy.deliveryTitles[key as DeliveryMethod] ?? deliveryMethodLabel(key)
+  const paymentDescription = (key: string) =>
+    copy.paymentDescriptions[key as PaymentMethod] ?? ''
 
   const [form, setForm] = useState({
     name: '',
@@ -150,7 +161,6 @@ export default function CheckoutPageClient() {
   // Order confirmation takes precedence: after a successful order the cart is
   // empty, so without this it would fall through to the "Корзина пуста" state.
   if (confirmation) {
-    const isManualOnline = confirmation.paymentMethod === 'manual_online'
     return (
       <div className="au-container au-checkout">
         <div className="au-co-empty">
@@ -169,11 +179,11 @@ export default function CheckoutPageClient() {
             </li>
             <li className="au-co-line">
               <span className="au-co-line-meta">Оплата</span>
-              <span className="au-co-line-name">{paymentMethodLabel(confirmation.paymentMethod)}</span>
+              <span className="au-co-line-name">{paymentTitle(confirmation.paymentMethod)}</span>
             </li>
             <li className="au-co-line">
               <span className="au-co-line-meta">Доставка</span>
-              <span className="au-co-line-name">{deliveryMethodLabel(confirmation.deliveryMethod)}</span>
+              <span className="au-co-line-name">{deliveryTitle(confirmation.deliveryMethod)}</span>
             </li>
             {confirmation.deliveryDetails && (
               <li className="au-co-line">
@@ -184,9 +194,7 @@ export default function CheckoutPageClient() {
           </ul>
 
           <p className="au-co-note" style={{ marginTop: 16 }}>
-            {isManualOnline
-              ? 'Автоматична онлайн-оплата на сайті поки не підключена. Реквізити для оплати надішле менеджер після підтвердження замовлення.'
-              : 'Оплата при отриманні — з вас зараз нічого не списано.'}
+            {paymentDescription(confirmation.paymentMethod)}
           </p>
 
           <div className="au-co-empty-actions">
@@ -306,7 +314,7 @@ export default function CheckoutPageClient() {
               >
                 {DELIVERY_METHODS.map((m) => (
                   <option key={m} value={m}>
-                    {DELIVERY_METHOD_LABELS[m]}
+                    {deliveryTitle(m)}
                   </option>
                 ))}
               </select>
@@ -342,17 +350,13 @@ export default function CheckoutPageClient() {
               >
                 {PAYMENT_METHODS.map((m) => (
                   <option key={m} value={m}>
-                    {PAYMENT_METHOD_LABELS[m]}
+                    {paymentTitle(m)}
                   </option>
                 ))}
               </select>
               {errors.paymentMethod && <p className="au-field-error">{errors.paymentMethod}</p>}
             </div>
-            <div className="au-co-payment-note">
-              {form.payment === 'manual_online'
-                ? 'Автоматична онлайн-оплата на сайті не підключена. Реквізити для переказу надішлемо після оформлення; оплата підтверджується вручну.'
-                : 'Оплата при отриманні. Оплата через сайт не списується — розрахунок відбувається при отриманні замовлення.'}
-            </div>
+            <div className="au-co-payment-note">{paymentDescription(form.payment)}</div>
           </section>
         </form>
 
@@ -427,9 +431,7 @@ export default function CheckoutPageClient() {
           >
             {pending ? 'Створюємо замовлення…' : 'Оформити замовлення'}
           </button>
-          <p className="au-co-note">
-            Демо-режим: замовлення зберігається, оплата підключається пізніше.
-          </p>
+          <p className="au-co-note">{copy.paymentNotice}</p>
           <p className="au-co-info-link">
             <Link href="/delivery">Докладніше про доставку та оплату</Link>
           </p>

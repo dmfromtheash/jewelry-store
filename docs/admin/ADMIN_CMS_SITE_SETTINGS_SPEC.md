@@ -476,3 +476,37 @@ Delivered as **stage 46E** (commit `feat: add admin info pages cms`):
   `au-field`, `au-adm-table`, `au-btn`); `InfoPageLayout` and `content.css` untouched.
 - **Raw HTML / page builder still forbidden**; checkout payment/delivery copy CMS
   remains **deferred** (46F).
+
+---
+
+## 19. 46F result note (checkout copy CMS + UX hardening)
+
+Delivered as **stage 46F** (commit `feat: add checkout payment delivery copy settings`):
+
+- **10 new `SiteSetting` keys added** (no schema migration — reuse the 46C model):
+  `checkout.payment.{cashOnDelivery,manualOnline}{Title,Description}`,
+  `checkout.delivery.{selfPickup,novaPoshta,ukrposhta,localCourier}Title`,
+  `checkout.payment.notice`, `checkout.confirmation.paymentNotice`. New admin groups
+  **Оплата (чекаут) / Доставка (чекаут) / Сообщения оформления** render automatically
+  in `/admin/settings`. Defaults = current honest Ukrainian copy.
+- **Checkout wired** — payment/delivery **select titles**, the payment **note** (per
+  selected method), the **summary note** under the submit button, and the inline
+  **confirmation** payment label/note now read the editable copy. The success page
+  note reads `checkout.confirmation.paymentNotice`. Copy is resolved **server-side**
+  (`getCheckoutCopySettings()`, DB + static fallback) and passed to the client as a
+  prop — no client-side settings fetch.
+- **Method keys / allowlists UNCHANGED** — `src/lib/orders/methods.ts`
+  (`cash_on_delivery`/`manual_online`, `self_pickup`/`nova_poshta`/`ukrposhta`/
+  `local_courier`) and order validation are byte-identical. Only the **presentation
+  titles/descriptions** are editable; order creation, snapshots, and admin order
+  display still use the canonical method labels.
+- **No real provider APIs / honest model preserved** — defaults explicitly say online
+  acquiring is not connected and payment is confirmed manually; no "paid" state, no
+  carrier API. **Honesty rule for editors:** checkout copy must not claim active
+  online acquiring or carrier/TTN tracking that does not exist (documented; the
+  validator still blocks HTML/`javascript:`/`data:` and enforces length limits).
+- **Deferred (no existing UI slot — avoided to keep design locked):** per-delivery
+  descriptions, `checkout.delivery.notice`, `checkout.confirmation.deliveryNotice` —
+  not added, since rendering them would require new UI (a future design-approved slot).
+- **No design/CSS changes** — only hardcoded text nodes were swapped; markup, classes
+  (`au-co-*`), and layout unchanged.
