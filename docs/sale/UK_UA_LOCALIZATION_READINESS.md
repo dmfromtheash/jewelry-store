@@ -202,6 +202,23 @@ Russian area:
 - **Deferred:** **screenshots need re-capture in 39D** (35B dev + 36A production sets
   still show the old Russian catalog). **Admin** localization still deferred.
 
+### 39D result (done)
+
+- **Screenshots re-captured in Ukrainian** — both the production set
+  (`screenshots/production/`, 7 files, no dev «N») and the dev/interactive/admin set
+  (`screenshots/`, 9 files). Storefront/cart/checkout/order now show the Ukrainian UI
+  **and** the Ukrainian catalog.
+- **Admin** shots keep the **Russian admin chrome (by design/internal)**, but the
+  **catalog data inside them is now Ukrainian** (product names, variant «Родіювання»);
+  production admin is still 404 by design.
+- **New demo orders** created via the real checkout (fictional data): `AUR-44D34A71`
+  (production confirmation) and `AUR-5B0E1514` (dev confirmation + admin order card).
+  Existing `AUR-C205BFBF` / `AUR-C33C3360` **not modified** (their snapshots stay
+  frozen RU — historical).
+- Screenshots are **demo assets, not production-deployment proof**. The old numbered
+  static set (`01-…`–`10-…`) shows the previous Russian storefront and is **stale**
+  (superseded by the production set; not re-captured).
+
 ## 9. Readiness gates before code
 
 - [ ] **Target language confirmed:** uk-UA only **vs** bilingual ru/uk (decides whether

@@ -180,3 +180,32 @@ Edge + DevTools Protocol (реальные клик «Купить» / запо�
 2. `npm run build` → `npm start` (`http://127.0.0.1:3000`).
 3. Витрина/интерактив: Edge + DevTools Protocol, `Page.captureScreenshot` (как в §4).
 4. Админку в production снять нельзя (404 by design) — использовать dev-снимки 35B.
+
+---
+
+## 6. Переснято на українську (этап 39D)
+
+После локализации (39B копія + 39C дані каталогу) **усі вітринні/корзина/чекаут/
+підтвердження** скриншоти **перезняті українською** — і production-набір
+([`./screenshots/production/`](./screenshots/production/)), і dev/інтерактив/адмінка
+([`./screenshots/`](./screenshots/)). Спосіб той самий (Edge + DevTools Protocol).
+
+- **Production (7):** `home/category-bijouterie/category-gifts/product-variants/
+  cart-with-variant/filled-checkout/order-confirmation -production.png` — тепер
+  **українська вітрина + каталог**, без індикатора «N» (`devIndicator=false`).
+- **Dev/інтерактив (5):** `cart-with-variant(.|-mobile)`, `filled-checkout(.|-mobile)`,
+  `order-confirmation` — українські; індикатор «N» присутній (dev-режим).
+- **Адмінка (4):** `admin-dashboard/admin-catalog/admin-product-edit-gallery-variants-stock/
+  admin-order-detail` — **хром адмінки лишається російським (by design, не баг)**, але
+  **дані каталогу в ньому вже українські** (назви товарів, варіант «Родіювання»).
+- **Нові демо-замовлення** (через реальний чекаут, вигадані дані Олена Демоненко /
+  +380 67 000 00 00 / demo@example.com / Київ): `AUR-44D34A71` (production-підтвердження),
+  `AUR-5B0E1514` (dev-підтвердження + картка замовлення в адмінці). Старі демо-замовлення
+  `AUR-C205BFBF` / `AUR-C33C3360` **не змінювалися** (їхні снапшоти лишаються
+  «заморожені» російською — історичні записи).
+- **Скриншоти — демо-ассети, а не доказ production-деплою.**
+- **Стара статика §1 (`01-…`–`10-…`)** показує попередню російську вітрину й **застаріла**;
+  актуальні вітринні кадри — у production-наборі (§5). Переніміати §1 не потрібно.
+
+> `order-confirmation-production.png` тепер посилається на `AUR-44D34A71` (раніше в §5
+> згадувався `AUR-C33C3360` — це попередній російський кадр, тепер перезнятий).
