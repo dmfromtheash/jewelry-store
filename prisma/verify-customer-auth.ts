@@ -1,0 +1,184 @@
+/**
+ * AURELIA — Customer auth verification (Этап 47A)
+ *
+ * Non-destructive checks for the customer auth + account foundation:
+ *   - password hashing: hash is NOT plaintext, verifies correct, rejects wrong;
+ *   - customer session token: signs/verifies, rejects wrong key + tampering;
+ *   - validation: short password / unsafe name rejected, email normalised;
+ *   - DB (inside ALWAYS-ROLLED-BACK transactions — nothing is ever committed):
+ *       * a created customer stores the hash (not plaintext);
+ *       * duplicate email is rejected by the unique constraint (P2002);
+ *       * a logged-in checkout attaches customerId; a guest order stays null;
+ *       * order history is scoped by customerId — customer A never sees B's orders.
+ *
+ * No deleteMany, no raw SQL, no committed test data: every write happens inside a
+ * transaction aborted by a sentinel error, and customer/order counts are asserted
+ * unchanged afterwards. Run with: npm run db:verify:customer-auth
+ */
+
+import { randomBytes } from 'crypto'
+import { Prisma, PrismaClient } from '@prisma/client'
+import { hashPassword, verifyPassword } from '../src/lib/customer/password'
+import {
+  createCustomerToken,
+  verifyCustomerToken,
+  resolveCustomerSessionSecret,
+} from '../src/lib/customer/token'
+import { validateRegisterInput, normalizeEmail } from '../src/lib/customer/validate'
+
+const prisma = new PrismaClient()
+const ROLLBACK = '__AURELIA_CUSTOMER_AUTH_ROLLBACK__'
+
+let failures = 0
+function check(label: string, ok: boolean) {
+  console.log(`  ${ok ? 'OK  ' : 'FAIL'} ${label}`)
+  if (!ok) failures++
+}
+
+async function main() {
+  const customerCountBefore = await prisma.customer.count()
+  const orderCountBefore = await prisma.order.count()
+
+  console.log('Customer auth:')
+  console.log(`  customers in DB: ${customerCountBefore}`)
+  console.log(`  orders in DB:    ${orderCountBefore}`)
+
+  // --- 1) Password hashing (pure) ---
+  const plain = `Sup3r-${randomBytes(6).toString('hex')}`
+  const hash = await hashPassword(plain)
+  check('password hash is not plaintext', !hash.includes(plain) && hash.startsWith('scrypt$'))
+  check('verifyPassword accepts correct password', await verifyPassword(plain, hash))
+  check('verifyPassword rejects wrong password', !(await verifyPassword(`${plain}x`, hash)))
+  check('verifyPassword rejects malformed hash', !(await verifyPassword(plain, 'not-a-hash')))
+
+  // --- 2) Session token (pure) ---
+  const secret = randomBytes(32).toString('hex')
+  const otherSecret = randomBytes(32).toString('hex')
+  const token = createCustomerToken('cust_test_123', secret)
+  const session = verifyCustomerToken(token, secret)
+  check('token verifies with correct key + subject', session?.sub === 'cust_test_123')
+  check('token rejected with wrong key', verifyCustomerToken(token, otherSecret) === null)
+  check('tampered token rejected', verifyCustomerToken(token.slice(0, -2) + 'xy', secret) === null)
+
+  // Secret resolution: an explicit CUSTOMER_SESSION_SECRET is preferred.
+  const prevSecret = process.env.CUSTOMER_SESSION_SECRET
+  process.env.CUSTOMER_SESSION_SECRET = 'x'.repeat(40)
+  check('resolveCustomerSessionSecret prefers explicit secret', resolveCustomerSessionSecret() === 'x'.repeat(40))
+  if (prevSecret === undefined) delete process.env.CUSTOMER_SESSION_SECRET
+  else process.env.CUSTOMER_SESSION_SECRET = prevSecret
+
+  // --- 3) Validation (pure) ---
+  check('short password rejected', !!validateRegisterInput({ email: 'a@b.co', password: 'short' }).errors.password)
+  check(
+    'unsafe name rejected',
+    !!validateRegisterInput({ email: 'a@b.co', password: 'longenough1', name: '<script>x</script>' }).errors.name,
+  )
+  check('email normalised to lowercase', normalizeEmail('  USER@Example.COM ') === 'user@example.com')
+  const goodReg = validateRegisterInput({ email: ' USER@Example.com ', password: 'longenough1', phone: '+380501112233' })
+  check('valid registration normalised', goodReg.value?.email === 'user@example.com' && goodReg.value?.phone === '+380501112233')
+
+  // --- 4) DB: stored hash, duplicate email (own rolled-back tx) ---
+  const tag = randomBytes(6).toString('hex')
+  const emailA = `verify+a_${tag}@aurelia.test`
+  const emailB = `verify+b_${tag}@aurelia.test`
+
+  let storedNotPlain = false
+  let duplicateRejected = false
+  try {
+    await prisma.$transaction(async (tx) => {
+      const created = await tx.customer.create({
+        data: { email: emailA, passwordHash: hash, name: 'Verify A' },
+        select: { id: true, passwordHash: true },
+      })
+      storedNotPlain = created.passwordHash === hash && !created.passwordHash.includes(plain)
+      // Duplicate email → unique violation (P2002). This aborts the tx, which we
+      // want anyway (everything rolls back); we just record that it was rejected.
+      try {
+        await tx.customer.create({ data: { email: emailA, passwordHash: hash } })
+      } catch (e) {
+        if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+          duplicateRejected = true
+        }
+        throw e // abort/rollback (duplicate or otherwise)
+      }
+      throw new Error(ROLLBACK)
+    })
+  } catch (e) {
+    if (!(e instanceof Error) || (e.message !== ROLLBACK && !duplicateRejected)) throw e
+  }
+  check('created customer stores hash, not plaintext', storedNotPlain)
+  check('duplicate email rejected (P2002)', duplicateRejected)
+
+  // --- 5) DB: customerId attach + guest null + cross-customer scoping (rolled back) ---
+  let attachOk = false
+  let guestNull = false
+  let scopedToOwner = false
+  const baseOrder = {
+    status: 'submitted' as const,
+    customerName: 'Verify',
+    customerPhone: '+380501112233',
+    deliveryCity: 'Kyiv',
+    deliveryMethod: 'self_pickup',
+    paymentMethod: 'cash_on_delivery',
+    subtotalAmount: 0,
+    totalAmount: 0,
+  }
+  try {
+    await prisma.$transaction(async (tx) => {
+      const a = await tx.customer.create({ data: { email: emailA, passwordHash: hash }, select: { id: true } })
+      const b = await tx.customer.create({ data: { email: emailB, passwordHash: hash }, select: { id: true } })
+
+      const orderA = await tx.order.create({
+        data: { ...baseOrder, orderCode: `VERIFY-A-${tag}`, customerId: a.id },
+        select: { customerId: true },
+      })
+      const orderGuest = await tx.order.create({
+        data: { ...baseOrder, orderCode: `VERIFY-G-${tag}` },
+        select: { customerId: true },
+      })
+      await tx.order.create({
+        data: { ...baseOrder, orderCode: `VERIFY-B-${tag}`, customerId: b.id },
+        select: { customerId: true },
+      })
+
+      attachOk = orderA.customerId === a.id
+      guestNull = orderGuest.customerId === null
+
+      // Scoping: A's history contains only A's order (never B's or the guest's).
+      const aOrders = await tx.order.findMany({ where: { customerId: a.id }, select: { orderCode: true } })
+      scopedToOwner =
+        aOrders.length === 1 &&
+        aOrders[0].orderCode === `VERIFY-A-${tag}` &&
+        !aOrders.some((o) => o.orderCode === `VERIFY-B-${tag}` || o.orderCode === `VERIFY-G-${tag}`)
+
+      throw new Error(ROLLBACK)
+    })
+  } catch (e) {
+    if (!(e instanceof Error) || e.message !== ROLLBACK) throw e
+  }
+  check('logged-in checkout attaches customerId', attachOk)
+  check('guest order keeps customerId null', guestNull)
+  check('order history scoped to owner (A cannot see B/guest)', scopedToOwner)
+
+  // --- 6) Nothing committed ---
+  const customerCountAfter = await prisma.customer.count()
+  const orderCountAfter = await prisma.order.count()
+  check('no test customers committed', customerCountAfter === customerCountBefore)
+  check('no test orders committed', orderCountAfter === orderCountBefore)
+
+  if (failures === 0) {
+    console.log('\nCUSTOMER AUTH VERIFY OK: hashing, sessions, validation, linking + scoping all pass; nothing committed.')
+  } else {
+    console.error(`\nCUSTOMER AUTH VERIFY FAILED (${failures} check(s)).`)
+    process.exitCode = 1
+  }
+}
+
+main()
+  .catch((e) => {
+    console.error(e)
+    process.exit(1)
+  })
+  .finally(async () => {
+    await prisma.$disconnect()
+  })

@@ -4,6 +4,7 @@ import CartButton from '../cart/CartButton'
 import FavoritesButton from '../favorites/FavoritesButton'
 import HeaderSearch from '../search/HeaderSearch'
 import { getAdminSession } from '../../lib/admin/auth'
+import { getCurrentCustomer } from '../../lib/customer/session'
 import { getPublicSiteSettings } from '../../lib/site-settings/server'
 
 /** Fallback shown when no public phone is configured — keeps the topbar identical
@@ -51,6 +52,14 @@ export default async function Header() {
   // Null (and rendered nothing) for everyone without a valid admin session.
   const adminSession = await getAdminSession()
 
+  // Customer-session-aware profile icon (Этап 47A): when a valid customer session
+  // exists, the profile button links to /account; otherwise it opens the login
+  // modal (unchanged). Only a safe display label (name or email) is passed to the
+  // client — never the session token or other account data. Independent of the
+  // admin session above.
+  const customer = await getCurrentCustomer()
+  const accountName = customer ? customer.name || customer.email : null
+
   // Public site settings (Этап 46D): brand name / tagline / public phone read from
   // the DB with static-default fallback. Empty phone keeps the current placeholder,
   // so the topbar/logo look identical until edited in /admin/settings.
@@ -88,7 +97,7 @@ export default async function Header() {
           </Link>
 
           <div className="au-header-icons">
-            <ProfileButton />
+            <ProfileButton accountName={accountName} />
             <FavoritesButton />
             <CartButton />
           </div>

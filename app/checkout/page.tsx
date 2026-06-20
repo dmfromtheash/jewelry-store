@@ -9,6 +9,7 @@
 import type { Metadata } from 'next'
 import CheckoutPageClient from '../../src/components/checkout/CheckoutPageClient'
 import { getCheckoutCopySettings } from '../../src/lib/site-settings/server'
+import { getCurrentCustomer } from '../../src/lib/customer/session'
 
 export const metadata: Metadata = {
   title: 'Оформлення замовлення — AURELIA',
@@ -20,5 +21,15 @@ export default async function CheckoutPage() {
   // (DB + static fallback) and handed to the client component as a plain prop —
   // no client-side settings fetch. Method keys/allowlist are unchanged.
   const copy = await getCheckoutCopySettings()
-  return <CheckoutPageClient copy={copy} />
+
+  // Этап 47A: when a customer is logged in, prefill the contact fields from their
+  // saved profile (safe display data only). Guests get empty fields and the flow
+  // is unchanged. The order's customerId is attached server-side in the action —
+  // this prop is purely a UX convenience and is never trusted for ownership.
+  const customer = await getCurrentCustomer()
+  const initialContact = customer
+    ? { name: customer.name ?? '', phone: customer.phone ?? '', email: customer.email ?? '' }
+    : null
+
+  return <CheckoutPageClient copy={copy} initialContact={initialContact} />
 }

@@ -17,6 +17,7 @@ import { QTY_MAX, QTY_MIN, type OrderDraftInput, type OrderDraftResult } from '.
 import { recordCheckoutError, recordDraftOrderCreated } from '../analytics/record'
 import { PURCHASABLE_PRODUCT_STATUSES, isPurchasableStatus } from '../catalog/availability'
 import { resolveOrderLineVariant } from './variants'
+import { getCurrentCustomer } from '../customer/session'
 
 function generateOrderCode(): string {
   // 8 hex chars (~4.3B combos); uniqueness is also enforced by the DB + retry.
@@ -184,6 +185,19 @@ export async function createOrderDraft(input: OrderDraftInput): Promise<OrderDra
     })
   }
 
+  // 4b) Optional customer linking (Этап 47A). Resolved from the VERIFIED customer
+  //     session server-side — never trusted from the client. Guest checkout keeps
+  //     `customerId = null`; a logged-in customer's order is attached to their
+  //     account so it shows in their order history. A lookup failure (e.g. stale
+  //     session) safely falls back to a guest order rather than blocking checkout.
+  let customerId: string | null = null
+  try {
+    const customer = await getCurrentCustomer()
+    customerId = customer?.id ?? null
+  } catch {
+    customerId = null
+  }
+
   // 5) Persist Order + OrderItems AND decrement tracked stock in ONE transaction,
   //    so they never partially succeed. Retry only on the (rare) order-code
   //    collision; a rollback also undoes any stock decrement, so the retry is safe.
@@ -215,6 +229,9 @@ export async function createOrderDraft(input: OrderDraftInput): Promise<OrderDra
           data: {
             orderCode,
             status: 'submitted',
+            // Server-resolved owner (Этап 47A): null for guests, the verified
+            // customer id when logged in. Never read from the client payload.
+            customerId,
             customerName: input.customerName.trim(),
             customerPhone: input.customerPhone.trim(),
             customerEmail: input.customerEmail?.trim() ? input.customerEmail.trim() : null,

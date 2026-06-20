@@ -48,7 +48,20 @@ const GemIcon = () => (
   </svg>
 )
 
-export default function CheckoutPageClient({ copy }: { copy: CheckoutCopy }) {
+/** Optional contact prefill from the logged-in customer's profile (Этап 47A). */
+interface InitialContact {
+  name: string
+  phone: string
+  email: string
+}
+
+export default function CheckoutPageClient({
+  copy,
+  initialContact = null,
+}: {
+  copy: CheckoutCopy
+  initialContact?: InitialContact | null
+}) {
   const { lines, unavailable, hasUnavailable, count, subtotal, removeItem, clear } = useCart()
   const [confirmation, setConfirmation] = useState<OrderConfirmation | null>(null)
 
@@ -63,9 +76,10 @@ export default function CheckoutPageClient({ copy }: { copy: CheckoutCopy }) {
     copy.paymentDescriptions[key as PaymentMethod] ?? ''
 
   const [form, setForm] = useState({
-    name: '',
-    phone: '',
-    email: '',
+    // Prefilled from the customer profile when logged in (Этап 47A); empty for guests.
+    name: initialContact?.name ?? '',
+    phone: initialContact?.phone ?? '',
+    email: initialContact?.email ?? '',
     city: '',
     // Stored as plain strings (set from <select> values); the server re-validates
     // them against the allowlist in src/lib/orders/methods.ts.

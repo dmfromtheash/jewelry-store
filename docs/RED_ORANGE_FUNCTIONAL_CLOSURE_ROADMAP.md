@@ -138,6 +138,10 @@ security-sensitive or schema-touching.
    model + admin form + read path; content-only)*.
 3. **47A — Customer Auth + Account SPEC** *(implementable-now, docs; `User` model,
    sessions, order linking, security posture)*.
+   - **47A done:** customer auth/account foundation implemented (Customer model,
+     scrypt hashing, separate session, register/login/logout, `/account` + scoped
+     order history, server-side checkout customerId linking; guest checkout
+     preserved). See `docs/customer/CUSTOMER_AUTH_ACCOUNT_SPEC.md`.
 4. **47B — Customer Account implementation** *(auth backend wired to existing modals;
    account page; order history from existing `Order` data)*.
 5. **48A — Manual delivery/payment UX hardening** *(copy/validation within locked
