@@ -11,9 +11,9 @@
  *
  * Safety: only ALLOWLISTED keys are ever written (the parser iterates the def
  * list, not the raw form). Values are plain text validated server-side. Metadata
- * (label/group/type) is code-owned and re-synced on every save. NO storefront
- * revalidation here — the storefront does not read settings until 46D, so only
- * the admin page is revalidated.
+ * (label/group/type) is code-owned and re-synced on every save. Since 46D the
+ * storefront Header/Footer (root layout) read public settings, so a real change
+ * also revalidates the root layout — edits show up on every storefront page.
  */
 
 import { revalidatePath } from 'next/cache'
@@ -77,6 +77,9 @@ export async function updateSiteSettingsAction(formData: FormData) {
     metadata: { changedKeys, changedCount: changedKeys.length, groups: changedGroups },
   })
 
+  // Header/Footer live in the root layout → revalidate it so public pages pick up
+  // the new brand/contact values (46D). The admin page is revalidated too.
+  revalidatePath('/', 'layout')
   revalidatePath(SETTINGS_PATH)
   redirect(`${SETTINGS_PATH}?ok=saved`)
 }

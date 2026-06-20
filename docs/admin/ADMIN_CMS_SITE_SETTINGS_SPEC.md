@@ -412,3 +412,34 @@ Delivered as **stage 46C** (commit `feat: add admin site settings foundation`):
   `au-field`, `au-btn`); no CSS added; storefront untouched.
 - **No raw HTML / no page builder** — plain-text only, `<`/`>` and `javascript:`/
   `data:` rejected; only the fixed key allowlist is writable.
+
+---
+
+## 17. 46D result note (storefront integration)
+
+Delivered as **stage 46D** (commit `feat: wire storefront site settings`):
+
+- **Public read helper** — `getPublicSiteSettings()` added to
+  `src/lib/site-settings/server.ts`: a compact, typed `PublicSiteSettings` object
+  (camelCase fields), PUBLIC rows only, deduped per request via React `cache()`,
+  **default-on-empty fallback**, and never throws (DB failure → all defaults).
+- **Footer wired** — brand display name, tagline, blurb, and copyright now come from
+  settings (`src/components/layout/Footer.tsx`, made `async`). Classes/markup unchanged.
+- **Header wired** — logo brand name + tagline and the topbar phone now come from
+  settings (`src/components/layout/Header.tsx`). The topbar phone keeps the existing
+  placeholder `0 800 000 00 00` as a UI fallback when `contact.phone` is empty.
+- **Fallback confirmed** — every default equals the current static copy, so the
+  storefront is **visually identical** until the owner edits values. Empty
+  contact/social fields are **not** rendered as fake links (no UI slot exists for them
+  yet — intentionally not added, to keep the layout locked).
+- **Admin revalidation** — `updateSiteSettingsAction` now also `revalidatePath('/',
+  'layout')` so a saved change propagates to the global Header/Footer.
+- **Verify extended** — `db:verify:site-settings` now also asserts the public-fallback
+  contract resolves (required keys non-empty; no public-rendered value is unsafe).
+- **Design/CSS unchanged** — only text node values were swapped; no `src/styles/*`,
+  no markup/structure, no new images.
+- **Deferred (unchanged here):** info-page body CMS (`SitePage`, 46E), checkout
+  payment/delivery copy CMS (46F), homepage/SEO text (46G). Social-link and full
+  contact blocks need a future, design-approved UI slot before they can render.
+- **Root metadata** (`app/layout.tsx` title) intentionally left static to avoid SEO-CMS
+  overreach; the title already matches the brand default.

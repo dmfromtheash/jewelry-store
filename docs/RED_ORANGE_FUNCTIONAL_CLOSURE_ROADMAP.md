@@ -212,7 +212,9 @@ consumed by existing components. Audit each change via the existing `AdminAuditL
 > the 46C–46G implementation stages.
 >
 > **Status:** 46C done — `SiteSetting` model + `/admin/settings` editor for the 11 v1
-> keys shipped (admin-side only; storefront integration is 46D).
+> keys shipped (admin-side only; storefront integration is 46D). 46D done — storefront
+> Header/Footer read site settings (brand, tagline, blurb, copyright, public phone)
+> with static fallback; design unchanged.
 
 ---
 

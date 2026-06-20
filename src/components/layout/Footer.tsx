@@ -10,6 +10,7 @@
  */
 
 import Link from 'next/link'
+import { getPublicSiteSettings } from '../../lib/site-settings/server'
 
 // Links with a real route navigate via next/link; the rest stay on "#"
 // (their pages do not exist yet — no fake routes).
@@ -42,7 +43,12 @@ const FOOTER_COLUMNS: { heading: string; links: { label: string; href: string }[
   },
 ]
 
-export default function Footer() {
+export default async function Footer() {
+  // Public site settings (Этап 46D): brand name / tagline / blurb / copyright are
+  // read from the DB with a static-default fallback, so the footer looks identical
+  // until the owner edits them in /admin/settings. Layout/classes are unchanged.
+  const settings = await getPublicSiteSettings()
+
   return (
     <footer className="au-footer">
       {/* ---- Subscribe block ---- */}
@@ -66,11 +72,9 @@ export default function Footer() {
       {/* ---- Brand + link columns ---- */}
       <div className="au-container au-footer-cols">
         <div className="au-footer-brand">
-          <div className="name">AURELIA</div>
-          <div className="tag">Bijouterie without limits</div>
-          <p className="p">
-            Сучасна біжутерія та аксесуари. Дизайн-прототип інтернет-магазину.
-          </p>
+          <div className="name">{settings.brandDisplayName}</div>
+          <div className="tag">{settings.brandTagline}</div>
+          <p className="p">{settings.footerBlurb}</p>
         </div>
 
         {FOOTER_COLUMNS.map((column) => (
@@ -96,7 +100,7 @@ export default function Footer() {
       {/* ---- Bottom bar ---- */}
       <div className="au-footer-bottom">
         <div className="au-container au-footer-bottom-in">
-          <span>© 2026 AURELIA. Дизайн-прототип.</span>
+          <span>{settings.footerCopyright}</span>
           <div className="au-pay" aria-label="Способи оплати">
             <span />
             <span />

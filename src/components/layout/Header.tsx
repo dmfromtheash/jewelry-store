@@ -4,6 +4,11 @@ import CartButton from '../cart/CartButton'
 import FavoritesButton from '../favorites/FavoritesButton'
 import HeaderSearch from '../search/HeaderSearch'
 import { getAdminSession } from '../../lib/admin/auth'
+import { getPublicSiteSettings } from '../../lib/site-settings/server'
+
+/** Fallback shown when no public phone is configured — keeps the topbar identical
+ *  to the locked design until the owner sets contact.phone in /admin/settings. */
+const TOPBAR_PHONE_FALLBACK = '0 800 000 00 00'
 
 /**
  * AURELIA — Header (server component)
@@ -46,6 +51,12 @@ export default async function Header() {
   // Null (and rendered nothing) for everyone without a valid admin session.
   const adminSession = await getAdminSession()
 
+  // Public site settings (Этап 46D): brand name / tagline / public phone read from
+  // the DB with static-default fallback. Empty phone keeps the current placeholder,
+  // so the topbar/logo look identical until edited in /admin/settings.
+  const settings = await getPublicSiteSettings()
+  const topbarPhone = settings.contactPhone || TOPBAR_PHONE_FALLBACK
+
   return (
     <>
       {/* ---- Top service bar ---- */}
@@ -60,7 +71,7 @@ export default async function Header() {
           </nav>
           <div className="au-topbar-right">
             {adminSession && <Link href="/admin/dashboard">Админка</Link>}
-            <span className="phone">0 800 000 00 00</span>
+            <span className="phone">{topbarPhone}</span>
             <a href="#">UA</a>
           </div>
         </div>
@@ -72,8 +83,8 @@ export default async function Header() {
           <HeaderSearch />
 
           <Link className="au-logo" href="/">
-            <span className="name">AURELIA</span>
-            <span className="tagline">Bijouterie without limits</span>
+            <span className="name">{settings.brandDisplayName}</span>
+            <span className="tagline">{settings.brandTagline}</span>
           </Link>
 
           <div className="au-header-icons">
