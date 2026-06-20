@@ -28,6 +28,7 @@ owner must decide before a real launch.
 5. [`DEMO_SCREENSHOT_CHECKLIST.md`](./DEMO_SCREENSHOT_CHECKLIST.md) — the screenshot set + how it was captured.
 6. [`PAYMENT_DELIVERY_PROVIDER_RESEARCH.md`](./PAYMENT_DELIVERY_PROVIDER_RESEARCH.md) — Ukraine provider research (LiqPay/WayForPay/Nova Poshta/Ukrposhta), official-source based.
 7. [`SETUP_AND_HANDOFF_CHECKLIST.md`](./SETUP_AND_HANDOFF_CHECKLIST.md) — turning the demo into the buyer's store (brand → catalog → contacts → providers → deploy).
+8. [`LIVE_DEMO_DEPLOY_READINESS.md`](./LIVE_DEMO_DEPLOY_READINESS.md) — honest live-demo / deploy-readiness audit (local vs temporary tunnel vs hosted vs production; gates and blockers). **Planning only — nothing is deployed.**
 
 ---
 
