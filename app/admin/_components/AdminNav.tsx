@@ -28,6 +28,7 @@ const NAV_ITEMS: readonly AdminNavItem[] = [
   { href: '/admin/security', label: 'Безопасность' },
   { href: '/admin/audit-log', label: 'Журнал аудита' },
   { href: '/admin/settings', label: 'Настройки' },
+  { href: '/admin/content', label: 'Контент' },
 ]
 
 export function AdminNav() {

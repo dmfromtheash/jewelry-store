@@ -443,3 +443,36 @@ Delivered as **stage 46D** (commit `feat: wire storefront site settings`):
   contact blocks need a future, design-approved UI slot before they can render.
 - **Root metadata** (`app/layout.tsx` title) intentionally left static to avoid SEO-CMS
   overreach; the title already matches the brand default.
+
+---
+
+## 18. 46E result note (info pages CMS)
+
+Delivered as **stage 46E** (commit `feat: add admin info pages cms`):
+
+- **`SitePage` model added** — additive Prisma model (`slug @unique`, `title`,
+  `metaTitle`, `metaDescription`, `intro?`, `notice?`, `sections Json`, `isPublished`),
+  migration `…_add_site_pages`. Shape mirrors `InfoPage` so `InfoPageLayout` renders
+  it **unchanged**. `src/data/info-pages.ts` is **kept** as the static default/fallback.
+- **`/admin/content` added** — list of the six known pages (delivery / returns /
+  stores / help / about / contacts) + a per-page editor `/admin/content/[slug]`.
+  Structured, **no-JS, plain-text** form (title/SEO/intro/notice + per-section heading,
+  paragraphs, bullets, FAQ as line-based fields). No raw-JSON textarea, no page builder,
+  no add/remove-section (edits the current sections in place). Added to `AdminNav`.
+- **Public pages read DB with fallback** — the six routes now call
+  `getInfoPageForPublic(slug)` (server-only, React-`cache` deduped): a published, VALID
+  DB row wins; otherwise the static default. Missing / unpublished / invalid JSON / DB
+  error all fall back, so a public page **never crashes** and the locked design is
+  preserved. The DB blob is re-validated on read before it is trusted.
+- **Validation/security** — shared pure validator (`src/lib/site-pages/validate.ts`):
+  strict `InfoSection[]` shape, length + count limits, rejects `<`/`>` and
+  `javascript:`/`data:`. Slug **allowlist** (only the six known pages) — no arbitrary
+  page creation. Action audits `admin.page.updated` with safe metadata only (slug,
+  section count, published flag).
+- **Backfill** — idempotent `db:seed:site-pages` (creates missing from defaults, never
+  overwrites edits, never deletes) + `db:verify:site-pages` (slugs present/unique/
+  strict, content valid, no unsafe values, public fallback resolves).
+- **No design/CSS changes** — built from existing admin primitives (`au-adm-*`,
+  `au-field`, `au-adm-table`, `au-btn`); `InfoPageLayout` and `content.css` untouched.
+- **Raw HTML / page builder still forbidden**; checkout payment/delivery copy CMS
+  remains **deferred** (46F).

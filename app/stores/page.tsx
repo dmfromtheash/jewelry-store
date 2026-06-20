@@ -1,14 +1,19 @@
 import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import InfoPageLayout from '../../src/components/content/InfoPageLayout'
-import { getInfoPage } from '../../src/data/info-pages'
+import { getInfoPageForPublic } from '../../src/lib/site-pages/server'
 
-const page = getInfoPage('stores')!
+// Этап 46E: content now comes from the DB (SitePage) with a static fallback to
+// src/data/info-pages.ts on missing/unpublished/invalid/DB-error. Markup unchanged.
+const SLUG = 'stores'
 
-export const metadata: Metadata = {
-  title: page.metaTitle,
-  description: page.metaDescription,
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await getInfoPageForPublic(SLUG)
+  return { title: page?.metaTitle, description: page?.metaDescription }
 }
 
-export default function StoresPage() {
+export default async function StoresPage() {
+  const page = await getInfoPageForPublic(SLUG)
+  if (!page) notFound()
   return <InfoPageLayout page={page} />
 }

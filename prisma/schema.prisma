@@ -329,3 +329,34 @@ model SiteSetting {
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
 }
+
+/// Owner-editable public info page (Этап 46E — Info Pages CMS). Stores the SAME
+/// shape the storefront already renders (src/data/info-pages.ts → InfoPageLayout):
+/// title + SEO meta + optional intro/notice + a strict `sections` JSON array
+/// ({ heading?, paragraphs?[], bullets?[], faq?[] }). PLAIN TEXT only — validated +
+/// audited on write; NEVER raw HTML/scripts, NEVER a freeform page builder. Slugs
+/// come from the FIXED known-page allowlist (src/lib/site-pages/defaults.ts, sourced
+/// from info-pages.ts). Additive + fallback-first: the static info-pages.ts stays as
+/// the default/fallback, so a missing/unpublished/invalid row renders the same page.
+model SitePage {
+  id              String   @id @default(cuid())
+  /// Known page slug: delivery | returns | stores | help | about | contacts.
+  slug            String   @unique
+  title           String
+  /// SEO <title>; mirrors InfoPage.metaTitle.
+  metaTitle       String
+  /// SEO meta description; mirrors InfoPage.metaDescription.
+  metaDescription String
+  /// Optional lead paragraph.
+  intro           String?
+  /// Optional highlighted pre-launch notice.
+  notice          String?
+  /// InfoSection[] as validated JSON (heading/paragraphs/bullets/faq). Plain text
+  /// only; shape + length/count limits enforced on every write (and re-checked on
+  /// read — an invalid blob falls back to the static default).
+  sections        Json
+  /// false hides the DB content → the storefront falls back to the static default.
+  isPublished     Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
