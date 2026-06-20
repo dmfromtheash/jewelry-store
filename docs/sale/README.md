@@ -46,6 +46,9 @@ owner must decide before a real launch.
   shots are the reference. Details: [`DEMO_SCREENSHOT_CHECKLIST.md`](./DEMO_SCREENSHOT_CHECKLIST.md) §5.
 - All screenshots are **demo assets on local/demo data** — not proof of a live
   production deployment.
+- **Product imagery is still placeholder** (gem empty-state, no real photos) — the
+  top remaining visual gap; plan to close it in
+  [`PRODUCT_IMAGERY_GAP_PLAN.md`](./PRODUCT_IMAGERY_GAP_PLAN.md).
 
 ---
 
