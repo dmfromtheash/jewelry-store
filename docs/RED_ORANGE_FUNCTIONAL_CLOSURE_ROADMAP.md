@@ -144,6 +144,12 @@ security-sensitive or schema-touching.
      preserved). See `docs/customer/CUSTOMER_AUTH_ACCOUNT_SPEC.md`.
 4. **47B — Customer Account implementation** *(auth backend wired to existing modals;
    account page; order history from existing `Order` data)*.
+   - **47B done:** account UX/security hardening — profile editing (name/phone),
+     password change (current-password required, scrypt re-hash, session re-issued),
+     read-only own-order detail (`/account/orders/[orderCode]`, hard-scoped by
+     `orderCode + customerId`), account page panels + order links; guest checkout +
+     admin/customer separation preserved; no schema change, no design change. See
+     `docs/customer/CUSTOMER_AUTH_ACCOUNT_SPEC.md` (Этап 47B).
 5. **48A — Manual delivery/payment UX hardening** *(copy/validation within locked
    layout; keep COD + manual selectable)*.
 6. **48B — E2E smoke harness** *(optional; storefront→checkout happy path)*.

@@ -33,6 +33,25 @@ export type CustomerFieldErrors = Partial<
   Record<'email' | 'password' | 'passwordConfirm' | 'name' | 'phone', string>
 >
 
+/** Shared name check: trims, length-caps, rejects markup. Empty → null (optional). */
+function checkName(raw: string): { error?: string; value: string | null } {
+  const name = (raw ?? '').trim()
+  if (!name) return { value: null }
+  if (name.length > NAME_MAX_LENGTH) return { error: 'Імʼя задовге.', value: null }
+  if (hasUnsafeMarkup(name)) return { error: 'Імʼя містить недопустимі символи.', value: null }
+  return { value: name }
+}
+
+/** Shared phone check: trims, length+format caps. Empty → null (optional). */
+function checkPhone(raw: string): { error?: string; value: string | null } {
+  const phone = (raw ?? '').trim()
+  if (!phone) return { value: null }
+  if (phone.length > PHONE_MAX_LENGTH || !PHONE_RE.test(phone)) {
+    return { error: 'Перевірте формат телефону.', value: null }
+  }
+  return { value: phone }
+}
+
 export interface RegisterInputRaw {
   email: string
   password: string
@@ -75,24 +94,14 @@ export function validateRegisterInput(input: RegisterInputRaw): RegisterValidati
     errors.passwordConfirm = 'Паролі не співпадають.'
   }
 
-  const nameRaw = (input.name ?? '').trim()
-  let name: string | null = null
-  if (nameRaw) {
-    if (nameRaw.length > NAME_MAX_LENGTH) errors.name = 'Імʼя задовге.'
-    else if (hasUnsafeMarkup(nameRaw)) errors.name = 'Імʼя містить недопустимі символи.'
-    else name = nameRaw
-  }
+  const nameCheck = checkName(input.name ?? '')
+  if (nameCheck.error) errors.name = nameCheck.error
 
-  const phoneRaw = (input.phone ?? '').trim()
-  let phone: string | null = null
-  if (phoneRaw) {
-    if (phoneRaw.length > PHONE_MAX_LENGTH || !PHONE_RE.test(phoneRaw)) {
-      errors.phone = 'Перевірте формат телефону.'
-    } else phone = phoneRaw
-  }
+  const phoneCheck = checkPhone(input.phone ?? '')
+  if (phoneCheck.error) errors.phone = phoneCheck.error
 
   if (Object.keys(errors).length > 0) return { errors }
-  return { errors, value: { email, password, name, phone } }
+  return { errors, value: { email, password, name: nameCheck.value, phone: phoneCheck.value } }
 }
 
 export interface LoginInputRaw {
@@ -117,4 +126,78 @@ export function validateLoginInput(input: LoginInputRaw): LoginValidationResult 
   const password = input.password ?? ''
   const ok = email.length > 0 && email.length <= EMAIL_MAX_LENGTH && password.length > 0
   return { ok, email, password }
+}
+
+// --- Profile editing (Этап 47B) ---------------------------------------------
+// Email is intentionally NOT editable in v1 (it is the login identity and would
+// need a verified change flow); only name + phone can be updated. Same
+// conservative name/phone rules as registration, reused via the shared helpers.
+
+export type ProfileFieldErrors = Partial<Record<'name' | 'phone', string>>
+
+export interface NormalizedProfileInput {
+  name: string | null
+  phone: string | null
+}
+
+export interface ProfileValidationResult {
+  errors: ProfileFieldErrors
+  /** Present only when `errors` is empty. */
+  value?: NormalizedProfileInput
+}
+
+export function validateProfileInput(input: { name?: string; phone?: string }): ProfileValidationResult {
+  const errors: ProfileFieldErrors = {}
+
+  const nameCheck = checkName(input.name ?? '')
+  if (nameCheck.error) errors.name = nameCheck.error
+
+  const phoneCheck = checkPhone(input.phone ?? '')
+  if (phoneCheck.error) errors.phone = phoneCheck.error
+
+  if (Object.keys(errors).length > 0) return { errors }
+  return { errors, value: { name: nameCheck.value, phone: phoneCheck.value } }
+}
+
+// --- Password change (Этап 47B) ---------------------------------------------
+// Requires the current password (verified server-side against the stored hash)
+// plus a new password held to the same min/max length as registration. The
+// confirmation, when sent, must match. No content of any password is ever
+// surfaced in an error.
+
+export type PasswordChangeFieldErrors = Partial<
+  Record<'currentPassword' | 'newPassword' | 'newPasswordConfirm', string>
+>
+
+export interface PasswordChangeInputRaw {
+  currentPassword: string
+  newPassword: string
+  newPasswordConfirm?: string
+}
+
+export interface PasswordChangeValidationResult {
+  errors: PasswordChangeFieldErrors
+  /** Present only when `errors` is empty. */
+  value?: { currentPassword: string; newPassword: string }
+}
+
+export function validatePasswordChangeInput(input: PasswordChangeInputRaw): PasswordChangeValidationResult {
+  const errors: PasswordChangeFieldErrors = {}
+
+  const currentPassword = input.currentPassword ?? ''
+  if (!currentPassword) errors.currentPassword = 'Вкажіть поточний пароль.'
+
+  const newPassword = input.newPassword ?? ''
+  if (newPassword.length < PASSWORD_MIN_LENGTH) {
+    errors.newPassword = `Пароль має містити щонайменше ${PASSWORD_MIN_LENGTH} символів.`
+  } else if (newPassword.length > PASSWORD_MAX_LENGTH) {
+    errors.newPassword = 'Пароль задовгий.'
+  }
+
+  if (input.newPasswordConfirm != null && input.newPasswordConfirm !== newPassword) {
+    errors.newPasswordConfirm = 'Паролі не співпадають.'
+  }
+
+  if (Object.keys(errors).length > 0) return { errors }
+  return { errors, value: { currentPassword, newPassword } }
 }

@@ -18,6 +18,8 @@ import { customerOrderStatusLabel } from '../../src/lib/customer/order-display'
 import { deliveryMethodLabel, paymentMethodLabel } from '../../src/lib/orders/methods'
 import { formatPrice } from '../../src/lib/catalog'
 import OpenLoginButton from './_components/OpenLoginButton'
+import ProfileForm from './_components/ProfileForm'
+import PasswordForm from './_components/PasswordForm'
 
 export const metadata: Metadata = {
   title: 'Особистий кабінет — AURELIA',
@@ -65,34 +67,34 @@ export default async function AccountPage() {
       <h1 className="au-co-title">Особистий кабінет</h1>
 
       <div className="au-checkout-grid">
-        {/* ---- Left: profile ---- */}
-        <section className="au-co-section">
-          <h2 className="au-co-section-title">Профіль</h2>
-          <ul className="au-co-list">
-            {customer.name && (
+        {/* ---- Left: profile + security ---- */}
+        <div>
+          <section className="au-co-section">
+            <h2 className="au-co-section-title">Профіль</h2>
+            <ul className="au-co-list">
               <li className="au-co-line">
-                <span className="au-co-line-meta">Імʼя</span>
-                <span className="au-co-line-name">{customer.name}</span>
+                <div className="au-co-line-main">
+                  <span className="au-co-line-meta">E-mail</span>
+                  <p className="au-co-line-name">{customer.email}</p>
+                </div>
               </li>
-            )}
-            <li className="au-co-line">
-              <span className="au-co-line-meta">E-mail</span>
-              <span className="au-co-line-name">{customer.email}</span>
-            </li>
-            {customer.phone && (
-              <li className="au-co-line">
-                <span className="au-co-line-meta">Телефон</span>
-                <span className="au-co-line-name">{customer.phone}</span>
-              </li>
-            )}
-          </ul>
+            </ul>
 
-          <form action={logoutCustomerAction}>
-            <button className="au-btn au-btn--ghost au-btn--block" type="submit">
-              Вийти
-            </button>
-          </form>
-        </section>
+            {/* Editable name/phone (Этап 47B). Email stays read-only above. */}
+            <ProfileForm initialName={customer.name ?? ''} initialPhone={customer.phone ?? ''} />
+
+            <form action={logoutCustomerAction}>
+              <button className="au-btn au-btn--ghost au-btn--block" type="submit">
+                Вийти
+              </button>
+            </form>
+          </section>
+
+          <section className="au-co-section">
+            <h2 className="au-co-section-title">Зміна пароля</h2>
+            <PasswordForm />
+          </section>
+        </div>
 
         {/* ---- Right: order history ---- */}
         <aside className="au-co-summary">
@@ -110,7 +112,10 @@ export default async function AccountPage() {
                 <li className="au-co-line" key={order.orderCode}>
                   <div className="au-co-line-main">
                     <p className="au-co-line-name">
-                      <strong>{order.orderCode}</strong> · {customerOrderStatusLabel(order.status)}
+                      <Link href={`/account/orders/${encodeURIComponent(order.orderCode)}`}>
+                        <strong>{order.orderCode}</strong>
+                      </Link>{' '}
+                      · {customerOrderStatusLabel(order.status)}
                     </p>
                     <p className="au-co-line-meta">
                       {dateFmt.format(order.createdAt)} · {order._count.items} поз. ·{' '}

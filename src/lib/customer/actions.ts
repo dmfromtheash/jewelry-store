@@ -21,23 +21,40 @@ import {
   createCustomer,
   DuplicateEmailError,
   findCustomerCredentials,
+  getCustomerCredentialsById,
+  updateCustomerPassword,
+  updateCustomerProfile,
 } from './repo'
-import { startCustomerSession, endCustomerSession } from './session'
+import { getCurrentCustomer, startCustomerSession, endCustomerSession } from './session'
 import { CustomerAuthConfigError } from './token'
 import {
   validateLoginInput,
+  validatePasswordChangeInput,
+  validateProfileInput,
   validateRegisterInput,
   type CustomerFieldErrors,
+  type PasswordChangeFieldErrors,
+  type ProfileFieldErrors,
 } from './validate'
 
 export type CustomerAuthResult =
   | { ok: true }
   | { ok: false; error: string; fieldErrors?: CustomerFieldErrors }
 
+export type CustomerProfileResult =
+  | { ok: true }
+  | { ok: false; error: string; fieldErrors?: ProfileFieldErrors }
+
+export type CustomerPasswordResult =
+  | { ok: true }
+  | { ok: false; error: string; fieldErrors?: PasswordChangeFieldErrors }
+
 const GENERIC_LOGIN_ERROR = 'Невірний e-mail або пароль.'
 const CONFIG_ERROR = 'Вхід тимчасово недоступний. Спробуйте пізніше.'
 const SERVER_ERROR = 'Сталася помилка. Спробуйте ще раз.'
 const THROTTLED_ERROR = 'Забагато спроб. Зачекайте трохи й спробуйте знову.'
+const NOT_LOGGED_IN_ERROR = 'Сесія завершилася. Увійдіть знову.'
+const CURRENT_PASSWORD_WRONG = 'Поточний пароль невірний.'
 
 // --- Best-effort in-memory auth throttle (per-process; fails open on restart) ---
 const ATTEMPT_WINDOW_MS = 10 * 60 * 1000
@@ -154,4 +171,72 @@ export async function loginCustomerAction(input: {
 export async function logoutCustomerAction(): Promise<void> {
   await endCustomerSession()
   redirect('/')
+}
+
+/**
+ * Updates the logged-in customer's editable profile fields (name/phone — Этап 47B).
+ * Re-resolves the owner from the VERIFIED session (never trusts a client id), so it
+ * can only ever update the caller's own row. Email stays immutable. Validation
+ * mirrors registration (length caps + HTML/script rejection).
+ */
+export async function updateCustomerProfileAction(input: {
+  name?: string
+  phone?: string
+}): Promise<CustomerProfileResult> {
+  const customer = await getCurrentCustomer()
+  if (!customer) return { ok: false, error: NOT_LOGGED_IN_ERROR }
+
+  const { errors, value } = validateProfileInput(input)
+  if (!value) return { ok: false, error: 'Перевірте поля форми.', fieldErrors: errors }
+
+  try {
+    await updateCustomerProfile(customer.id, value)
+    return { ok: true }
+  } catch (e) {
+    console.error('updateCustomerProfileAction failed:', e instanceof Error ? e.message : 'unknown')
+    return { ok: false, error: SERVER_ERROR }
+  }
+}
+
+/**
+ * Changes the logged-in customer's password (Этап 47B). Requires the CURRENT
+ * password, verified against the stored hash before any write. The new password is
+ * hashed with the existing scrypt helper (never stored/logged in plaintext). On
+ * success the session is RE-ISSUED so the current device keeps a fresh, valid token.
+ *
+ * Limitation (documented): the session token is stateless, so this does NOT revoke
+ * sessions already issued to OTHER devices — there is no global revocation list yet
+ * (would need an additive sessionVersion/passwordChangedAt column + a check in
+ * getCurrentCustomer). Out of scope for 47B; see the spec's "remaining gaps".
+ */
+export async function changeCustomerPasswordAction(input: {
+  currentPassword: string
+  newPassword: string
+  newPasswordConfirm?: string
+}): Promise<CustomerPasswordResult> {
+  const customer = await getCurrentCustomer()
+  if (!customer) return { ok: false, error: NOT_LOGGED_IN_ERROR }
+
+  const { errors, value } = validatePasswordChangeInput(input)
+  if (!value) return { ok: false, error: 'Перевірте поля форми.', fieldErrors: errors }
+
+  try {
+    const creds = await getCustomerCredentialsById(customer.id)
+    if (!creds) return { ok: false, error: NOT_LOGGED_IN_ERROR }
+
+    const currentOk = await verifyPassword(value.currentPassword, creds.passwordHash)
+    if (!currentOk) {
+      return { ok: false, error: CURRENT_PASSWORD_WRONG, fieldErrors: { currentPassword: ' ' } }
+    }
+
+    const newHash = await hashPassword(value.newPassword)
+    await updateCustomerPassword(customer.id, newHash)
+    // Re-issue the session so the current device stays logged in with a fresh token.
+    await startCustomerSession(customer.id)
+    return { ok: true }
+  } catch (e) {
+    if (e instanceof CustomerAuthConfigError) return { ok: false, error: CONFIG_ERROR }
+    console.error('changeCustomerPasswordAction failed:', e instanceof Error ? e.message : 'unknown')
+    return { ok: false, error: SERVER_ERROR }
+  }
 }

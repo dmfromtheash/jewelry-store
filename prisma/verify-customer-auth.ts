@@ -1,19 +1,33 @@
 /**
- * AURELIA — Customer auth verification (Этап 47A)
+ * AURELIA — Customer auth verification (Этап 47A + 47B)
  *
- * Non-destructive checks for the customer auth + account foundation:
+ * Non-destructive checks for the customer auth + account cabinet:
  *   - password hashing: hash is NOT plaintext, verifies correct, rejects wrong;
  *   - customer session token: signs/verifies, rejects wrong key + tampering;
  *   - validation: short password / unsafe name rejected, email normalised;
+ *   - 47B profile editing validation: unsafe name / bad phone rejected, normalised,
+ *     optional fields clearable;
+ *   - 47B password-change validation: current password required, short/mismatched
+ *     new password rejected;
  *   - DB (inside ALWAYS-ROLLED-BACK transactions — nothing is ever committed):
  *       * a created customer stores the hash (not plaintext);
  *       * duplicate email is rejected by the unique constraint (P2002);
  *       * a logged-in checkout attaches customerId; a guest order stays null;
- *       * order history is scoped by customerId — customer A never sees B's orders.
+ *       * order history is scoped by customerId — customer A never sees B's orders;
+ *       * 47B password change: replacing the stored hash makes the OLD password
+ *         fail and the NEW one verify;
+ *       * 47B order-detail scoping (mirrors getCustomerOrderByCode's
+ *         WHERE { orderCode, customerId }): the owner loads their own order, but a
+ *         foreign customer's order and a guest order are NOT loadable by code.
  *
  * No deleteMany, no raw SQL, no committed test data: every write happens inside a
  * transaction aborted by a sentinel error, and customer/order counts are asserted
  * unchanged afterwards. Run with: npm run db:verify:customer-auth
+ *
+ * NOTE (route smoke limit): the account/order-detail page guards (redirect to
+ * /account when logged out, notFound() when the scoped query returns null) depend
+ * on Next.js request cookies and are not exercised here — they are covered at the
+ * data layer via the scoped queries below.
  */
 
 import { randomBytes } from 'crypto'
@@ -24,7 +38,12 @@ import {
   verifyCustomerToken,
   resolveCustomerSessionSecret,
 } from '../src/lib/customer/token'
-import { validateRegisterInput, normalizeEmail } from '../src/lib/customer/validate'
+import {
+  validateRegisterInput,
+  validateProfileInput,
+  validatePasswordChangeInput,
+  normalizeEmail,
+} from '../src/lib/customer/validate'
 
 const prisma = new PrismaClient()
 const ROLLBACK = '__AURELIA_CUSTOMER_AUTH_ROLLBACK__'
@@ -76,6 +95,25 @@ async function main() {
   check('email normalised to lowercase', normalizeEmail('  USER@Example.COM ') === 'user@example.com')
   const goodReg = validateRegisterInput({ email: ' USER@Example.com ', password: 'longenough1', phone: '+380501112233' })
   check('valid registration normalised', goodReg.value?.email === 'user@example.com' && goodReg.value?.phone === '+380501112233')
+
+  // --- 3b) Profile + password-change validation (pure, Этап 47B) ---
+  check('profile rejects unsafe name', !!validateProfileInput({ name: '<b>x</b>' }).errors.name)
+  check('profile rejects bad phone', !!validateProfileInput({ phone: 'not-a-phone' }).errors.phone)
+  const okProfile = validateProfileInput({ name: '  Іра  ', phone: '+380501112233' })
+  check(
+    'profile normalises name + phone',
+    okProfile.value?.name === 'Іра' && okProfile.value?.phone === '+380501112233',
+  )
+  const clearProfile = validateProfileInput({ name: '', phone: '' })
+  check('profile allows clearing optional fields', clearProfile.value?.name === null && clearProfile.value?.phone === null)
+
+  check('password change requires current password', !!validatePasswordChangeInput({ currentPassword: '', newPassword: 'longenough1' }).errors.currentPassword)
+  check('password change rejects short new password', !!validatePasswordChangeInput({ currentPassword: 'x', newPassword: 'short' }).errors.newPassword)
+  check(
+    'password change rejects mismatched confirm',
+    !!validatePasswordChangeInput({ currentPassword: 'x', newPassword: 'longenough1', newPasswordConfirm: 'different1' }).errors.newPasswordConfirm,
+  )
+  check('valid password change accepted', !!validatePasswordChangeInput({ currentPassword: 'old', newPassword: 'longenough1', newPasswordConfirm: 'longenough1' }).value)
 
   // --- 4) DB: stored hash, duplicate email (own rolled-back tx) ---
   const tag = randomBytes(6).toString('hex')
@@ -159,6 +197,51 @@ async function main() {
   check('logged-in checkout attaches customerId', attachOk)
   check('guest order keeps customerId null', guestNull)
   check('order history scoped to owner (A cannot see B/guest)', scopedToOwner)
+
+  // --- 5b) DB: password change re-hash + order-detail scoping (Этап 47B, rolled back) ---
+  let oldFailsNewWorks = false
+  let ownerSeesOwnOrder = false
+  let foreignOrderHidden = false
+  let guestOrderHidden = false
+  try {
+    await prisma.$transaction(async (tx) => {
+      const oldPlain = `Old-${randomBytes(5).toString('hex')}`
+      const newPlain = `New-${randomBytes(5).toString('hex')}`
+      const oldHash = await hashPassword(oldPlain)
+      const newHash = await hashPassword(newPlain)
+
+      const a = await tx.customer.create({ data: { email: emailA, passwordHash: oldHash }, select: { id: true } })
+      const b = await tx.customer.create({ data: { email: emailB, passwordHash: oldHash }, select: { id: true } })
+
+      // Password change: replace the stored hash, then verify against the STORED value.
+      await tx.customer.update({ where: { id: a.id }, data: { passwordHash: newHash } })
+      const after = await tx.customer.findUnique({ where: { id: a.id }, select: { passwordHash: true } })
+      oldFailsNewWorks =
+        !!after &&
+        !(await verifyPassword(oldPlain, after.passwordHash)) &&
+        (await verifyPassword(newPlain, after.passwordHash))
+
+      const orderA = await tx.order.create({ data: { ...baseOrder, orderCode: `VERIFY-OA-${tag}`, customerId: a.id }, select: { orderCode: true } })
+      const orderB = await tx.order.create({ data: { ...baseOrder, orderCode: `VERIFY-OB-${tag}`, customerId: b.id }, select: { orderCode: true } })
+      const orderG = await tx.order.create({ data: { ...baseOrder, orderCode: `VERIFY-OG-${tag}` }, select: { orderCode: true } })
+
+      // Mirrors getCustomerOrderByCode's hard scoping: WHERE { orderCode, customerId }.
+      const own = await tx.order.findFirst({ where: { orderCode: orderA.orderCode, customerId: a.id }, select: { orderCode: true } })
+      const foreign = await tx.order.findFirst({ where: { orderCode: orderB.orderCode, customerId: a.id }, select: { orderCode: true } })
+      const guest = await tx.order.findFirst({ where: { orderCode: orderG.orderCode, customerId: a.id }, select: { orderCode: true } })
+      ownerSeesOwnOrder = own?.orderCode === orderA.orderCode
+      foreignOrderHidden = foreign === null
+      guestOrderHidden = guest === null
+
+      throw new Error(ROLLBACK)
+    })
+  } catch (e) {
+    if (!(e instanceof Error) || e.message !== ROLLBACK) throw e
+  }
+  check('password change: old password fails, new verifies (stored hash replaced)', oldFailsNewWorks)
+  check('order detail: owner loads own order (scoped by orderCode + customerId)', ownerSeesOwnOrder)
+  check('order detail: customer A cannot load customer B order by code', foreignOrderHidden)
+  check('order detail: customer cannot load a guest order by code', guestOrderHidden)
 
   // --- 6) Nothing committed ---
   const customerCountAfter = await prisma.customer.count()

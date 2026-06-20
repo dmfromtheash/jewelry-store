@@ -95,3 +95,76 @@ order scoping.
 47B — customer account UX hardening: profile editing + password change, password
 reset flow, and optional guest-order linking by email. Payment/delivery APIs stay
 deferred behind the owner/legal/provider checklist.
+
+---
+
+# Этап 47B — Account UX + Security Hardening Pack
+
+Status: **implemented**. Additive, guest-first. **No schema change** (47A's models
+were sufficient). No payment/delivery APIs, no design/CSS changes.
+
+## 47B.1 What was added
+
+- **Profile editing** — `updateCustomerProfileAction`
+  (`src/lib/customer/actions.ts`) + `updateCustomerProfile`
+  (`src/lib/customer/repo.ts`). Editable fields: **name + phone only**. The owner is
+  re-resolved from the **verified session** (never a client id), so a customer can
+  only update their own row. Validation reuses the registration rules (length caps,
+  HTML/`javascript:`/`data:` rejection) via shared `validateProfileInput`. **Email
+  stays immutable** in v1 (login identity; a verified change flow is deferred).
+- **Password change** — `changeCustomerPasswordAction` + `getCustomerCredentialsById`
+  / `updateCustomerPassword`. Requires the **current password** (verified against the
+  stored scrypt hash before any write), a new password (min 8, same caps), and a
+  confirmation. The new password is hashed with the existing `hashPassword` helper —
+  never stored/logged in plaintext. Errors are generic (no password content echoed).
+  On success the session is **re-issued** (`startCustomerSession`) so the current
+  device keeps a fresh valid token.
+- **Account order detail** — new route `app/account/orders/[orderCode]/page.tsx` +
+  `getCustomerOrderByCode(customerId, orderCode)`. The reader is **hard-scoped by
+  `(orderCode AND customerId)`**, so another customer's code (or a guest order's code)
+  resolves to `null`. The page **requires login** (logged out → redirect to
+  `/account`), returns **`notFound()`** when not owned, and is **read-only** (no
+  status change / cancel). It shows items, totals, status, delivery/payment summary
+  and the created date — **no admin-only data**.
+- **Account page UX** (`app/account/page.tsx`, existing classes only) — profile panel
+  with the editable name/phone form, read-only email, a password-change panel, an
+  order list whose codes now **link to the owned order detail**, an empty state and
+  logout. New client components: `_components/ProfileForm.tsx`,
+  `_components/PasswordForm.tsx` (reuse `au-field` / `au-field-error` / `au-btn` /
+  `au-co-note`).
+
+## 47B.2 Guest checkout preserved
+
+Unchanged. Login is never forced; the checkout flow, fields, validation and
+confirmation are identical for guests (`customerId` stays `null`). A stale/invalid
+customer session during checkout still falls back to a guest order. Logged-in contact
+prefill is unchanged (UX only; ownership is server-resolved).
+
+## 47B.3 Admin / customer separation
+
+Unchanged and intact. All new actions/pages use the **customer** session
+(`au_customer_session`) only; none touch the admin session, `ensureLocalAdmin`, or any
+admin data. A customer session still grants **no** `/admin` access.
+
+## 47B.4 Verification
+
+`npm run db:verify:customer-auth` extended (all writes inside always-rolled-back
+transactions; counts asserted unchanged): profile validation (unsafe name / bad phone
+rejected, normalised, clearable), password-change validation (current required,
+short/mismatched new rejected), password-change re-hash (old fails, new verifies after
+the stored hash is replaced), and order-detail scoping (owner loads own order; a
+foreign customer's and a guest's orders are NOT loadable by code).
+
+## 47B.5 Remaining gaps (carried forward)
+
+- **No global session revocation.** The session token is stateless, so password change
+  re-issues only the current device's token; tokens already on **other** devices stay
+  valid until expiry. Closing this needs an additive `sessionVersion`/`passwordChangedAt`
+  column checked in `getCurrentCustomer` — intentionally deferred (not added in 47B to
+  avoid an unnecessary migration).
+- **No password reset / email verification** ("Забули пароль?" is still a no-op).
+- **No email change** (immutable in v1).
+- **Throttle is still in-memory** (per-process, fails open on restart).
+- **No guest-order linking by email** into a newly created account.
+- Account/order-detail **route guards** (redirect/`notFound`) depend on request
+  cookies and are not exercised by the verify script — covered at the data layer.

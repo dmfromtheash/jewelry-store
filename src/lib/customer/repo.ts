@@ -84,6 +84,42 @@ export async function getCustomerById(id: string): Promise<PublicCustomer | null
 }
 
 /**
+ * Updates the editable profile fields (name/phone only — Этап 47B). Email and the
+ * password hash are NEVER touched here. Returns the safe public projection. The
+ * caller must have validated/normalised the values (null clears the field).
+ */
+export async function updateCustomerProfile(
+  id: string,
+  data: { name: string | null; phone: string | null },
+): Promise<PublicCustomer> {
+  return prisma.customer.update({
+    where: { id },
+    data: { name: data.name, phone: data.phone },
+    select: PUBLIC_CUSTOMER_SELECT,
+  })
+}
+
+/**
+ * Reads ONLY the password hash for a known, already-authenticated customer id
+ * (Этап 47B password change). The hash never leaves the server boundary — only
+ * verifyPassword consumes it. Null when the customer no longer exists.
+ */
+export async function getCustomerCredentialsById(
+  id: string,
+): Promise<{ passwordHash: string } | null> {
+  if (!id) return null
+  return prisma.customer.findUnique({
+    where: { id },
+    select: { passwordHash: true },
+  })
+}
+
+/** Replaces the stored password hash (Этап 47B). `passwordHash` is already hashed. */
+export async function updateCustomerPassword(id: string, passwordHash: string): Promise<void> {
+  await prisma.customer.update({ where: { id }, data: { passwordHash } })
+}
+
+/**
  * Order history for ONE customer, newest first. Hard-scoped by `customerId`, so
  * it can only ever return that customer's own orders. No PII beyond what the
  * customer already owns; amounts in minor units (formatted by the caller).
@@ -108,3 +144,48 @@ export async function getCustomerOrders(customerId: string) {
 }
 
 export type CustomerOrderListItem = Awaited<ReturnType<typeof getCustomerOrders>>[number]
+
+/** Customer-facing order detail projection (Этап 47B). Only the customer's OWN
+ *  snapshot data — no admin-only fields, no audit/internal columns. */
+const CUSTOMER_ORDER_DETAIL_SELECT = {
+  orderCode: true,
+  status: true,
+  deliveryCity: true,
+  deliveryMethod: true,
+  deliveryDetails: true,
+  paymentMethod: true,
+  subtotalAmount: true,
+  totalAmount: true,
+  currency: true,
+  createdAt: true,
+  items: {
+    select: {
+      productName: true,
+      productSku: true,
+      variantValue: true,
+      unitPrice: true,
+      quantity: true,
+      lineTotal: true,
+    },
+  },
+} as const
+
+export type CustomerOrderDetail = Prisma.OrderGetPayload<{ select: typeof CUSTOMER_ORDER_DETAIL_SELECT }>
+
+/**
+ * Loads ONE order by its code, HARD-SCOPED to the owning customer (Этап 47B).
+ * The `customerId` is part of the WHERE, so a customer can only ever read their
+ * OWN order — another customer's code (or a guest order's code) resolves to null,
+ * which the page turns into notFound(). There is no order-lookup-by-code that is
+ * not scoped to the authenticated owner.
+ */
+export async function getCustomerOrderByCode(
+  customerId: string,
+  orderCode: string,
+): Promise<CustomerOrderDetail | null> {
+  if (!customerId || !orderCode) return null
+  return prisma.order.findFirst({
+    where: { orderCode, customerId },
+    select: CUSTOMER_ORDER_DETAIL_SELECT,
+  })
+}
