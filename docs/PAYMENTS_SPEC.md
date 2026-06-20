@@ -1,5 +1,18 @@
 # AURELIA — Payments SPEC (Этап 25C)
 
+> ⚠️ **HISTORICAL / LEGACY (superseded for Ukraine-first planning — Этап 41A).**
+> This SPEC predates the Ukraine-first pivot and the `RUB → UAH` migration. It still
+> reflects **RUB / RU-market assumptions** (e.g. RUB currency default, 54-ФЗ
+> fiscalization, ЮKassa/YooKassa). The project is now **UAH/₴** with a Ukrainian
+> storefront. For **current** sale-ready payment planning use:
+> [`sale/PAYMENT_DELIVERY_PROVIDER_RESEARCH.md`](./sale/PAYMENT_DELIVERY_PROVIDER_RESEARCH.md)
+> (Ukraine, official sources) and
+> [`sale/OWNER_DECISION_CHECKLIST.md`](./sale/OWNER_DECISION_CHECKLIST.md).
+> The **provider-agnostic architecture** here (Payment/WebhookEvent model, signed
+> webhook as source of truth, idempotency, amount/currency verification) **remains
+> valid** as a future implementation reference. Kept for history — **not deleted**.
+> Payment integration stays **blocked until owner decisions exist**.
+
 > **Status: specification only.** No runtime code, Prisma schema, migrations,
 > routes, provider integration, or secrets are introduced or changed by this file.
 > It is the bridge between [`ORDER_LIFECYCLE_SPEC.md`](./ORDER_LIFECYCLE_SPEC.md)

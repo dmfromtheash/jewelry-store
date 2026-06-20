@@ -1,5 +1,17 @@
 # AURELIA — Payment Provider Decision Matrix (Этап 25C-impl-0A)
 
+> ⚠️ **HISTORICAL / LEGACY (superseded for Ukraine-first planning — Этап 41A).**
+> This decision framework predates the Ukraine-first pivot and the `RUB → UAH`
+> migration; it carries **RUB / RU-market assumptions** (RUB currency, ЮKassa,
+> 54-ФЗ). The project is now **UAH/₴**. For the **current**, official-source provider
+> research and the owner decisions that gate any integration, use:
+> [`sale/PAYMENT_DELIVERY_PROVIDER_RESEARCH.md`](./sale/PAYMENT_DELIVERY_PROVIDER_RESEARCH.md)
+> and [`sale/OWNER_DECISION_CHECKLIST.md`](./sale/OWNER_DECISION_CHECKLIST.md).
+> The generic **evaluation criteria** here (must-haves: hosted page, signed webhook,
+> idempotency, sandbox, refunds, fiscalization) remain a useful checklist. Kept for
+> history — **not deleted**. Provider selection/integration stays **blocked until
+> owner decisions exist**.
+
 > **Status: decision framework only.** This document does **not** integrate a
 > provider, does **not** select a final provider, and does **not** contain a live
 > web availability check. No runtime code, Prisma schema, migrations, routes, or

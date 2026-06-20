@@ -16,6 +16,48 @@
 
 ---
 
+## 0. Status update (Этап 41A — post uk-UA sale-ready block)
+
+> **This roadmap was written at `c13a279` (pre-localization). Several items below
+> are now DONE; the sections are kept for history but read them through this update.**
+> Current baseline: `afcc939`. Source of the percentages: the 40A full audit.
+
+**Now DONE (since this roadmap was authored):**
+- ✅ **`RUB → UAH` migration** — implemented (migration `switch_currency_to_uah`);
+  schema + storefront are **UAH/₴**. The "UAH Currency Migration SPEC" (§5.G) and the
+  "RUB → UAH without a SPEC" warning (§7) are therefore **moot/superseded**.
+- ✅ **uk-UA storefront copy** (39B) and **uk-UA demo catalog data** (39C) — the §2
+  "storefront copy is Russian / currency defaults to RUB" note is **no longer true**.
+  Admin chrome stays Russian/internal **by design**.
+- ✅ **Mobile/visual audit** (39B-V) + the product-tab copy fix (39B-F).
+- ✅ **Buyer demo package** (`docs/sale/`) — README index, features/limits, runbook,
+  setup/handoff, seller one-pager, **provider research**
+  ([`sale/PAYMENT_DELIVERY_PROVIDER_RESEARCH.md`](./sale/PAYMENT_DELIVERY_PROVIDER_RESEARCH.md)),
+  **owner decision checklist**
+  ([`sale/OWNER_DECISION_CHECKLIST.md`](./sale/OWNER_DECISION_CHECKLIST.md)),
+  localization readiness note.
+- ✅ **Screenshots** — production set (no dev «N») + dev/admin set, **re-captured in
+  Ukrainian** (39D). The numbered static set `01-…–10-…` is **stale** (old Russian
+  storefront) and superseded by the production set.
+
+**Readiness (40A audit estimates):**
+| Dimension | Estimate |
+|---|---|
+| Sale-ready demo package | **~90%** |
+| Technical MVP | **~80–85%** |
+| Ukrainian localization | **~95%** |
+| Real launch | **~25–30%** |
+| Payment / delivery | **~10–15%** |
+
+**Still blocked (owner/legal/provider-gated — unchanged):** real payment acquiring,
+carrier API / TTN / tracking, fiscalization (РРО/ПРРО), production deploy. These wait
+on the owner filling [`sale/OWNER_DECISION_CHECKLIST.md`](./sale/OWNER_DECISION_CHECKLIST.md).
+
+**Top remaining sale-polish gap:** real **product imagery** (the §2 🔴 "no product
+images" blocker is still open — slots exist, assets are placeholders).
+
+---
+
 ## 1. Purpose
 
 AURELIA is already a **strong dev project**: server-authoritative orders, a
@@ -349,21 +391,21 @@ that require market validation** before being quoted.
 
 ## 10. Metrics for readiness (scorecard)
 
-Score each from 🔴 (blocks sale) / 🟡 (needs work) / ✅ (ready). Snapshot at
-`c13a279`:
+Score each from 🔴 (blocks sale) / 🟡 (needs work) / ✅ (ready). **`Now` updated at
+`afcc939` (Этап 41A);** the original `c13a279` values are shown struck for history.
 
-| # | Dimension | Now | Target |
-|---|---|---|---|
-| 1 | **Storefront visual readiness** | 🟡 | ✅ |
-| 2 | **Mobile readiness** | 🟡 (unverified) | ✅ |
-| 3 | **Checkout clarity** | 🟡 ("— скоро / демо" reads WIP) | ✅ honest model |
-| 4 | **Admin usability** | 🟡 | ✅ |
-| 5 | **Demo content (incl. imagery)** | 🔴 (no product images) | ✅ |
-| 6 | **Docs / buyer package** | 🔴 (none) | ✅ |
-| 7 | **Deployment readiness** | 🔴 (no demo URL; gated) | 🟡 checklist green |
-| 8 | **Security readiness** | ✅ (no secrets, noindex, guarded) | ✅ |
-| 9 | **Commercial honesty** | ✅ (no fake claims) | ✅ keep |
-| 10 | **Buyer handoff readiness** | 🔴 (no package/checklist) | ✅ |
+| # | Dimension | Now (41A) | Was (c13a279) | Target |
+|---|---|---|---|---|
+| 1 | **Storefront visual readiness** | ✅ (UA, screenshots refreshed) | 🟡 | ✅ |
+| 2 | **Mobile readiness** | ✅ (39B-V audited) | 🟡 (unverified) | ✅ |
+| 3 | **Checkout clarity** | ✅ (honest UA model) | 🟡 (reads WIP) | ✅ honest model |
+| 4 | **Admin usability** | 🟡 (functional; RU/internal by design) | 🟡 | ✅ |
+| 5 | **Demo content (incl. imagery)** | 🟡 (catalog UA & curated; **imagery still placeholder**) | 🔴 (no images) | ✅ |
+| 6 | **Docs / buyer package** | ✅ (`docs/sale/` package) | 🔴 (none) | ✅ |
+| 7 | **Deployment readiness** | 🔴 (no demo URL; gated) | 🔴 (gated) | 🟡 checklist green |
+| 8 | **Security readiness** | ✅ (no secrets, noindex, guarded) | ✅ | ✅ |
+| 9 | **Commercial honesty** | ✅ (no fake claims) | ✅ | ✅ keep |
+| 10 | **Buyer handoff readiness** | ✅ (package + checklists) | 🔴 (none) | ✅ |
 
 **Sale-ready = all dimensions 🟡→✅ except deploy (🟡 checklist-green is acceptable
 for an internal demo; live deploy stays owner-approved).**

@@ -1,5 +1,16 @@
 # AURELIA — Owner Decisions & Market Positioning (Этап 26C)
 
+> ℹ️ **Update (Этап 41A).** This is the **Ukraine-first / UAH pivot** doc and its
+> direction still holds. The currency + localization it called for are now **DONE**:
+> `RUB → UAH` migration shipped (`switch_currency_to_uah`) and the storefront +
+> catalog are **uk-UA** (admin stays RU/internal by design). Any RUB references below
+> describe the **pre-pivot** state being superseded, not a current target. Current,
+> official-source payment/delivery planning and the gating owner decisions live in
+> [`sale/PAYMENT_DELIVERY_PROVIDER_RESEARCH.md`](./sale/PAYMENT_DELIVERY_PROVIDER_RESEARCH.md)
+> and [`sale/OWNER_DECISION_CHECKLIST.md`](./sale/OWNER_DECISION_CHECKLIST.md);
+> the older `docs/PAYMENTS_SPEC.md` / `docs/PAYMENT_PROVIDER_DECISION.md` are marked
+> historical. Payment/delivery integration stays **blocked until owner decisions exist**.
+
 > **Status: strategy / owner-decision capture only.** No runtime code, Prisma
 > schema, migrations, routes, configuration, or secrets are introduced or changed
 > by this file. It records a **commercial direction** so later stages stop
