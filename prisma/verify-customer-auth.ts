@@ -7,6 +7,11 @@
  * works inside a rolled-back transaction against the shared AdminAuditLog table —
  * nothing committed).
  *
+ * Этап 51A additions: the DURABLE DB-backed rate limiter (CustomerAuthThrottle) — its
+ * real SQL is exercised against the DB inside an always-rolled-back transaction (trip
+ * at budget, expired-window reset, clear, per-identifier + per-scope isolation), and
+ * the throttle row count is asserted unchanged afterwards (no pollution).
+ *
  * Non-destructive checks for the customer auth + account cabinet:
  *   - password hashing: hash is NOT plaintext, verifies correct, rejects wrong;
  *   - customer session token: signs/verifies, rejects wrong key + tampering, carries
@@ -63,6 +68,11 @@ import {
   _resetAllAttempts,
 } from '../src/lib/customer/throttle'
 import {
+  dbIsThrottled,
+  dbRegisterAttempt,
+  dbClearAttempts,
+} from '../src/lib/customer/rate-limit'
+import {
   CUSTOMER_AUDIT_ACTIONS,
   CUSTOMER_AUDIT_ACTION_LABELS,
 } from '../src/lib/customer/audit-actions'
@@ -80,6 +90,7 @@ async function main() {
   const customerCountBefore = await prisma.customer.count()
   const orderCountBefore = await prisma.order.count()
   const auditCountBefore = await prisma.adminAuditLog.count()
+  const throttleCountBefore = await prisma.customerAuthThrottle.count()
 
   console.log('Customer auth:')
   console.log(`  customers in DB: ${customerCountBefore}`)
@@ -381,16 +392,75 @@ async function main() {
   }
   check('customer audit write path works (rolled back)', auditWritePathOk)
 
+  // --- 5f) DURABLE DB-backed rate limiter (Этап 51A, rolled back) ---
+  // Exercises the REAL SQL of src/lib/customer/rate-limit.ts against the
+  // CustomerAuthThrottle table, but inside an ALWAYS-ROLLED-BACK transaction (the tx
+  // client is injected), so no throttle row is ever committed. Asserts: trip at the
+  // budget, window expiry resets, per-scope isolation, per-identifier isolation.
+  let dbFresh = false
+  let dbTrips = false
+  let dbExpiryResets = false
+  let dbScopeIsolated = false
+  let dbIdentifierIsolated = false
+  let dbClearWorks = false
+  const tag2 = randomBytes(6).toString('hex')
+  const loginRuleDb = CUSTOMER_THROTTLE_RULES.login
+  const passRuleDb = CUSTOMER_THROTTLE_RULES.password
+  try {
+    await prisma.$transaction(async (tx) => {
+      const keyA = `login:verify-${tag2}-A`
+      const keyB = `login:verify-${tag2}-B`
+      const keyExp = `login:verify-${tag2}-EXP`
+
+      // Trip: a fresh key is open; it locks once it reaches the budget.
+      dbFresh = !(await dbIsThrottled(tx, keyA, loginRuleDb))
+      for (let i = 0; i < loginRuleDb.max; i++) await dbRegisterAttempt(tx, keyA, loginRuleDb)
+      dbTrips = await dbIsThrottled(tx, keyA, loginRuleDb)
+
+      // Per-identifier isolation: keyB was never touched, so it stays open while A is locked.
+      dbIdentifierIsolated = dbTrips && !(await dbIsThrottled(tx, keyB, loginRuleDb))
+
+      // Per-scope isolation: the SAME identifier under a different scope is an independent
+      // budget (its hashed key differs), so it is not throttled by A's login lockout.
+      dbScopeIsolated = !(await dbIsThrottled(tx, `password:verify-${tag2}-A`, passRuleDb))
+
+      // Expiry/window: a zero/negative window opens a row that is already past, so it reads
+      // as lapsed (not throttled); a fresh attempt under a normal rule reopens at count 1.
+      const instantRule = { windowMs: -1, max: 1 }
+      await dbRegisterAttempt(tx, keyExp, instantRule)
+      const lapsedReadsOpen = !(await dbIsThrottled(tx, keyExp, instantRule))
+      await dbRegisterAttempt(tx, keyExp, loginRuleDb)
+      const reopenedFresh = !(await dbIsThrottled(tx, keyExp, loginRuleDb))
+      dbExpiryResets = lapsedReadsOpen && reopenedFresh
+
+      // Clear: removes the locked key's row → open again.
+      await dbClearAttempts(tx, keyA)
+      dbClearWorks = !(await dbIsThrottled(tx, keyA, loginRuleDb))
+
+      throw new Error(ROLLBACK)
+    })
+  } catch (e) {
+    if (!(e instanceof Error) || e.message !== ROLLBACK) throw e
+  }
+  check('durable limiter: fresh key not throttled', dbFresh)
+  check('durable limiter: trips at the attempt budget', dbTrips)
+  check('durable limiter: expired window resets', dbExpiryResets)
+  check('durable limiter: clear reopens the key', dbClearWorks)
+  check('durable limiter: isolated per identifier (A throttled, B not)', dbIdentifierIsolated)
+  check('durable limiter: isolated per scope (login vs password independent)', dbScopeIsolated)
+
   // --- 6) Nothing committed ---
   const customerCountAfter = await prisma.customer.count()
   const orderCountAfter = await prisma.order.count()
   const auditCountAfter = await prisma.adminAuditLog.count()
+  const throttleCountAfter = await prisma.customerAuthThrottle.count()
   check('no test customers committed', customerCountAfter === customerCountBefore)
   check('no test orders committed', orderCountAfter === orderCountBefore)
   check('no test audit events committed', auditCountAfter === auditCountBefore)
+  check('no test throttle rows committed', throttleCountAfter === throttleCountBefore)
 
   if (failures === 0) {
-    console.log('\nCUSTOMER AUTH VERIFY OK: hashing, sessions, validation, linking + scoping, throttle + audit all pass; nothing committed.')
+    console.log('\nCUSTOMER AUTH VERIFY OK: hashing, sessions, validation, linking + scoping, throttle (in-memory + durable DB) + audit all pass; nothing committed.')
   } else {
     console.error(`\nCUSTOMER AUTH VERIFY FAILED (${failures} check(s)).`)
     process.exitCode = 1

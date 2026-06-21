@@ -31,7 +31,7 @@ All checks are local, dependency-free, and DB-isolated to the AURELIA PostgreSQL
 ```sh
 # Server-side business logic (rolled-back / self-cleaning transactions):
 npm run db:start
-npm run db:verify:customer-auth        # 45/45 — auth, sessions, throttle, audit, scoping
+npm run db:verify:customer-auth        # 51/51 — auth, sessions, throttle (in-mem + durable DB), audit, scoping
 npm run db:verify:orders               # order tables + create path (rolled back)
 npm run db:verify:order-lifecycle      # submitted → processing → completed
 npm run db:verify:order-confirmation   # confirmation renderable from keys; privacy-safe
@@ -86,9 +86,11 @@ verified at the data/logic layer, where it can be rolled back or self-cleaned:
 scrypt hashing (never plaintext); HMAC session token incl. `ver` (47C) with legacy-token
 reject; password change bumps `sessionVersion` → stale tokens invalidated, current device
 re-issued; registration/profile/password validation + email normalisation; **abuse
-protection** (49A) — per-scope throttle trips at its budget, clears on success, auto-resets an
-expired window, and is isolated per customer; **audit logging** (49A) — every `customer.*`
-action is labelled, uses the `customer.*` namespace, and the write path works (rolled back).
+protection** (49A + **durable DB-backed limiter 51A**) — per-scope throttle trips at its
+budget, clears on success, resets an expired window, and is isolated per identifier and per
+scope, now exercised against the real `CustomerAuthThrottle` table (rolled back); **audit
+logging** (49A) — every `customer.*` action is labelled, uses the `customer.*` namespace, and
+the write path works (rolled back).
 Cross-customer order scoping: A can never load B's or a guest's order by code. Nothing is ever
 committed (customer/order/audit counts asserted unchanged).
 
@@ -126,9 +128,11 @@ committed (customer/order/audit counts asserted unchanged).
 
 - **DB-backed, server-rendered app** — needs a reachable Postgres at runtime; not a static
   upload. See [`LIVE_DEMO_DEPLOY_READINESS.md`](./LIVE_DEMO_DEPLOY_READINESS.md) §2.
-- **Throttle is in-memory** (per-process, fails OPEN on restart, single-instance only — 49A).
-  Fine for a supervised local/tunnel demo; a durable shared store (Redis/DB) is required
-  before unsupervised public exposure.
+- **Auth throttle is now durable for a single instance** (DB-backed `CustomerAuthThrottle`,
+  51A — counts survive restart). Sufficient for a single-instance public demo; a
+  **multi-instance / high-abuse production** deployment still needs a shared store with atomic
+  ops (Redis or Postgres advisory locks) — `src/lib/customer/rate-limit.ts` is the swap-in
+  point.
 - **Admin is dev/localhost-only by design** — a public deployment has *no* admin UI; admin
   must stay on the owner's machine (or behind separate, owner-approved protection).
 - **Product imagery is placeholder** (gem empty-state) — see
@@ -155,9 +159,12 @@ committed (customer/order/audit counts asserted unchanged).
   similar for unknown accounts.
 - Sessions: separate httpOnly customer cookie (distinct signing key from admin); `sessionVersion`
   revocation invalidates all-device tokens on password change.
-- **Abuse protection (49A):** per-scope rate limiting — login/register by IP, password/profile
-  per customer id. **Limitation:** in-memory, per-process, fails open on restart, single
-  instance (documented swap-in point: `src/lib/customer/throttle.ts`).
+- **Abuse protection (49A + 51A):** per-scope rate limiting — login/register by IP,
+  password/profile per customer id. Now a **durable DB-backed limiter** (`CustomerAuthThrottle`,
+  51A) whose counts survive a restart; the identifier is sha256-hashed (no raw IP/id stored)
+  and it fails over to in-memory if the DB hiccups. **Limitation:** single-instance, no atomic
+  cross-instance locking — production multi-instance needs a shared store (swap-in point:
+  `src/lib/customer/rate-limit.ts`).
 - **Audit logging (49A):** customer auth events recorded to `AdminAuditLog` under `customer.*`;
   stores only event + customer id (cuid, not PII) or `anonymous` + a machine reason. Never
   stores email, password, hash, cookie/token, or raw request data. Visible in the local
@@ -195,8 +202,9 @@ Full spec: [`../customer/CUSTOMER_AUTH_ACCOUNT_SPEC.md`](../customer/CUSTOMER_AU
 
 ## 9. Remaining risks / recommended next block
 
-- The biggest readiness gap for *unsupervised* public exposure is the **in-memory throttle**;
-  a durable shared-store rate limiter is the natural next hardening block.
+- The auth throttle is now **durable for a single instance** (51A); the remaining limiter gap
+  is **multi-instance atomic** rate limiting (Redis / Postgres advisory locks), only needed for
+  a real multi-instance production deployment.
 - Owner/legal/provider decisions (payment, carrier, entity, hosting, fiscalization) remain the
   gating path to a real launch — none are code-side and none are addressed here.
 - Authenticated admin content rendering is the main flow still verified only manually; a future

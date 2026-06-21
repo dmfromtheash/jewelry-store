@@ -9,10 +9,11 @@
  *   - passwords hashed with scrypt (never stored/logged in plaintext);
  *   - email normalised + validated; generic errors (no account-existence leak);
  *   - separate httpOnly customer session cookie issued on success;
- *   - a best-effort in-memory throttle (src/lib/customer/throttle.ts) slows
+ *   - a DURABLE DB-backed throttle (src/lib/customer/rate-limit.ts, Этап 51A) slows
  *     credential stuffing on the anonymous flows (login/register, keyed by IP) and
  *     current-password guessing / profile spam on the authenticated flows (keyed by
- *     customer id). Per-process, fails OPEN on restart — see that module's notes;
+ *     customer id). Counts survive a restart; it fails over to in-memory if the DB
+ *     hiccups — see that module's notes;
  *   - every auth/security event is recorded to the admin audit log (49A) with NO
  *     PII/secret payload — see src/lib/customer/audit.ts.
  * Customers are completely separate from the admin identity and can NEVER access
@@ -38,7 +39,7 @@ import {
   isThrottled,
   registerAttempt,
   type ThrottleScope,
-} from './throttle'
+} from './rate-limit'
 import {
   auditCustomerAuthThrottled,
   auditCustomerLoginFailure,
@@ -102,7 +103,7 @@ export async function registerCustomerAction(input: {
   phone?: string
 }): Promise<CustomerAuthResult> {
   const key = await ipKey('register')
-  if (isThrottled(key, CUSTOMER_THROTTLE_RULES.register)) {
+  if (await isThrottled(key, CUSTOMER_THROTTLE_RULES.register)) {
     await auditCustomerAuthThrottled('register')
     return { ok: false, error: THROTTLED_ERROR }
   }
@@ -110,7 +111,7 @@ export async function registerCustomerAction(input: {
   const { errors, value } = validateRegisterInput(input)
   if (!value) {
     // Ordinary form typos count toward the budget but are NOT audited (noise).
-    registerAttempt(key, CUSTOMER_THROTTLE_RULES.register)
+    await registerAttempt(key, CUSTOMER_THROTTLE_RULES.register)
     return { ok: false, error: 'Перевірте поля форми.', fieldErrors: errors }
   }
 
@@ -122,14 +123,14 @@ export async function registerCustomerAction(input: {
       name: value.name,
       phone: value.phone,
     })
-    clearAttempts(key)
+    await clearAttempts(key)
     await startCustomerSession(customer.id, customer.sessionVersion)
     await auditCustomerRegisterSuccess(customer.id)
     return { ok: true }
   } catch (e) {
     if (e instanceof DuplicateEmailError) {
       // Generic-ish: tell them the email is taken (needed UX), but no other leak.
-      registerAttempt(key, CUSTOMER_THROTTLE_RULES.register)
+      await registerAttempt(key, CUSTOMER_THROTTLE_RULES.register)
       await auditCustomerRegisterFailure('duplicate_email')
       return { ok: false, error: 'Акаунт з таким e-mail вже існує.', fieldErrors: { email: ' ' } }
     }
@@ -144,14 +145,14 @@ export async function loginCustomerAction(input: {
   password: string
 }): Promise<CustomerAuthResult> {
   const key = await ipKey('login')
-  if (isThrottled(key, CUSTOMER_THROTTLE_RULES.login)) {
+  if (await isThrottled(key, CUSTOMER_THROTTLE_RULES.login)) {
     await auditCustomerAuthThrottled('login')
     return { ok: false, error: THROTTLED_ERROR }
   }
 
   const { ok, email, password } = validateLoginInput(input)
   if (!ok) {
-    registerAttempt(key, CUSTOMER_THROTTLE_RULES.login)
+    await registerAttempt(key, CUSTOMER_THROTTLE_RULES.login)
     await auditCustomerLoginFailure()
     return { ok: false, error: GENERIC_LOGIN_ERROR }
   }
@@ -166,12 +167,12 @@ export async function loginCustomerAction(input: {
     const passwordOk = await verifyPassword(password, stored)
 
     if (!creds || !passwordOk) {
-      registerAttempt(key, CUSTOMER_THROTTLE_RULES.login)
+      await registerAttempt(key, CUSTOMER_THROTTLE_RULES.login)
       await auditCustomerLoginFailure()
       return { ok: false, error: GENERIC_LOGIN_ERROR }
     }
 
-    clearAttempts(key)
+    await clearAttempts(key)
     await startCustomerSession(creds.id, creds.sessionVersion)
     await auditCustomerLoginSuccess(creds.id)
     return { ok: true }
@@ -205,11 +206,11 @@ export async function updateCustomerProfileAction(input: {
 
   // Anti-spam rate-limit keyed by the authenticated customer (every save counts).
   const key = customerKey('profile', customer.id)
-  if (isThrottled(key, CUSTOMER_THROTTLE_RULES.profile)) {
+  if (await isThrottled(key, CUSTOMER_THROTTLE_RULES.profile)) {
     await auditCustomerAuthThrottled('profile', customer.id)
     return { ok: false, error: THROTTLED_ERROR }
   }
-  registerAttempt(key, CUSTOMER_THROTTLE_RULES.profile)
+  await registerAttempt(key, CUSTOMER_THROTTLE_RULES.profile)
 
   const { errors, value } = validateProfileInput(input)
   if (!value) return { ok: false, error: 'Перевірте поля форми.', fieldErrors: errors }
@@ -247,7 +248,7 @@ export async function changeCustomerPasswordAction(input: {
   // Failure-lockout keyed by the authenticated customer: a tight budget against
   // current-password guessing. Cleared on a successful change below.
   const key = customerKey('password', customer.id)
-  if (isThrottled(key, CUSTOMER_THROTTLE_RULES.password)) {
+  if (await isThrottled(key, CUSTOMER_THROTTLE_RULES.password)) {
     await auditCustomerAuthThrottled('password', customer.id)
     return { ok: false, error: THROTTLED_ERROR }
   }
@@ -262,7 +263,7 @@ export async function changeCustomerPasswordAction(input: {
     const currentOk = await verifyPassword(value.currentPassword, creds.passwordHash)
     if (!currentOk) {
       // Count wrong current-password guesses toward the lockout budget.
-      registerAttempt(key, CUSTOMER_THROTTLE_RULES.password)
+      await registerAttempt(key, CUSTOMER_THROTTLE_RULES.password)
       return { ok: false, error: CURRENT_PASSWORD_WRONG, fieldErrors: { currentPassword: ' ' } }
     }
 
@@ -272,7 +273,7 @@ export async function changeCustomerPasswordAction(input: {
     const { sessionVersion } = await updateCustomerPasswordAndBumpVersion(customer.id, newHash)
     // Re-issue THIS device a fresh token bound to the new version so it stays in.
     await startCustomerSession(customer.id, sessionVersion)
-    clearAttempts(key)
+    await clearAttempts(key)
     await auditCustomerPasswordChanged(customer.id)
     return { ok: true }
   } catch (e) {

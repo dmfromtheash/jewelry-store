@@ -302,6 +302,33 @@ model AdminAuditLog {
   @@index([action])
 }
 
+/// Durable customer-auth rate-limit counter (Этап 51A). Replaces the 49A
+/// in-memory-only throttle for single-instance public-demo readiness: counts
+/// survive a server restart / HMR. One row per (scope + identifier) fixed window.
+///
+/// Privacy by construction — this table NEVER stores a password, cookie, token,
+/// secret, raw header, IP, or email. The identifier (IP for anonymous flows,
+/// Customer.id for authenticated ones) is folded into `keyHash` (sha256), so only
+/// an opaque digest is persisted; `scope` is a safe machine label.
+model CustomerAuthThrottle {
+  id          String   @id @default(cuid())
+  /// sha256("<scope>:<identifier>") — opaque; the raw IP/customer id is never stored.
+  keyHash     String   @unique
+  /// Safe machine label: "login" | "register" | "password" | "profile".
+  scope       String
+  /// Attempts recorded in the CURRENT window.
+  count       Int      @default(0)
+  /// When the current window opened.
+  windowStart DateTime @default(now())
+  /// When the current window ends; a later attempt lazily opens a fresh window.
+  resetAt     DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([resetAt])
+  @@index([scope])
+}
+
 /// Immutable line snapshot captured at order time (name/price/sku copied so the
 /// order is stable even if the product later changes). `productId` is nullable
 /// so the order survives product deletion.

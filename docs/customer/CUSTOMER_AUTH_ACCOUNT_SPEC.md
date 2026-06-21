@@ -306,4 +306,71 @@ abuse protection"** gaps for the local/MVP target. No schema change, no design c
 - **No guest-order linking by email.**
 - **No per-device session list** (revocation stays all-or-nothing per account — 47C).
 - **Throttle is in-memory** (per-process, fails open on restart, single instance only) — a
-  durable shared store is required before a real public launch.
+  durable shared store is required before a real public launch. *(Addressed for
+  single-instance in 51A below.)*
+
+---
+
+# Этап 51A — Durable customer-auth rate limiting
+
+Status: **implemented**. Closes the **49A "throttle is in-memory only"** gap for a
+**single-instance public demo**. No design change; one additive migration.
+
+## 51A.1 What changed
+
+- New additive table **`CustomerAuthThrottle`** (migration
+  `20260621024108_add_customer_auth_throttle` — `CREATE TABLE` + indexes only, no
+  change to existing tables). A DB backup was taken before migrating.
+- New module **`src/lib/customer/rate-limit.ts`** — a DB-backed **fixed-window counter**
+  behind the same `isThrottled` / `registerAttempt` / `clearAttempts` facade the actions
+  already used (now `async`). The 49A in-memory store (`throttle.ts`) is kept as a
+  **fallback** (see 51A.4).
+- `src/lib/customer/actions.ts` now imports the limiter from `./rate-limit` and `await`s
+  it. **Scopes, identifiers, limits, windows, messages, and the throttled audit event are
+  unchanged** — login/register keyed by IP, password/profile keyed by customer id; generic
+  user-facing copy; `customer.auth.throttled` still recorded.
+
+## 51A.2 Data model & privacy
+
+`CustomerAuthThrottle { id, keyHash, scope, count, windowStart, resetAt, createdAt,
+updatedAt }`. **Privacy by construction:** the limiter key (`<scope>:<ip>` or
+`<scope>:cust:<id>`) is **sha256-hashed into `keyHash`** before any write, so the raw IP /
+customer id is **never** stored; `scope` is a safe machine label. The table never holds a
+password, cookie, token, secret, raw header, or email.
+
+## 51A.3 Algorithm & cleanup
+
+- **Fixed window:** the first attempt opens a window (`count=1`, `resetAt=now+windowMs`);
+  later attempts increment; once a row's `resetAt` is in the past it reads as **not
+  throttled** and the next attempt lazily reopens a fresh window at `count=1`. A successful
+  action clears the row.
+- **Deterministic** (no randomness in the decision), **no account enumeration** (decision
+  depends only on counts; user-facing copy stays generic), **no external services**.
+- **Cleanup:** lazy per-key reset + a **probabilistic** (~5%) opportunistic
+  `deleteMany` of rows expired > 1h (`cleanupExpiredThrottles`), so the table stays bounded
+  without a cron.
+
+## 51A.4 Backend selection / fallback
+
+The DB-backed counter is **authoritative whenever the DB is reachable** — i.e. the normal
+case — so budgets now **survive a server restart / HMR**. If a limiter DB query throws, the
+facade logs and **fails over to the in-memory store** (49A behaviour) so the limiter can
+never be the thing that breaks auth. This is the intended dev/DB-down resilience.
+
+## 51A.5 Verification
+
+`npm run db:verify:customer-auth` extended (now **51 checks**): the durable limiter's real
+SQL is exercised against the DB **inside an always-rolled-back transaction** — trips at the
+budget, expired-window reset, clear reopens, isolated **per identifier** and **per scope** —
+and the `CustomerAuthThrottle` row count is asserted **unchanged** afterwards (no pollution).
+
+## 51A.6 Remaining limitations
+
+- **Single-instance only.** The counter is correct for one app process against one DB, which
+  is the public-demo target. It uses no row locks / atomic compare-increment, so under heavy
+  concurrency a few attempts can race past the exact boundary (best-effort, fails toward
+  *allowing* — never a hard lockout). **Multi-instance / high-abuse production** still wants a
+  shared store with atomic ops (Redis or Postgres advisory locks); `rate-limit.ts` is the
+  single swap-in point.
+- Email reset / verification, per-device sessions, and guest-order linking remain **deferred**
+  (unchanged).
