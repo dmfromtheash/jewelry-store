@@ -149,9 +149,13 @@ The screenshot set (`docs/sale/screenshots/` + `…/production/`) was audited fo
 - **Predates** the customer account cabinet (47A–47C) and the customer-auth audit rows (49A):
   there is **no `/account` screenshot**, and the audit-log shot does **not** show `customer.*`
   events. Nothing shown is wrong — these features are simply not pictured.
-- **Optional future block (not done here):** add `/account` (profile + order history) and an
-  audit-log shot with `customer.*` rows, using the existing safe local-capture workflow. This
-  is a polish nicety, not a correctness gap, and is intentionally deferred.
+- **Captured in 55A:** `account-login-prompt.png` — the customer **cabinet entry** (`/account`
+  logged-out), via `npm run demo:capture` (headless Edge, no design change).
+- **Optional future polish (not done here):** the logged-in `/account` (profile + order
+  history), a customer **order detail**, and an audit-log shot with `customer.*` rows — captured
+  via the **safe manual checklist** in [`SCREENSHOT_INVENTORY.md`](./SCREENSHOT_INVENTORY.md) §4.
+  A visual-evidence nicety, not a correctness gap (those flows are verified by the automated
+  checks), so intentionally deferred. Full per-file audit: `SCREENSHOT_INVENTORY.md`.
 
 ---
 

@@ -46,6 +46,7 @@
     "demo:preflight:full": "node scripts/demo/preflight.mjs --full",
     "demo:sale-docs-check": "node scripts/demo/sale-docs-check.mjs",
     "demo:rehearsal": "node scripts/demo/rehearsal.mjs",
+    "demo:capture": "node scripts/demo/capture-screenshots.mjs",
     "db:studio": "prisma studio",
     "db:start": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/db/aurelia-db-start.ps1",
     "db:stop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/db/aurelia-db-stop.ps1",

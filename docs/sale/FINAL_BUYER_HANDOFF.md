@@ -53,7 +53,8 @@ decisions + imagery — not core engineering.
   matrix** is [`DEMO_SALE_READINESS_REPORT.md`](./DEMO_SALE_READINESS_REPORT.md).
 - **Sale docs + screenshots + runbook** — [`README.md`](./README.md),
   [`DEMO_RUNBOOK.md`](./DEMO_RUNBOOK.md),
-  [`DEMO_SCREENSHOT_CHECKLIST.md`](./DEMO_SCREENSHOT_CHECKLIST.md).
+  [`DEMO_SCREENSHOT_CHECKLIST.md`](./DEMO_SCREENSHOT_CHECKLIST.md),
+  [`SCREENSHOT_INVENTORY.md`](./SCREENSHOT_INVENTORY.md) (per-file visual-evidence audit).
 
 ## 4. What to show in a live demo (10–15 min)
 

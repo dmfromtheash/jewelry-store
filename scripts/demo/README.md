@@ -18,11 +18,24 @@ npm run demo:sale-docs-check  # buyer-facing sale docs don't contradict the buil
 npm run demo:rehearsal        # offline checks now + prints the ordered live sequence (53A)
 ```
 
+```sh
+npm run demo:capture          # screenshot unauthenticated demo pages via headless Edge (55A)
+```
+
 Related (in `scripts/smoke/`): `npm run smoke:routes` (route render + admin gating) and
 `npm run smoke:admin` (authenticated admin surfaces — 53A).
 
 Exit code is non-zero only on a **hard FAIL**. `WARN` / `INFO` items never fail the gate —
 they are flagged for a human to review.
+
+## `demo:capture` (55A)
+
+Captures **unauthenticated** demo screenshots using the already-installed Microsoft Edge in
+headless mode (no Playwright/Puppeteer, no npm dependency). Needs a running local dev server
+(`npm run db:start && npm run dev`); GET-only; never reads/prints `.env`/secrets; writes only
+its named target PNGs into `docs/sale/screenshots/` (does **not** overwrite the curated set).
+Authenticated screens are captured **manually** — see
+[`../../docs/sale/SCREENSHOT_INVENTORY.md`](../../docs/sale/SCREENSHOT_INVENTORY.md).
 
 ## `demo:rehearsal` (53A)
 

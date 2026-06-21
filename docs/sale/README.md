@@ -32,6 +32,7 @@ owner must decide before a real launch.
 9. [`LOCAL_TUNNEL_DEMO_RUNBOOK.md`](./LOCAL_TUNNEL_DEMO_RUNBOOK.md) — safe runbook for a short, supervised buyer demo over a temporary tunnel (storefront only; admin stays local). **Docs-only — no tunnel is created.**
 10. [`PRE_PUBLIC_DEMO_READINESS.md`](./PRE_PUBLIC_DEMO_READINESS.md) — pre-public-demo readiness report with **runnable** automated checks (route render smoke + `db:verify:*`): what's verified, what's manual, what blocks public demo vs. real launch. **Verification only — nothing is deployed.**
 11. [`DEMO_SALE_READINESS_REPORT.md`](./DEMO_SALE_READINESS_REPORT.md) — the single honest demo/sale readiness answer: what's ready for a buyer, what the automated checks cover, how to run `npm run demo:rehearsal`, how admin is protected, what's owner-gated, and **what must NOT be promised to a buyer**. **Verification only — nothing is deployed.**
+12. [`SCREENSHOT_INVENTORY.md`](./SCREENSHOT_INVENTORY.md) — per-file visual-evidence inventory (what each screenshot proves, freshness, buyer-safe, predates-accounts), how capture works (`npm run demo:capture` for unauthenticated; manual checklist for authenticated), and the honest visual-evidence gap.
 
 ---
 
@@ -51,13 +52,16 @@ owner must decide before a real launch.
   shots are the reference. Details: [`DEMO_SCREENSHOT_CHECKLIST.md`](./DEMO_SCREENSHOT_CHECKLIST.md) §5.
 - All screenshots are **demo assets on local/demo data** — not proof of a live
   production deployment.
-- **Screenshot currency (Stage 54A audit):** the current set is **accurate for what it
+- **Screenshot inventory + currency (Stage 55A):** full per-file audit (what each proves,
+  freshness, buyer-safe, predates-accounts) is in
+  [`SCREENSHOT_INVENTORY.md`](./SCREENSHOT_INVENTORY.md). The set is **accurate for what it
   shows** (storefront, cart, checkout, confirmation, admin dashboard/catalog/order/
-  product-edit) and remains acceptable for the buyer package. It **predates** the customer
-  account cabinet (47A–47C) and the customer-auth audit rows (49A), so there is **no
-  `/account` shot and the audit-log shot does not show `customer.*` events** yet. A refresh
-  to add those is an **optional future block** — not required, and not done here (no visual/
-  design change in this stage).
+  product-edit) and acceptable for the buyer package. **New in 55A:** `account-login-prompt.png`
+  — the **customer cabinet entry** (`/account` logged-out), captured via `npm run demo:capture`
+  (headless Edge; no design change). The **logged-in account / order-history / order-detail and
+  the audit-log `customer.*` shots are captured manually** (safe local checklist in the
+  inventory §4) — an optional polish item, since those flows are verified by the automated
+  checks (`db:verify:customer-auth`, `smoke:admin`).
 - **Product imagery is still placeholder** (gem empty-state, no real photos) — the
   top remaining visual gap; plan to close it in
   [`PRODUCT_IMAGERY_GAP_PLAN.md`](./PRODUCT_IMAGERY_GAP_PLAN.md).
