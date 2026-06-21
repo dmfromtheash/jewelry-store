@@ -55,6 +55,7 @@ These are deliberate, separately-scoped next steps — not hidden defects.
 ## Start here
 
 - [`docs/sale/FINAL_BUYER_HANDOFF.md`](docs/sale/FINAL_BUYER_HANDOFF.md) — top-level handoff (start here)
+- [`docs/sale/FINAL_FREEZE_AUDIT_AND_HANDOFF.md`](docs/sale/FINAL_FREEZE_AUDIT_AND_HANDOFF.md) — freeze snapshot, readiness %, and a copy-paste session HANDOFF block
 - [`docs/sale/README.md`](docs/sale/README.md) — sale package index & reading order
 - [`docs/sale/DEMO_RUNBOOK.md`](docs/sale/DEMO_RUNBOOK.md) — how to run the local demo
 - [`docs/sale/FEATURES_AND_LIMITS.md`](docs/sale/FEATURES_AND_LIMITS.md) — honest works-vs-deferred list

@@ -34,6 +34,7 @@ owner must decide before a real launch.
 11. [`DEMO_SALE_READINESS_REPORT.md`](./DEMO_SALE_READINESS_REPORT.md) — the single honest demo/sale readiness answer: what's ready for a buyer, what the automated checks cover, how to run `npm run demo:rehearsal`, how admin is protected, what's owner-gated, and **what must NOT be promised to a buyer**. **Verification only — nothing is deployed.**
 12. [`SCREENSHOT_INVENTORY.md`](./SCREENSHOT_INVENTORY.md) — per-file visual-evidence inventory (what each screenshot proves, freshness, buyer-safe, predates-accounts), how capture works (`npm run demo:capture` for unauthenticated; manual checklist for authenticated), and the honest visual-evidence gap.
 13. [`COMMERCIAL_LAUNCH_ARCHITECTURE.md`](./COMMERCIAL_LAUNCH_ARCHITECTURE.md) — **owner-gated** commercial-launch architecture: payment, delivery, public-demo/hosting, email/account ops, the owner **decision matrix**, and the **post-decision roadmap**. **Architecture only — nothing is implemented or deployed.**
+14. [`FINAL_FREEZE_AUDIT_AND_HANDOFF.md`](./FINAL_FREEZE_AUDIT_AND_HANDOFF.md) — **freeze point + handoff snapshot**: implemented vs verified vs planned, honest readiness percentages, owner-gated blockers, and a copy-paste **HANDOFF block** for a new ChatGPT/Claude session. **Verification + planning only.**
 
 ---
 

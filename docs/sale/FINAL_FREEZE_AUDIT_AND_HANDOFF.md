@@ -1,0 +1,207 @@
+# Final Freeze Audit & Project Handoff — AURELIA (Stage 57A)
+
+> **Freeze point + handoff snapshot** after the 49A–56A sale/demo/security/readiness/
+> architecture cycle. **Verification + planning only** — no code, schema, design, env, deploy,
+> or secrets change here. The honest one-line status: **a strong, verified, sale-ready local
+> demo MVP; real commercial launch is blocked by owner/provider/legal decisions.**
+>
+> Index: [`README.md`](./README.md) · start-here: [`FINAL_BUYER_HANDOFF.md`](./FINAL_BUYER_HANDOFF.md)
+> · readiness: [`DEMO_SALE_READINESS_REPORT.md`](./DEMO_SALE_READINESS_REPORT.md)
+> · launch architecture: [`COMMERCIAL_LAUNCH_ARCHITECTURE.md`](./COMMERCIAL_LAUNCH_ARCHITECTURE.md)
+> · honest limits: [`FEATURES_AND_LIMITS.md`](./FEATURES_AND_LIMITS.md).
+
+---
+
+## 1. Project identity & strategy
+
+AURELIA — a **Ukraine-first, sale-ready demo MVP** online store for a small jewelry /
+accessories / gifts brand. Currency **₴ (UAH)**; stack **Next.js 15 / React 19 / TypeScript /
+Prisma / PostgreSQL**. Honest **manual** payment + delivery model. **Showable and adaptable —
+not a live shop taking money.** Sold as a *technical foundation + adaptation package*, not a
+launched business. **Design is locked.**
+
+## 2. Current baseline
+
+- Branch `main`, HEAD **`86ccea2` docs: add owner-gated commercial launch architecture** (local
+  `main` = `origin/main` at freeze time).
+- AURELIA PostgreSQL: **localhost:6700 only**. dm-bot PostgreSQL **localhost:5432 — never touched**.
+
+## 3. What is implemented (now, in code)
+
+- **Storefront** (Ukrainian): home, categories (`bijouterie`/`gifts`), product pages with
+  **variants** + gallery, search, favorites, info pages — catalog on PostgreSQL, UAH.
+- **Cart + guest checkout**: variant-aware lines; server-authoritative pricing (minor units);
+  inline order confirmation (`AUR-XXXXXXXX`).
+- **Manual payment** (`cash_on_delivery` / `manual_online`) + **manual delivery**
+  (`self_pickup`/`nova_poshta`/`ukrposhta`/`local_courier` + free-text note).
+- **Customer accounts** (47A–47C): registration/login/logout (scrypt), separate httpOnly
+  session cookie, profile editing, password change with **stale-session invalidation**
+  (`sessionVersion`/`passwordChangedAt`), order history + **own** order detail; guest checkout
+  preserved.
+- **Auth security** (49A–51A): **customer-auth audit log** (`customer.*` in the admin audit
+  page; no PII/secrets) + **durable DB-backed rate limiting** (`CustomerAuthThrottle`, survives
+  restart; single-instance).
+- **Admin** (local-only by design — 404s in production): catalog CRUD, publish/hide, gallery +
+  variants + stock, inventory/restock, orders inbox + detail, order lifecycle
+  (`submitted→processing→completed/cancelled` with restock-on-cancel), site settings + info-page
+  CMS, audit log.
+- **Demo/sale/readiness tooling** (50A/52A/53A/55A): preflight gate, rehearsal, route + admin
+  smokes, sale-docs checker, screenshot-capture helper.
+
+## 4. What is verified by automation
+
+All local, safe (GET-only smokes; rolled-back / self-cleaning DB verifies; nothing committed).
+Run via `npm run demo:rehearsal` (offline) + the live sequence. At this freeze, **all green:**
+
+| Check | Result |
+|---|---|
+| `typecheck` · `prisma validate` | pass · schema valid |
+| `demo:sale-docs-check` | 9 docs (buyer + launch), 0 contradictions |
+| `demo:preflight` · `demo:preflight:full` | pass |
+| `db:verify:customer-auth` | 51/51 (hashing, sessions, throttle durable, audit, scoping) |
+| `db:verify:orders` · `order-confirmation` · `checkout-options` · `product-variants` · `inventory-lifecycle` | pass |
+| `smoke:routes` | 21/21 routes render / gated |
+| `smoke:admin` | 12/12 admin surfaces render authed + gated unauthed |
+| `build` | production build green (needs DB 6700 up) |
+
+## 5. Key commands
+
+```sh
+npm run db:start            # AURELIA PostgreSQL on 6700 (never 5432)
+npm run dev                 # http://127.0.0.1:5000  (admin exists in dev only)
+npm run demo:rehearsal      # offline readiness gate + prints the live sequence
+npm run demo:preflight      # static security/posture gate (no DB, no deploy)
+npm run smoke:routes        # storefront + admin-gating (server up)
+npm run smoke:admin         # authenticated admin surfaces (server up; ADMIN_* in .env.local)
+npm run db:verify:customer-auth   # 51/51, nothing committed
+npm run build               # needs DB 6700 up (product/[slug] generateStaticParams)
+npm run db:stop             # stop AURELIA DB when done
+```
+
+## 6. Final readiness assessment (honest ranges)
+
+Ranges, not promises. Bumped from the older 40A buyer/MVP audit where 49A–56A improved things.
+
+| Area | Readiness | Reasoning |
+|---|---|---|
+| Sale-ready **demo package** | **~92–95%** | docs, screenshots, claims matrix, readiness tooling — coherent + checker-guarded |
+| **Technical MVP** | **~80–85%** | full storefront→order→admin + accounts; payment/delivery are manual by design |
+| **Ukrainian storefront/catalog** | **~95%** | uk-UA storefront + catalog; admin chrome stays Russian by design |
+| **Checkout / manual order flow** | **~90%** | end-to-end, server-authoritative; manual payment/delivery model |
+| **Customer auth / account** | **~90%** | login/profile/password/history/audit/durable rate-limit; no email reset/verification |
+| **Admin CMS / site management** | **~85–90%** | catalog/orders/lifecycle/settings/CMS/audit; local-only |
+| **Security / readiness tooling** | **~90%** | durable rate-limit, audit, preflight/rehearsal/smokes, sale-docs guard |
+| **Visual evidence package** | **~85%** | storefront/cart/checkout/admin + cabinet entry; authed account/audit shots are a manual/deferred polish item |
+| **Public demo readiness** | **~60–70%** | local demo + gates ready; public URL needs owner-gated hosting/secrets/access; throttle durable single-instance only |
+| **Real payment integration** | **~10–15%** | architecture/SPEC only; no provider code |
+| **Delivery / carrier integration** | **~10–15%** | architecture/SPEC only; manual note today |
+| **Email / account operations** | **~5–10%** | architecture/SPEC only; nothing sent (no provider/DKIM) |
+| **Real launch readiness** | **~25–30%** | gated by owner/legal/provider decisions, not engineering |
+
+## 7. Owner-gated commercial launch blockers
+
+All blocked until the owner resolves them (see
+[`OWNER_DECISION_CHECKLIST.md`](./OWNER_DECISION_CHECKLIST.md) +
+[`COMMERCIAL_LAUNCH_ARCHITECTURE.md`](./COMMERCIAL_LAUNCH_ARCHITECTURE.md) §E):
+payment provider (LiqPay/WayForPay) + merchant/legal entity (ФОП/ТОВ) + UAH account; delivery
+carrier (Nova Poshta/Ukrposhta) + API key + shipping/COD policy; transactional email provider +
+SPF/DKIM/DMARC; hosting/public-demo + secrets + access control + cost ceiling; fiscalization
+(РРО/ПРРО) + offer/privacy/returns; real licensed product imagery; support/recovery process.
+
+## 8. Security / readiness notes
+
+- Passwords scrypt-hashed (never stored/logged plaintext); generic auth errors (no enumeration);
+  separate customer session (distinct signing key); `sessionVersion` revocation.
+- **Durable** rate limiting (`CustomerAuthThrottle`) — single-instance; multi-instance atomic
+  limiting deferred. Customer-auth **audit** log (no PII/secrets).
+- Admin **local-only by construction** (`ensureLocalAdmin` 404s in production / off-localhost) +
+  session-gated; **no public admin** without a security review.
+- Preflight asserts the DB target is **6700, not dm-bot 5432**; never reads/prints `.env`
+  (only the `DATABASE_URL` port).
+
+## 9. Visual evidence status
+
+Curated set (storefront/cart/checkout/confirmation/admin) accurate + buyer-acceptable; new
+`account-login-prompt.png` (cabinet entry, 55A). **Missing (manual, deferred):** logged-in
+`/account`, order history/detail, admin audit-log `customer.*` shots — captured via the safe
+checklist in [`SCREENSHOT_INVENTORY.md`](./SCREENSHOT_INVENTORY.md) §4. A visual-evidence
+nicety, not a correctness gap (flows are verified by automation).
+
+## 10. Known limitations
+
+Manual payment/delivery (no acquirer/carrier API); no email (reset/verification/notifications);
+no production deploy/hosting; single-instance rate limiting; placeholder product imagery; admin
+Russian/local-only; no browser E2E (HTTP smokes + `db:verify:*` instead); legacy RU-market
+payment docs are superseded by the Ukraine-first set.
+
+## 11. What must NOT be promised
+
+No real card payments / acquirer / webhooks / "paid" state; no carrier API / waybills / tracking;
+no hosted/deployed/public production shop; no publicly reachable admin; no finished real product
+photography; not "guest-checkout-only" (accounts exist); no legal/fiscal compliance guarantees.
+(`npm run demo:sale-docs-check` guards buyer + launch docs against these.)
+
+## 12. Recommended next superblocks (ONLY once owner input exists)
+
+Do **not** start these without the matching owner decisions green (per §7). When unblocked, the
+first concrete block — and the first to need a schema migration + security review — is the
+**payment SPEC → `Payment`/`WebhookEvent` model → provider sandbox → signed webhook**, then
+delivery, then email, then public deploy. Full sequencing: `COMMERCIAL_LAUNCH_ARCHITECTURE.md` §F.
+
+## 13. HANDOFF block (copy-paste for a new ChatGPT/Claude session)
+
+```text
+PROJECT: AURELIA — Ukraine-first, sale-ready demo MVP online jewelry/accessories/gifts store.
+GOAL: maintain/extend an honest, sale-ready local demo. NOT a live shop taking money.
+ASSISTANT: Claude Code (last worked: Opus 4.8 / claude-code 2.1.x).
+
+REPO: C:\Projects\Jewelry Store  · branch main · HEAD 86ccea2 (local main = origin/main).
+STACK: Next.js 15 / React 19 / TypeScript / Prisma / PostgreSQL. Currency ₴ (UAH).
+DESIGN IS LOCKED — do not change CSS/layout/spacing/typography/colors/cards/placeholders/gallery.
+
+DB TOPOLOGY:
+- AURELIA PostgreSQL = localhost:6700 ONLY (npm run db:start/db:stop/db:status/db:health/db:backup).
+- dm-bot PostgreSQL = localhost:5432 — a SEPARATE system; NEVER touch it.
+- `npm run build` needs DB 6700 UP (product/[slug] generateStaticParams).
+
+IMPLEMENTED NOW: UAH storefront + variants + gallery; guest cart + server-authoritative checkout;
+MANUAL payment (cash_on_delivery/manual_online) + MANUAL delivery (note); inline order confirmation;
+customer accounts (register/login/profile/password+session-revocation/order history) with guest
+preserved; customer-auth AUDIT log + DURABLE DB rate limiting (single-instance); local-only admin
+(catalog/orders/lifecycle+restock/settings+CMS/audit); demo readiness tooling.
+
+VERIFY (all green at freeze; local + safe, nothing committed):
+  npm run typecheck && npx prisma validate && npm run demo:sale-docs-check
+  npm run demo:preflight && npm run demo:rehearsal
+  npm run db:start && npm run db:verify:customer-auth   # 51/51
+  npm run dev   # then: npm run smoke:routes (21/21) and npm run smoke:admin (12/12)
+  npm run build && npm run db:stop
+
+MILESTONES (major blocks, not every commit): 47A–47C customer auth/account/session security ·
+49A auth audit + abuse protection · 50A route smoke · 51A durable rate limiting · 52A preflight
+gate · 53A admin smoke + sale-docs checker + rehearsal · 54A final buyer handoff · 55A visual
+evidence · 56A owner-gated commercial launch architecture · 57A this freeze/handoff.
+
+OPEN RISKS: multi-instance rate limiting not done; authed account/audit screenshots manual;
+sale-docs checker is heuristic; build depends on DB 6700.
+
+OWNER-GATED (blocks real launch — NOT engineering): payment provider + ФОП/ТОВ + UAH account;
+carrier API key + shipping/COD policy; email provider + SPF/DKIM/DMARC; hosting/secrets/access;
+fiscalization (РРО/ПРРО) + legal texts; real licensed imagery.
+
+NEXT EXACT STEP: FREEZE — wait for owner inputs. Do NOT start a new feature loop. When unblocked,
+begin the payment SPEC → Payment/WebhookEvent model (additive migration + security review) per
+docs/sale/COMMERCIAL_LAUNCH_ARCHITECTURE.md §F.
+
+HARD PROHIBITIONS: no deploy/tunnel/cloud without explicit permission; no payment/delivery API
+without owner decisions + security review; never print/edit .env/.env.local or secrets; no DB
+reset/drop/seed; no design/UI/schema changes; never touch dm-bot 5432; do not push unless asked.
+
+SESSION HYGIENE: this is a clean freeze point — prefer a NEW session (or /clear) for the next
+task; /compact only if continuing mid-thread. One stage = one commit; push only when asked.
+```
+
+---
+
+*Freeze snapshot — verification + planning only. Not a deployment record, not proof of a live
+shop. Re-run the rehearsal and refresh this file at the next handoff milestone.*
