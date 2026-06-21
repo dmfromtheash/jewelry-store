@@ -374,3 +374,30 @@ and the `CustomerAuthThrottle` row count is asserted **unchanged** afterwards (n
   single swap-in point.
 - Email reset / verification, per-device sessions, and guest-order linking remain **deferred**
   (unchanged).
+
+---
+
+# Этап 59A — Email foundation note (password reset / verification)
+
+> Context: Stage 59A added an **email FOUNDATION** (`EmailOutbox` table + template slots,
+> including `password_reset` and `email_verification`) for future wiring. This does NOT
+> change the auth/account behaviour above — it is recorded here only so the gap is precise.
+
+## 59A.1 What the email foundation does (and does NOT) do for auth
+
+- It reserves the **template identifiers** `password_reset` and `email_verification` and a
+  renderer for each, but those renderers are honest **placeholders**: they state that sending
+  is not active and embed **no token**. See `src/lib/email/templates.ts`.
+- **No password-reset flow exists.** "Забули пароль?" is still a no-op — there is **no reset
+  token, no hashed-token model, no reset link, and no email is sent.** A working flow requires:
+  (1) an email provider + verified domain (SPF/DKIM/DMARC), and (2) a `PasswordResetToken`
+  model storing **only a hashed token** with an expiry, plus a no-account-enumeration response.
+  Both remain **owner/provider-gated** and explicitly out of scope for 59A.
+- **No email verification flow exists** for the same reason.
+- Email remains **immutable** in v1 (no email-change flow), unchanged by 59A.
+
+## 59A.2 Remaining gaps (carried forward, unchanged)
+
+- **No password reset / email verification working flow** — foundation/templates only; needs a
+  provider + a hashed-token model (deferred).
+- **No email change**, **no per-device session journal**, **no guest-order linking by email**.

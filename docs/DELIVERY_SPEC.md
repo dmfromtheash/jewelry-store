@@ -15,6 +15,18 @@
 > **Availability rule:** where a specific carrier/delivery service is mentioned, it
 > is a **direction to verify**, marked **“requires current official
 > verification.”** No carrier is asserted to be available.
+>
+> **Update (Этап 59A) — manual delivery branch fields shipped.** The order now stores
+> additional **manual** delivery fields: `deliveryBranch` (отделение/склад) and
+> `deliveryComment`, alongside the existing `deliveryCity` / `deliveryMethod` /
+> `deliveryDetails`. They are plain text, validated server-side (length-capped +
+> HTML/script-stripped), shown in the admin order detail and the customer's account
+> order page. This is **still purely manual**: there is **NO** Nova Poshta / Ukrposhta
+> API, **NO** live branch lookup, **NO** delivery-price calculation, and **NO** TTN /
+> tracking. When a carrier API is later integrated (owner-gated — §16 `25D-impl-0`
+> onward), `deliveryBranch` is the natural slot for a selected warehouse id. Everything
+> in §§3–18 (priced delivery, address model, fulfillment axis, carrier/tracking)
+> remains future/owner-gated and unchanged by 59A.
 
 ---
 

@@ -145,6 +145,11 @@ function checkSecurityPosture() {
     'model AdminAuditLog',
     'sessionVersion',
     'passwordChangedAt',
+    // Trust & operations foundation (Этап 59A): moderated reviews, manual delivery
+    // branch fields, and the no-send email outbox foundation.
+    'model ProductReview',
+    'model EmailOutbox',
+    'deliveryBranch',
   ])
   // Admin is local-only BY CONSTRUCTION: 404 in production / non-localhost.
   assertContains('src/lib/admin/guard.ts', ['ensureLocalAdmin', 'notFound', 'production'])

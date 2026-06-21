@@ -1,9 +1,16 @@
-# Final Freeze Audit & Project Handoff — AURELIA (Stage 57A)
+# Final Freeze Audit & Project Handoff — AURELIA (Stage 57A; refreshed at 59A)
 
 > **Freeze point + handoff snapshot** after the 49A–56A sale/demo/security/readiness/
-> architecture cycle. **Verification + planning only** — no code, schema, design, env, deploy,
-> or secrets change here. The honest one-line status: **a strong, verified, sale-ready local
-> demo MVP; real commercial launch is blocked by owner/provider/legal decisions.**
+> architecture cycle, **refreshed after Stage 59A** (trust & operations foundation:
+> moderated reviews, manual delivery branch/comment fields, and a no-send email outbox
+> foundation — all additive, design unchanged). The honest one-line status: **a strong,
+> verified, sale-ready local demo MVP; real commercial launch is blocked by
+> owner/provider/legal decisions.**
+>
+> **Stage 59A note.** 59A is an additive feature superblock (one migration
+> `add_trust_and_ops_foundation`; DB backed up first). It adds real business value
+> **without** crossing any owner-gated line: **no** payment API, **no** carrier API/TTN,
+> **no** real email sending, **no** deploy. See §§3–4, §6, §13 below (updated).
 >
 > Index: [`README.md`](./README.md) · start-here: [`FINAL_BUYER_HANDOFF.md`](./FINAL_BUYER_HANDOFF.md)
 > · readiness: [`DEMO_SALE_READINESS_REPORT.md`](./DEMO_SALE_READINESS_REPORT.md)
@@ -22,8 +29,8 @@ launched business. **Design is locked.**
 
 ## 2. Current baseline
 
-- Branch `main`, HEAD **`86ccea2` docs: add owner-gated commercial launch architecture** (local
-  `main` = `origin/main` at freeze time).
+- Branch `main`; prior freeze baseline **`fb9a2a6` docs: add final freeze audit handoff**. HEAD
+  advances to the **Stage 59A** commit *(`feat: add trust and operations foundation`)*.
 - AURELIA PostgreSQL: **localhost:6700 only**. dm-bot PostgreSQL **localhost:5432 — never touched**.
 
 ## 3. What is implemented (now, in code)
@@ -33,7 +40,14 @@ launched business. **Design is locked.**
 - **Cart + guest checkout**: variant-aware lines; server-authoritative pricing (minor units);
   inline order confirmation (`AUR-XXXXXXXX`).
 - **Manual payment** (`cash_on_delivery` / `manual_online`) + **manual delivery**
-  (`self_pickup`/`nova_poshta`/`ukrposhta`/`local_courier` + free-text note).
+  (`self_pickup`/`nova_poshta`/`ukrposhta`/`local_courier` + manual branch/comment fields +
+  free-text note).
+- **Trust & operations foundation** (59A): **moderated reviews** (1–5 rating; pending→approved;
+  approved-only public + average/count; guest or logged-in submit; admin moderation at
+  `/admin/reviews`, audited); **manual delivery branch/comment** (`deliveryBranch`/
+  `deliveryComment`, validated, shown in admin + account) — **no carrier API/TTN**; an **email
+  outbox foundation** (`EmailOutbox` + template slots + `/admin/email-outbox`) that **sends
+  nothing** (records `skipped`; no provider, no tokens, no body stored).
 - **Customer accounts** (47A–47C): registration/login/logout (scrypt), separate httpOnly
   session cookie, profile editing, password change with **stale-session invalidation**
   (`sessionVersion`/`passwordChangedAt`), order history + **own** order detail; guest checkout
@@ -60,8 +74,9 @@ Run via `npm run demo:rehearsal` (offline) + the live sequence. At this freeze, 
 | `demo:preflight` · `demo:preflight:full` | pass |
 | `db:verify:customer-auth` | 51/51 (hashing, sessions, throttle durable, audit, scoping) |
 | `db:verify:orders` · `order-confirmation` · `checkout-options` · `product-variants` · `inventory-lifecycle` | pass |
+| `db:verify:reviews` · `delivery-details` · `email-outbox` (59A) | pass (rolled-back; nothing committed) |
 | `smoke:routes` | 21/21 routes render / gated |
-| `smoke:admin` | 12/12 admin surfaces render authed + gated unauthed |
+| `smoke:admin` | 16/16 (8 admin surfaces incl. reviews + email-outbox) render authed + gated unauthed |
 | `build` | production build green (needs DB 6700 up) |
 
 ## 5. Key commands
@@ -87,15 +102,16 @@ Ranges, not promises. Bumped from the older 40A buyer/MVP audit where 49A–56A 
 | Sale-ready **demo package** | **~92–95%** | docs, screenshots, claims matrix, readiness tooling — coherent + checker-guarded |
 | **Technical MVP** | **~80–85%** | full storefront→order→admin + accounts; payment/delivery are manual by design |
 | **Ukrainian storefront/catalog** | **~95%** | uk-UA storefront + catalog; admin chrome stays Russian by design |
-| **Checkout / manual order flow** | **~90%** | end-to-end, server-authoritative; manual payment/delivery model |
+| **Checkout / manual order flow** | **~90%** | end-to-end, server-authoritative; manual payment/delivery model + manual branch/comment fields |
+| **Reviews / social proof (59A)** | **~80%** | moderated reviews end-to-end (submit→moderate→public); no purchase verification / photos |
 | **Customer auth / account** | **~90%** | login/profile/password/history/audit/durable rate-limit; no email reset/verification |
 | **Admin CMS / site management** | **~85–90%** | catalog/orders/lifecycle/settings/CMS/audit; local-only |
 | **Security / readiness tooling** | **~90%** | durable rate-limit, audit, preflight/rehearsal/smokes, sale-docs guard |
 | **Visual evidence package** | **~85%** | storefront/cart/checkout/admin + cabinet entry; authed account/audit shots are a manual/deferred polish item |
 | **Public demo readiness** | **~60–70%** | local demo + gates ready; public URL needs owner-gated hosting/secrets/access; throttle durable single-instance only |
 | **Real payment integration** | **~10–15%** | architecture/SPEC only; no provider code |
-| **Delivery / carrier integration** | **~10–15%** | architecture/SPEC only; manual note today |
-| **Email / account operations** | **~5–10%** | architecture/SPEC only; nothing sent (no provider/DKIM) |
+| **Delivery / carrier integration** | **~15–20%** | manual branch/comment fields shipped (59A); carrier API/TTN still SPEC only |
+| **Email / account operations** | **~15–20%** | outbox FOUNDATION + templates shipped (59A); **nothing sent** — provider/DKIM still owner-gated |
 | **Real launch readiness** | **~25–30%** | gated by owner/legal/provider decisions, not engineering |
 
 ## 7. Owner-gated commercial launch blockers
@@ -129,17 +145,22 @@ nicety, not a correctness gap (flows are verified by automation).
 
 ## 10. Known limitations
 
-Manual payment/delivery (no acquirer/carrier API); no email (reset/verification/notifications);
-no production deploy/hosting; single-instance rate limiting; placeholder product imagery; admin
-Russian/local-only; no browser E2E (HTTP smokes + `db:verify:*` instead); legacy RU-market
-payment docs are superseded by the Ukraine-first set.
+Manual payment/delivery (no acquirer/carrier API; manual branch/comment fields only); **no real
+email sending** (outbox foundation only — reset/verification/notifications are honest stubs);
+reviews are moderated (no verified-purchase proof / photos); no production deploy/hosting;
+single-instance rate limiting; placeholder product imagery; admin Russian/local-only; no browser
+E2E (HTTP smokes + `db:verify:*` instead); legacy RU-market payment docs superseded by the
+Ukraine-first set.
 
 ## 11. What must NOT be promised
 
 No real card payments / acquirer / webhooks / "paid" state; no carrier API / waybills / tracking;
-no hosted/deployed/public production shop; no publicly reachable admin; no finished real product
-photography; not "guest-checkout-only" (accounts exist); no legal/fiscal compliance guarantees.
-(`npm run demo:sale-docs-check` guards buyer + launch docs against these.)
+**no real email sending** (no order/notification emails; no working password-reset-by-email — the
+outbox foundation records but sends nothing); **no verified-purchase reviews** (reviews are
+moderated, no proof of purchase); no hosted/deployed/public production shop; no publicly reachable
+admin; no finished real product photography; not "guest-checkout-only" (accounts exist); no
+legal/fiscal compliance guarantees. (`npm run demo:sale-docs-check` guards buyer + launch docs
+against these.)
 
 ## 12. Recommended next superblocks (ONLY once owner input exists)
 
@@ -155,7 +176,7 @@ PROJECT: AURELIA — Ukraine-first, sale-ready demo MVP online jewelry/accessori
 GOAL: maintain/extend an honest, sale-ready local demo. NOT a live shop taking money.
 ASSISTANT: Claude Code (last worked: Opus 4.8 / claude-code 2.1.x).
 
-REPO: C:\Projects\Jewelry Store  · branch main · HEAD 86ccea2 (local main = origin/main).
+REPO: C:\Projects\Jewelry Store  · branch main · HEAD = Stage 59A commit (prior baseline fb9a2a6).
 STACK: Next.js 15 / React 19 / TypeScript / Prisma / PostgreSQL. Currency ₴ (UAH).
 DESIGN IS LOCKED — do not change CSS/layout/spacing/typography/colors/cards/placeholders/gallery.
 
@@ -165,33 +186,40 @@ DB TOPOLOGY:
 - `npm run build` needs DB 6700 UP (product/[slug] generateStaticParams).
 
 IMPLEMENTED NOW: UAH storefront + variants + gallery; guest cart + server-authoritative checkout;
-MANUAL payment (cash_on_delivery/manual_online) + MANUAL delivery (note); inline order confirmation;
-customer accounts (register/login/profile/password+session-revocation/order history) with guest
-preserved; customer-auth AUDIT log + DURABLE DB rate limiting (single-instance); local-only admin
-(catalog/orders/lifecycle+restock/settings+CMS/audit); demo readiness tooling.
+MANUAL payment (cash_on_delivery/manual_online) + MANUAL delivery (method + manual branch/comment
+fields, NO carrier API); inline order confirmation; customer accounts (register/login/profile/
+password+session-revocation/order history) with guest preserved; customer-auth AUDIT log + DURABLE
+DB rate limiting (single-instance); MODERATED reviews (1–5, pending→approved, approved-only public,
+admin moderation) — 59A; EMAIL OUTBOX FOUNDATION (EmailOutbox + templates + /admin/email-outbox)
+that SENDS NOTHING (records skipped) — 59A; local-only admin (catalog/orders/lifecycle+restock/
+settings+CMS/audit/reviews/email-outbox); demo readiness tooling.
 
-VERIFY (all green at freeze; local + safe, nothing committed):
+VERIFY (all green; local + safe, nothing committed):
   npm run typecheck && npx prisma validate && npm run demo:sale-docs-check
   npm run demo:preflight && npm run demo:rehearsal
   npm run db:start && npm run db:verify:customer-auth   # 51/51
-  npm run dev   # then: npm run smoke:routes (21/21) and npm run smoke:admin (12/12)
+  npm run db:verify:reviews && npm run db:verify:delivery-details && npm run db:verify:email-outbox  # 59A
+  npm run dev   # then: npm run smoke:routes (21/21) and npm run smoke:admin (16/16)
   npm run build && npm run db:stop
 
 MILESTONES (major blocks, not every commit): 47A–47C customer auth/account/session security ·
 49A auth audit + abuse protection · 50A route smoke · 51A durable rate limiting · 52A preflight
 gate · 53A admin smoke + sale-docs checker + rehearsal · 54A final buyer handoff · 55A visual
-evidence · 56A owner-gated commercial launch architecture · 57A this freeze/handoff.
+evidence · 56A owner-gated commercial launch architecture · 57A freeze/handoff · 59A trust & ops
+foundation (moderated reviews + manual delivery branch/comment + email outbox foundation).
 
-OPEN RISKS: multi-instance rate limiting not done; authed account/audit screenshots manual;
-sale-docs checker is heuristic; build depends on DB 6700.
+OPEN RISKS: multi-instance rate limiting not done; authed account/audit/reviews screenshots manual;
+sale-docs checker is heuristic; build depends on DB 6700; email outbox is a foundation (sends nothing).
 
 OWNER-GATED (blocks real launch — NOT engineering): payment provider + ФОП/ТОВ + UAH account;
 carrier API key + shipping/COD policy; email provider + SPF/DKIM/DMARC; hosting/secrets/access;
 fiscalization (РРО/ПРРО) + legal texts; real licensed imagery.
 
-NEXT EXACT STEP: FREEZE — wait for owner inputs. Do NOT start a new feature loop. When unblocked,
-begin the payment SPEC → Payment/WebhookEvent model (additive migration + security review) per
-docs/sale/COMMERCIAL_LAUNCH_ARCHITECTURE.md §F.
+NEXT EXACT STEP: 59A shipped — re-FREEZE and wait for owner inputs. Do NOT start a new feature
+loop without a brief. When unblocked, the first owner-gated block is the payment SPEC →
+Payment/WebhookEvent model (additive migration + security review) per
+docs/sale/COMMERCIAL_LAUNCH_ARCHITECTURE.md §F. Real email sending (provider + SPF/DKIM/DMARC +
+hashed reset-token model) is the natural follow-on to the 59A email foundation — also owner-gated.
 
 HARD PROHIBITIONS: no deploy/tunnel/cloud without explicit permission; no payment/delivery API
 without owner decisions + security review; never print/edit .env/.env.local or secrets; no DB

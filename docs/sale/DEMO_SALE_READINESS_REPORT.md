@@ -40,8 +40,11 @@ self-cleaning DB verifies; nothing committed).
 | Sale-docs consistency | `npm run demo:sale-docs-check` | buyer docs don't contradict the build |
 | Customer auth | `npm run db:verify:customer-auth` | hashing, sessions, throttle (durable), audit, scoping (51/51) |
 | Orders / checkout | `npm run db:verify:orders` etc. | order tables, lifecycle, confirmation, manual methods |
+| Reviews (59A) | `npm run db:verify:reviews` | validation, aggregate, default-pending, approved-only visibility, moderation |
+| Delivery details (59A) | `npm run db:verify:delivery-details` | branch/comment validation + persistence; guest preserved; no carrier API |
+| Email outbox (59A) | `npm run db:verify:email-outbox` | honest templates (no working send/reset), lifecycle, privacy; no sending |
 | Route render | `npm run smoke:routes` | 21 routes render; admin routes **gated** when unauthenticated |
-| Authenticated admin | `npm run smoke:admin` | 6 admin surfaces render **with** a local session, **gated** without |
+| Authenticated admin | `npm run smoke:admin` | 8 admin surfaces (incl. reviews + email-outbox) render **with** a local session, **gated** without |
 | Build | `npm run build` | production build green |
 
 ## 2a. Sale claims matrix
@@ -58,13 +61,17 @@ no integration) · 🚫 not implemented / owner-gated.
 | Admin catalog / orders | ✅ | `smoke:admin`; `db:verify:orders`, `…order-lifecycle` | **Yes, local only** | admin 404s in production by design |
 | Admin settings / content CMS | ✅ | `smoke:admin` (`/admin/settings`, `/admin/content`) | **Yes, local only** | text/settings only; no logic change |
 | Product variants / inventory / restock | ✅ | `db:verify:product-variants`, `…inventory-lifecycle` | **Yes** | restock-on-cancel covered |
+| Moderated reviews / ratings (59A) | ✅ | `db:verify:reviews`; `/admin/reviews` | **Yes, as moderated** | approved-only public; **no** purchase verification |
+| Manual delivery branch / comment (59A) | 🟡 | `db:verify:delivery-details` | **Yes, as manual** | customer-typed; **no** carrier API / TTN / tracking |
+| Email outbox foundation (59A) | 🟡 | `db:verify:email-outbox`; `/admin/email-outbox` | **Foundation only** | **nothing is sent** (records `skipped`); no provider |
 | Auth audit log (`customer.*`) | ✅ | `db:verify:customer-auth`; `/admin/audit-log` | **Yes** | no PII/secrets stored |
 | Durable auth rate limiting | ✅ | `db:verify:customer-auth` (durable section) | **Yes, single-instance** | multi-instance atomic limiting deferred |
 | Sale docs / screenshots package | ✅ | `demo:sale-docs-check`; `docs/sale/` | **Yes** | screenshots predate `/account` shot (see §10) |
 | Preflight / rehearsal / smoke checks | ✅ | `demo:preflight`, `demo:rehearsal`, `smoke:*` | **Yes** | local, read-only; not a deploy |
 | Real payment provider API | 🚫 | — (manual model only) | **No** | LiqPay/WayForPay etc. not integrated |
-| Carrier API / TTN / tracking | 🚫 | — (manual delivery note only) | **No** | Nova Poshta/Ukrposhta not integrated |
-| Email reset / verification | 🚫 | — (deferred) | **No** | no email provider wired |
+| Carrier API / TTN / tracking | 🚫 | — (manual branch/comment fields only) | **No** | Nova Poshta/Ukrposhta not integrated |
+| Real email sending / reset / verification | 🚫 | — (outbox foundation only, no provider) | **No** | nothing sent; reset/verify are honest stubs |
+| Verified-purchase reviews / photos | 🚫 | — (moderated reviews only) | **No** | no purchase verification; photos not supported |
 | Public deploy / live demo | 🚫 | — (local only) | **No** | nothing hosted/tunneled |
 | Legal / fiscalization (РРО/ПРРО) | 🚫 | — (owner/lawyer-gated) | **No** | not addressed in code |
 | Real product imagery | 🚫 | placeholder (gem empty-state) | **No** | owner supplies licensed images |
@@ -100,9 +107,11 @@ See [`OWNER_DECISION_CHECKLIST.md`](./OWNER_DECISION_CHECKLIST.md).
 ## 6. Still not implemented (deferred, by design)
 
 Real online payment acquiring + webhooks / "paid" state / refunds; carrier API / TTN /
-tracking (delivery is a manual choice + note); email features (password reset, email
-verification, notifications); production deploy / hosting; multi-instance atomic rate
-limiting; full uk-UA / EN localization. Product imagery is placeholder. See
+tracking (delivery is a manual choice + manual branch/comment fields); **real email sending**
+(an outbox foundation exists — 59A — but nothing is sent: no provider; password reset / email
+verification / notifications are honest stubs); verified-purchase reviews + photos (moderated
+reviews exist — 59A); production deploy / hosting; multi-instance atomic rate limiting; full
+uk-UA / EN localization. Product imagery is placeholder. See
 [`FEATURES_AND_LIMITS.md`](./FEATURES_AND_LIMITS.md).
 
 ## 7. Before any public demo URL
@@ -132,7 +141,11 @@ Keep the pitch honest. Do **not** tell a buyer that AURELIA already:
 - has a publicly reachable admin panel — admin is **local-only** and 404s in production;
 - ships with finished real product photography — imagery is **placeholder** until the owner
   supplies licensed images;
-- is **guest-checkout-only** — it now has full customer accounts **and** guest checkout.
+- is **guest-checkout-only** — it now has full customer accounts **and** guest checkout;
+- sends order/notification e-mails or has a working password-reset-by-email — there is an email
+  outbox **foundation** only (59A), and **nothing is actually sent**;
+- shows **verified-purchase** customer reviews — reviews are **moderated** (admin-approved) and
+  carry **no** proof of purchase.
 
 The `npm run demo:sale-docs-check` script guards the buyer-facing docs against these specific
 contradictions; keep it green.

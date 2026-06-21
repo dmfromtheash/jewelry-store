@@ -123,8 +123,12 @@ export default async function AdminOrderDetailPage({
               <dd>{order.deliveryCity}</dd>
               <dt>Способ</dt>
               <dd>{deliveryMethodLabel(order.deliveryMethod)}</dd>
-              <dt>Детали</dt>
+              <dt>Отделение / склад</dt>
+              <dd>{order.deliveryBranch ?? '—'}</dd>
+              <dt>Адрес / детали</dt>
               <dd>{order.deliveryDetails ?? '—'}</dd>
+              <dt>Комментарий</dt>
+              <dd>{order.deliveryComment ?? '—'}</dd>
               <dt>Оплата</dt>
               <dd>{paymentMethodLabel(order.paymentMethod)}</dd>
               <dt>Создан</dt>

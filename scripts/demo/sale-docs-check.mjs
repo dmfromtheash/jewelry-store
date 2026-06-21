@@ -14,6 +14,11 @@
  *   - Nothing is deployed / hosted; admin is local-only. So "deployed to production" /
  *     "public admin is ready" are FALSE.
  *   - Product imagery is placeholder. So "real product photos complete" is FALSE.
+ *   - Reviews are MODERATED demo content (no purchase verification); delivery is a manual
+ *     branch/comment note (no carrier API / no TTN / no tracking); email is a FOUNDATION
+ *     that sends NOTHING (no provider) — and password reset over email is NOT implemented
+ *     (Этап 59A). So "verified customer reviews" / "TTN generated" / "emails are sent" /
+ *     "password reset works via email" are all FALSE.
  *
  * Lines that are clearly NEGATIONS / honest disclaimers (contain ❌, "no ", "not",
  * "without", "must not", "never", "instead of", "isn't") are SKIPPED for the
@@ -67,6 +72,12 @@ const FALSE_FEATURES = [
   { re: /\bdeployed\s+to\s+production\b|\bin\s+production\s+(now|already|today)\b|\blive\s+(production\s+)?(site|shop|store)\b|\bproduction\s+(site|shop|store)\s+is\s+(live|up|ready)\b/i, why: 'nothing is deployed/hosted — local demo only' },
   { re: /public\s+admin\s+(is\s+)?(ready|available|live|enabled|exposed)\b/i, why: 'admin is local-only by design; never public' },
   { re: /real\s+(product\s+)?(photos|images|imagery)\s+(are\s+)?(complete|done|added|finished|in\s+place)\b/i, why: 'product imagery is placeholder (demo limitation)' },
+  // Trust & operations foundation (Этап 59A) — these are FOUNDATIONS, not the real thing.
+  { re: /\b(verified|genuine|authentic|real)\s+(customer\s+|purchase\s+)?reviews\b/i, why: 'reviews are demo/moderated — there is NO purchase verification' },
+  { re: /\b(ttn|tracking\s+number|tracking\s+code)\s+(is\s+|are\s+)?(generated|created|implemented|integrated|available|provided)\b/i, why: 'no TTN/tracking is generated (manual delivery only)' },
+  { re: /\border\s+tracking\s+(is\s+)?(implemented|available|live|enabled)\b/i, why: 'no order tracking is implemented (manual delivery only)' },
+  { re: /\be?-?mails?\s+(notifications?\s+)?(are\s+)?(sent|delivered|dispatched|being\s+sent|enabled|active)\b/i, why: 'no emails are sent — email is a foundation/stub only (no provider)' },
+  { re: /password\s+reset\s+(via\s+e?-?mail\s+)?(works|is\s+(live|implemented|enabled|available|functional))\b/i, why: 'password reset email flow is NOT implemented (foundation only, owner/provider-gated)' },
 ]
 
 const NEGATION = /❌|\bno\b|\bnot\b|\bnever\b|\bwithout\b|\bmust not\b|\binstead of\b|\bisn'?t\b|\baren'?t\b|\bplaceholder\b|\bdeferred\b|\bnot yet\b|\bnothing\b|\bplanning only\b|\bdemo only\b|\bno real\b/i

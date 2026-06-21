@@ -90,6 +90,10 @@ owner must decide before a real launch.
 - **Auth security & audit** — **durable DB-backed login/register/password/profile rate
   limiting** (49A → 51A, survives restart) and a **customer-auth audit log** (49A,
   `customer.*` events in the admin audit page; no PII/secrets stored).
+- **Trust & operations foundation (59A)** — **moderated reviews** (1–5 rating; guest or
+  logged-in submit; **approved-only** public + average/count; admin moderation at
+  `/admin/reviews`, audited), **manual delivery branch/comment** fields (no carrier API/TTN),
+  and an **email outbox foundation** (`/admin/email-outbox`) that **records but sends nothing**.
 - **Demo/sale readiness tooling** — `demo:preflight`, `demo:rehearsal`, `smoke:routes`,
   `smoke:admin`, `demo:sale-docs-check` (all local, read-only, no deploy; see
   [`DEMO_SALE_READINESS_REPORT.md`](./DEMO_SALE_READINESS_REPORT.md)).
@@ -101,13 +105,17 @@ owner must decide before a real launch.
 
 - Real online **payment acquiring** (no LiqPay/WayForPay/etc. integration).
 - Payment **webhooks / "paid" state / refunds**.
-- **Carrier API / TTN (waybill) / tracking** (delivery is a manual choice + note).
+- **Carrier API / TTN (waybill) / tracking** (delivery is a manual choice + manual
+  branch/comment fields only — the customer types them; no live lookup).
 - **Customer-account email features & extra hardening** — email password reset, email
   verification, guest-order linking, per-device session management, and **multi-instance**
   rate limiting (core accounts/login/profile/history **are** done; **durable single-instance
   rate limiting (51A) and customer-auth audit logging (49A) are also done** — these listed
   items are the remaining deferred ones).
-- **Notifications** (email / SMS).
+- **Real email sending / notifications** (email / SMS). An email outbox **foundation** exists
+  (59A) but **nothing is sent** — no provider; password reset / verification are honest stubs.
+- **Verified-purchase reviews / photos in reviews** (reviews are **moderated**, no proof of
+  purchase) — the moderated review mechanism itself **is** done (59A).
 - **Production deploy** (no live hosted shop).
 - **Fiscalization (РРО/ПРРО)** / legal-compliance guarantees.
 - Full **uk-UA / EN localization** and secondary currencies (storefront copy is

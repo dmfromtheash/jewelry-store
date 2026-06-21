@@ -80,7 +80,7 @@ npm run smoke:admin            # authenticated admin surfaces (needs the dev ser
   build (e.g. "guest-checkout-only", "payment API implemented", "deployed to production",
   "public admin ready", "imagery complete") and fails on them.
 - **`smoke:admin`** mints a **local** admin session (never printing the secret/token) and
-  asserts the 6 admin surfaces render when authenticated **and** stay gated when not. It
+  asserts the 8 admin surfaces render when authenticated **and** stay gated when not. It
   **SKIPs cleanly** if `ADMIN_*` is not configured. The full picture lives in
   [`DEMO_SALE_READINESS_REPORT.md`](./DEMO_SALE_READINESS_REPORT.md).
 

@@ -93,6 +93,8 @@ export async function getAdminOrderByCode(orderCode: string) {
       deliveryCity: true,
       deliveryMethod: true,
       deliveryDetails: true,
+      deliveryBranch: true,
+      deliveryComment: true,
       paymentMethod: true,
       subtotalAmount: true,
       totalAmount: true,

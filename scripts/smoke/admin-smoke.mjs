@@ -149,6 +149,8 @@ async function main() {
     '/admin',
     '/admin/orders',
     '/admin/catalog',
+    '/admin/reviews',
+    '/admin/email-outbox',
     '/admin/settings',
     '/admin/content',
     '/admin/audit-log',

@@ -21,6 +21,11 @@ import {
   getProductBySlugFromDb,
   getProductsByCategorySlugFromDb,
 } from '../../../src/lib/catalog/server'
+import {
+  getApprovedReviewsBySlug,
+  getReviewSummaryBySlug,
+} from '../../../src/lib/reviews/server'
+import { getCurrentCustomer } from '../../../src/lib/customer/session'
 import type { CategorySlug } from '../../../src/lib/catalog'
 
 export const dynamicParams = true
@@ -64,6 +69,14 @@ export default async function ProductPage({
     .slice(0, 4)
     .map((item) => item.category)
 
+  // Moderated reviews (Этап 59A): approved-only list + aggregate; prefill the review
+  // form name for a logged-in customer. A lookup failure must never break the PDP.
+  const [reviews, reviewSummary, customer] = await Promise.all([
+    getApprovedReviewsBySlug(product.slug),
+    getReviewSummaryBySlug(product.slug),
+    getCurrentCustomer().catch(() => null),
+  ])
+
   return (
     <>
       <TrackView event={ANALYTICS_EVENTS.productView} payload={{ productSlug: product.slug }} />
@@ -75,6 +88,9 @@ export default async function ProductPage({
         ]}
         similar={similar}
         product={product}
+        reviews={reviews}
+        reviewSummary={reviewSummary}
+        reviewAuthorName={customer?.name ?? null}
       />
     </>
   )

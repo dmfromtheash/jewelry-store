@@ -38,6 +38,8 @@ export const AUDIT_ACTIONS = {
   productVariantRemoved: 'admin.product.variant_removed',
   settingsUpdated: 'admin.settings.updated',
   pageUpdated: 'admin.page.updated',
+  reviewApproved: 'admin.review.approved',
+  reviewRejected: 'admin.review.rejected',
 } as const
 
 /** Human-readable labels for the audit-log UI (fallback: the raw action). */
@@ -57,6 +59,8 @@ export const AUDIT_ACTION_LABELS: Record<string, string> = {
   [AUDIT_ACTIONS.productVariantRemoved]: 'Вариант товара удалён',
   [AUDIT_ACTIONS.settingsUpdated]: 'Настройки сайта обновлены',
   [AUDIT_ACTIONS.pageUpdated]: 'Инфо-страница обновлена',
+  [AUDIT_ACTIONS.reviewApproved]: 'Отзыв одобрен',
+  [AUDIT_ACTIONS.reviewRejected]: 'Отзыв отклонён',
 }
 
 export interface AuditEventInput {

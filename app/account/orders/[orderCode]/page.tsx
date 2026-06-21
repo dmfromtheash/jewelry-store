@@ -111,11 +111,27 @@ export default async function AccountOrderDetailPage({
                 <p className="au-co-line-name">{deliveryMethodLabel(order.deliveryMethod)}</p>
               </div>
             </li>
+            {order.deliveryBranch && (
+              <li className="au-co-line">
+                <div className="au-co-line-main">
+                  <span className="au-co-line-meta">Відділення / склад</span>
+                  <p className="au-co-line-name">{order.deliveryBranch}</p>
+                </div>
+              </li>
+            )}
             {order.deliveryDetails && (
               <li className="au-co-line">
                 <div className="au-co-line-main">
-                  <span className="au-co-line-meta">Деталі доставки</span>
+                  <span className="au-co-line-meta">Адреса</span>
                   <p className="au-co-line-name">{order.deliveryDetails}</p>
+                </div>
+              </li>
+            )}
+            {order.deliveryComment && (
+              <li className="au-co-line">
+                <div className="au-co-line-main">
+                  <span className="au-co-line-meta">Коментар</span>
+                  <p className="au-co-line-name">{order.deliveryComment}</p>
                 </div>
               </li>
             )}

@@ -15,6 +15,7 @@ import {
   type DeliveryMethod,
   type PaymentMethod,
 } from '../../lib/orders/methods'
+import { methodUsesBranch } from '../../lib/orders/delivery'
 import type { CheckoutCopy } from '../../lib/site-settings/checkout-copy'
 import { sendAnalyticsEvent } from '../../lib/analytics/client'
 import { ANALYTICS_EVENTS } from '../../lib/analytics/events'
@@ -38,6 +39,7 @@ interface OrderConfirmation {
   orderCode: string
   paymentMethod: string
   deliveryMethod: string
+  deliveryBranch: string
   deliveryDetails: string
 }
 
@@ -84,7 +86,9 @@ export default function CheckoutPageClient({
     // Stored as plain strings (set from <select> values); the server re-validates
     // them against the allowlist in src/lib/orders/methods.ts.
     delivery: DELIVERY_METHODS[0] as string, // self_pickup
+    deliveryBranch: '',
     deliveryDetails: '',
+    deliveryComment: '',
     payment: PAYMENT_METHODS[0] as string, // cash_on_delivery
   })
   const [errors, setErrors] = useState<OrderFieldErrors>({})
@@ -131,7 +135,9 @@ export default function CheckoutPageClient({
       // Send the allowlisted delivery/payment KEYS; the server re-validates them
       // against src/lib/orders/methods.ts (a tampered value is rejected).
       deliveryMethod: form.delivery,
+      deliveryBranch: form.deliveryBranch || undefined,
       deliveryDetails: form.deliveryDetails || undefined,
+      deliveryComment: form.deliveryComment || undefined,
       paymentMethod: form.payment,
       // Only purchasable lines are sent; unavailable items are never included
       // (the server independently re-checks isPublished as the hard guarantee).
@@ -158,6 +164,7 @@ export default function CheckoutPageClient({
           orderCode: result.orderCode,
           paymentMethod: payload.paymentMethod,
           deliveryMethod: payload.deliveryMethod,
+          deliveryBranch: payload.deliveryBranch ?? '',
           deliveryDetails: payload.deliveryDetails ?? '',
         })
         clear() // order is persisted server-side; safe to empty the local cart
@@ -199,9 +206,15 @@ export default function CheckoutPageClient({
               <span className="au-co-line-meta">Доставка</span>
               <span className="au-co-line-name">{deliveryTitle(confirmation.deliveryMethod)}</span>
             </li>
+            {confirmation.deliveryBranch && (
+              <li className="au-co-line">
+                <span className="au-co-line-meta">Відділення / склад</span>
+                <span className="au-co-line-name">{confirmation.deliveryBranch}</span>
+              </li>
+            )}
             {confirmation.deliveryDetails && (
               <li className="au-co-line">
-                <span className="au-co-line-meta">Деталі доставки</span>
+                <span className="au-co-line-meta">Адреса</span>
                 <span className="au-co-line-name">{confirmation.deliveryDetails}</span>
               </li>
             )}
@@ -334,18 +347,52 @@ export default function CheckoutPageClient({
               </select>
               {errors.deliveryMethod && <p className="au-field-error">{errors.deliveryMethod}</p>}
             </div>
+            {/* Manual branch/department (Этап 59A): customer-typed only — no carrier
+                lookup, no TTN. The placeholder hints whether a branch is expected. */}
             <div className="au-field">
-              <label htmlFor="co-delivery-details">Відділення / адреса / коментар</label>
+              <label htmlFor="co-delivery-branch">Відділення / склад</label>
+              <input
+                id="co-delivery-branch"
+                type="text"
+                placeholder={
+                  methodUsesBranch(form.delivery)
+                    ? 'Напр.: відділення №12'
+                    : 'Напр.: пункт самовивозу (за потреби)'
+                }
+                value={form.deliveryBranch}
+                onChange={set('deliveryBranch')}
+                aria-invalid={!!errors.deliveryBranch}
+              />
+              {errors.deliveryBranch && (
+                <p className="au-field-error">{errors.deliveryBranch}</p>
+              )}
+            </div>
+            <div className="au-field">
+              <label htmlFor="co-delivery-details">Адреса (за потреби)</label>
               <input
                 id="co-delivery-details"
                 type="text"
-                placeholder="Напр.: Нова Пошта, відділення №12"
+                placeholder="Вулиця, будинок, квартира"
                 value={form.deliveryDetails}
                 onChange={set('deliveryDetails')}
                 aria-invalid={!!errors.deliveryDetails}
               />
               {errors.deliveryDetails && (
                 <p className="au-field-error">{errors.deliveryDetails}</p>
+              )}
+            </div>
+            <div className="au-field">
+              <label htmlFor="co-delivery-comment">Коментар до замовлення</label>
+              <input
+                id="co-delivery-comment"
+                type="text"
+                placeholder="Побажання щодо доставки (за потреби)"
+                value={form.deliveryComment}
+                onChange={set('deliveryComment')}
+                aria-invalid={!!errors.deliveryComment}
+              />
+              {errors.deliveryComment && (
+                <p className="au-field-error">{errors.deliveryComment}</p>
               )}
             </div>
           </section>

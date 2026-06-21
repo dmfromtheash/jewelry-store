@@ -25,9 +25,10 @@
 | Area | Implemented now (verified) | Planned / spec only (owner-gated) |
 |---|---|---|
 | Payment | `cash_on_delivery` + `manual_online` (по реквізитах); server-authoritative price; order code | Real acquiring (LiqPay / WayForPay), signed webhooks, "paid" state, refunds |
-| Delivery | manual method (`self_pickup`/`nova_poshta`/`ukrposhta`/`local_courier`) + free-text note | Carrier API, address model, cost calc, TTN/tracking |
+| Delivery | manual method (`self_pickup`/`nova_poshta`/`ukrposhta`/`local_courier`) + manual branch/comment fields (`deliveryBranch`/`deliveryComment`) + free-text note | Carrier API, address model, cost calc, TTN/tracking |
+| Reviews | moderated reviews (1–5 rating, pending→approved, approved-only public, admin moderation) — Этап 59A | Verified-purchase reviews, photos in reviews, shop replies |
 | Hosting | **local** dev demo (`127.0.0.1:5000`) + readiness gates | Public demo URL, production hosting, monitoring/backups |
-| Email | none | Transactional provider, password reset, email verification, notifications |
+| Email | **outbox FOUNDATION only** — `EmailOutbox` + template slots; **nothing is sent** (records `skipped`) — Этап 59A | Transactional provider, password reset, email verification, notifications |
 | Legal/fiscal | none in code | РРО/ПРРО, receipts, offer/privacy/returns |
 
 Everything in the right column is **blocked until the owner checklist is green** (§G).
@@ -79,8 +80,11 @@ legal/fiscal stance (§E). **Do not implement until these are green** — sandbo
 ## B. Delivery / carrier architecture (owner-gated)
 
 **Current state.** `deliveryMethod` (`self_pickup`/`nova_poshta`/`ukrposhta`/`local_courier`)
-+ a free-text `deliveryDetails` note. **No carrier API, no address model, no cost calc, no
-TTN/tracking.** Architecture reference: [`../DELIVERY_SPEC.md`](../DELIVERY_SPEC.md).
++ manual `deliveryBranch` (отделение/склад) + `deliveryComment` + a free-text `deliveryDetails`
+note — all customer-typed, validated server-side (Этап 59A). **No carrier API, no live branch
+lookup, no address model, no cost calc, no TTN/tracking.** When a carrier API is later
+integrated, `deliveryBranch` is the natural slot for a selected warehouse id. Architecture
+reference: [`../DELIVERY_SPEC.md`](../DELIVERY_SPEC.md).
 
 **Candidate carriers.** Nova Poshta (recommended first — free API key from the business
 cabinet), Ukrposhta (optional/second). Owner verifies account/contract.
@@ -142,9 +146,14 @@ hosted demo / production deploy — [`LIVE_DEMO_DEPLOY_READINESS.md`](./LIVE_DEM
 ## D. Email / account operations SPEC (owner-gated; NEW)
 
 **Current state.** Customer accounts exist (registration/login/profile/password change/order
-history, scrypt, session revocation, durable rate limiting, auth audit — 47A–51A). **No email
-is sent** anywhere: there is **no password reset, no email verification, no notifications.**
-See [`../customer/CUSTOMER_AUTH_ACCOUNT_SPEC.md`](../customer/CUSTOMER_AUTH_ACCOUNT_SPEC.md).
+history, scrypt, session revocation, durable rate limiting, auth audit — 47A–51A). An email
+**outbox FOUNDATION** now exists (Этап 59A): an `EmailOutbox` table + template slots
+(`order_confirmation`/`order_status_update`/`password_reset`/`email_verification`) + a
+`/admin/email-outbox` viewer. **No email is sent** anywhere — the foundation records each
+intended message as `skipped` (recorded, not sent), stores no body and no token, and there is
+still **no password reset, no email verification, no notifications**. The reset/verification
+template renderers are honest placeholders that embed no token. See
+[`../customer/CUSTOMER_AUTH_ACCOUNT_SPEC.md`](../customer/CUSTOMER_AUTH_ACCOUNT_SPEC.md) §59A.
 
 **Why email is its own gate.** Password reset and email verification are **meaningless and
 unsafe without a real transactional-email provider** and an authenticated sender domain. A

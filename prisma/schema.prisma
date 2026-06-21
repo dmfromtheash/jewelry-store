@@ -76,6 +76,7 @@ model Product {
   category    Category      @relation(fields: [categoryId], references: [id])
   variants    ProductVariant[]
   images      ProductImage[]
+  reviews     ProductReview[]
 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -174,6 +175,15 @@ model Order {
   /// Optional free-text delivery note (Этап 27B): отделение №, адрес или
   /// комментарий. Intentionally a single line — no structured address model.
   deliveryDetails String?
+  /// Optional manual branch / department / warehouse text (Этап 59A). For
+  /// Nova Poshta / Ukrposhta this is the customer-typed branch (e.g. "Відділення
+  /// №12") — NO carrier API, NO live branch lookup, NO TTN. Plain text only,
+  /// length-capped + HTML-stripped server-side (src/lib/orders/validate.ts).
+  deliveryBranch String?
+  /// Optional manual delivery comment (Этап 59A), kept separate from the legacy
+  /// `deliveryDetails` note so the structured branch + a free comment can coexist.
+  /// Plain text only, same server-side validation as the other delivery fields.
+  deliveryComment String?
   /// Manual payment method key (Этап 27B): cash_on_delivery / manual_online.
   /// Allowlisted by src/lib/orders/methods.ts. No payment provider API — payment
   /// is confirmed manually.
@@ -222,6 +232,7 @@ model Customer {
   updatedAt    DateTime @updatedAt
 
   orders       Order[]
+  reviews      ProductReview[]
 
   @@index([email])
 }
@@ -430,4 +441,107 @@ model SitePage {
   isPublished     Boolean  @default(true)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+/// Moderation status for a product review (Этап 59A). Every storefront submission
+/// starts `pending` and is invisible publicly until an admin `approved` it.
+enum ReviewStatus {
+  pending
+  approved
+  rejected
+}
+
+/// Moderated product review / rating (Этап 59A — social proof foundation).
+/// Privacy + safety by construction:
+///   - stores ONLY safe fields: a 1–5 rating, a public display name, the review
+///     body, the moderation status, and an optional loose link to the Customer
+///     who submitted it while logged in. NEVER an email, phone, IP, token, or any
+///     secret — contact data stays on the Order/Customer, never copied here.
+///   - all text is length-capped + HTML/script-stripped server-side before write
+///     (src/lib/reviews/validate.ts); raw markup is never persisted or rendered.
+///   - `status` defaults to `pending`: the public PDP shows `approved` reviews only,
+///     so an unmoderated or rejected review is never publicly visible.
+///   - `isDemo` flags seeded/sample reviews so they are never misrepresented as real
+///     verified-purchase reviews (there is no purchase-verification here).
+model ProductReview {
+  id          String       @id @default(cuid())
+  productId   String
+  product     Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  /// Optional owning customer (set server-side from the verified session when the
+  /// author is logged in). NULL = submitted as a guest. Loose nullable relation
+  /// (set null on customer delete) so review history survives an account deletion.
+  customerId  String?
+  customer    Customer?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  /// Public display name shown next to the review. Plain text, validated.
+  authorName  String
+  /// Integer 1–5 (enforced in validation, not the DB type).
+  rating      Int
+  /// Review text. Plain text only (HTML stripped), length-capped on write.
+  body        String
+  status      ReviewStatus @default(pending)
+  /// True for seeded/sample reviews — keeps demo content honestly labelled.
+  isDemo      Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  /// When an admin approved/rejected it (audit marker). Null while pending.
+  moderatedAt DateTime?
+
+  @@index([productId, status])
+  @@index([status])
+}
+
+/// Stable identifier for a future transactional email (Этап 59A). NO email is sent
+/// for any of these yet — these are the template slots the email foundation reserves.
+enum EmailTemplate {
+  order_confirmation
+  order_status_update
+  password_reset
+  email_verification
+}
+
+/// Honest lifecycle for an outbox row (Этап 59A). There is NO email provider, so the
+/// only real terminal state today is `skipped` (recorded but not sent). `sent_stub` /
+/// `failed_stub` exist for the future provider wiring + are exercised by the verify
+/// script; nothing here ever contacts a real mail server.
+enum EmailOutboxStatus {
+  queued
+  sent_stub
+  skipped
+  failed_stub
+}
+
+/// Email operations FOUNDATION (Этап 59A) — a queue/record of intended emails, with
+/// NO real sending. This deliberately does NOT integrate any provider (SendGrid /
+/// Mailgun / SMTP), holds NO provider credentials, and never contacts a mail server:
+/// rows are recorded for future wiring and admin visibility only.
+///
+/// Privacy + safety by construction:
+///   - stores ONLY a template id, a status, a short safe `subject`, an optional
+///     machine `note`, and a loose (no-FK) reference to the related order/customer.
+///   - the rendered email BODY is intentionally NOT stored (it could embed PII), and
+///     NO token/secret/reset-code is ever stored here (password-reset tokens are a
+///     deferred, owner/provider-gated concern — see docs/customer spec).
+///   - `recipientEmail` is stored ONLY when the address was already supplied by the
+///     order/customer; it is never invented or harvested.
+model EmailOutbox {
+  id             String            @id @default(cuid())
+  template       EmailTemplate
+  status         EmailOutboxStatus @default(queued)
+  /// Recipient address — only when already supplied by the order/customer; else null.
+  recipientEmail String?
+  /// Loose reference type, e.g. "order" | "customer". No FK (survives deletion).
+  relatedType    String?
+  /// Loose reference id/code, e.g. an order code. Never raw PII.
+  relatedId      String?
+  /// Short, safe subject line. No secrets/PII beyond what a subject needs.
+  subject        String
+  /// Optional machine note, e.g. "no email provider configured — not sent".
+  note           String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  /// When the row reached a terminal state (skipped / sent_stub / failed_stub).
+  processedAt    DateTime?
+
+  @@index([status])
+  @@index([template])
 }

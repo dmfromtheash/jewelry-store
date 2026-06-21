@@ -6,8 +6,10 @@ import ProductGallery from './ProductGallery'
 import ProductInfo from './ProductInfo'
 import ProductTabs from './ProductTabs'
 import ReviewsEmpty from './ReviewsEmpty'
+import ProductReviews from './ProductReviews'
 import RecentlyViewed from './RecentlyViewed'
 import type { Product } from '../../lib/catalog'
+import type { PublicReview, ReviewSummary } from '../../lib/reviews/types'
 
 /**
  * AURELIA — ProductPageLayout (server component)
@@ -24,9 +26,22 @@ interface ProductPageLayoutProps {
   similar: string[]
   /** real product → drives info/tabs; absent → generic coming-soon fallback */
   product?: Product
+  /** Approved reviews for the real product (Этап 59A). Absent → empty state. */
+  reviews?: PublicReview[]
+  /** Aggregate rating summary (approved reviews only, Этап 59A). */
+  reviewSummary?: ReviewSummary
+  /** Logged-in customer's display name to prefill the review form (Этап 59A). */
+  reviewAuthorName?: string | null
 }
 
-export default function ProductPageLayout({ breadcrumbs, similar, product }: ProductPageLayoutProps) {
+export default function ProductPageLayout({
+  breadcrumbs,
+  similar,
+  product,
+  reviews,
+  reviewSummary,
+  reviewAuthorName = null,
+}: ProductPageLayoutProps) {
   return (
     <div className="au-product-page" data-view="customer">
       <div className="au-container">
@@ -39,13 +54,23 @@ export default function ProductPageLayout({ breadcrumbs, similar, product }: Pro
 
         <ProductTabs description={product?.description} specs={product?.specs} />
 
-        {/* Reviews */}
-        <section className="au-section">
-          <div className="au-section-head">
-            <h2 className="au-section-title">Відгуки</h2>
-          </div>
-          <ReviewsEmpty />
-        </section>
+        {/* Reviews (Этап 59A): moderated, approved-only reviews + submission form for
+            a real product; the generic coming-soon fallback keeps the empty state. */}
+        {product ? (
+          <ProductReviews
+            productSlug={product.slug}
+            reviews={reviews ?? []}
+            summary={reviewSummary ?? { average: 0, count: 0 }}
+            initialAuthorName={reviewAuthorName}
+          />
+        ) : (
+          <section className="au-section">
+            <div className="au-section-head">
+              <h2 className="au-section-title">Відгуки</h2>
+            </div>
+            <ReviewsEmpty />
+          </section>
+        )}
 
         {/* Similar products */}
         <section className="au-section">

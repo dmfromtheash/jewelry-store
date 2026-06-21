@@ -18,6 +18,7 @@ import { recordCheckoutError, recordDraftOrderCreated } from '../analytics/recor
 import { PURCHASABLE_PRODUCT_STATUSES, isPurchasableStatus } from '../catalog/availability'
 import { resolveOrderLineVariant } from './variants'
 import { getCurrentCustomer } from '../customer/session'
+import { enqueueOrderConfirmationEmail } from '../email/outbox'
 
 function generateOrderCode(): string {
   // 8 hex chars (~4.3B combos); uniqueness is also enforced by the DB + retry.
@@ -241,6 +242,10 @@ export async function createOrderDraft(input: OrderDraftInput): Promise<OrderDra
             deliveryMethod: input.deliveryMethod.trim(),
             // Optional free-text note (отделение/адрес/комментарий); null if blank.
             deliveryDetails: input.deliveryDetails?.trim() ? input.deliveryDetails.trim() : null,
+            // Manual branch/department + separate comment (Этап 59A); null if blank.
+            // Validated above (length + no-markup) — never a carrier API value.
+            deliveryBranch: input.deliveryBranch?.trim() ? input.deliveryBranch.trim() : null,
+            deliveryComment: input.deliveryComment?.trim() ? input.deliveryComment.trim() : null,
             paymentMethod: input.paymentMethod.trim(),
             subtotalAmount,
             totalAmount,
@@ -251,6 +256,14 @@ export async function createOrderDraft(input: OrderDraftInput): Promise<OrderDra
       })
       // Analytics: order CODE + coarse totals only — never customer PII.
       await recordDraftOrderCreated({ orderCode: order.orderCode, itemCount, totalMinor: totalAmount })
+      // Email foundation (Этап 59A): record an order-confirmation outbox row. NO email
+      // is sent (no provider) — it is stored as `skipped`. Best-effort: the email helper
+      // swallows its own errors, so this can never break a successful checkout. The
+      // recipient is stored only if the customer supplied an email.
+      await enqueueOrderConfirmationEmail(
+        order.orderCode,
+        input.customerEmail?.trim() ? input.customerEmail.trim() : null,
+      )
       return { ok: true, orderCode: order.orderCode }
     } catch (e) {
       // Lost a stock race (someone else took the last unit while we checked out).

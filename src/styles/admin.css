@@ -135,6 +135,33 @@
   background: #f6e7e2;
   color: var(--au-danger);
 }
+/* Review + email moderation badges (Этап 59A) — same pill pattern, distinct tints. */
+.au-adm-badge--pending {
+  background: var(--au-gold-tint);
+  color: var(--au-gold);
+}
+.au-adm-badge--approved,
+.au-adm-badge--sent_stub {
+  background: #e8f1ea;
+  color: #2f7d4f;
+}
+.au-adm-badge--rejected,
+.au-adm-badge--failed_stub {
+  background: #f6e7e2;
+  color: var(--au-danger);
+}
+.au-adm-badge--queued,
+.au-adm-badge--skipped {
+  background: var(--au-surface);
+  color: var(--au-ink-soft);
+}
+/* Stacked moderation buttons inside a table cell. */
+.au-adm-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: stretch;
+}
 
 /* ---- Empty state ---- */
 .au-adm-empty {

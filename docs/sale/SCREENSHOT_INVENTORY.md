@@ -24,7 +24,7 @@
   **manually** per §4. Edge's `--screenshot` flag is a single GET and cannot carry a session
   cookie, and automating it would require a CDP driver plus committed demo customer/order data;
   this stage deliberately does **not** force that. The flows themselves are verified by
-  `npm run db:verify:customer-auth` (51/51) and `npm run smoke:admin` (12/12).
+  `npm run db:verify:customer-auth` (51/51) and `npm run smoke:admin` (16/16).
 
 ---
 

@@ -27,12 +27,20 @@ export interface OrderDraftInput {
   deliveryMethod: string
   /** Optional free-text delivery note (отделение/адрес/комментарий). */
   deliveryDetails?: string
+  /** Optional manual branch/department/warehouse text (Этап 59A). No carrier API. */
+  deliveryBranch?: string
+  /** Optional separate delivery comment (Этап 59A). */
+  deliveryComment?: string
   paymentMethod: string
   items: OrderDraftItemInput[]
 }
 
 /** Max length for the optional free-text delivery note. */
 export const DELIVERY_DETAILS_MAX = 200
+/** Max length for the manual branch/department text (Этап 59A). */
+export const DELIVERY_BRANCH_MAX = 120
+/** Max length for the optional delivery comment (Этап 59A). */
+export const DELIVERY_COMMENT_MAX = 300
 
 /** Per-field validation messages, keyed by form field name. */
 export type OrderFieldErrors = Partial<
@@ -43,6 +51,8 @@ export type OrderFieldErrors = Partial<
     | 'deliveryCity'
     | 'deliveryMethod'
     | 'deliveryDetails'
+    | 'deliveryBranch'
+    | 'deliveryComment'
     | 'paymentMethod'
     | 'items',
     string
