@@ -48,6 +48,22 @@ npm run db:stop                        # when finished
 See [`../../scripts/smoke/README.md`](../../scripts/smoke/README.md) for the smoke harness
 details and the production-mode (`next start`) variant.
 
+### Preflight gate (run this FIRST — Stage 52A)
+
+Before touching any demo URL / tunnel / deploy, run the dependency-free, read-only gate:
+
+```sh
+npm run demo:preflight        # static security gate — no DB, no server, no deploy
+npm run demo:preflight:full   # + typecheck + prisma validate (safe child checks)
+```
+
+It asserts the security posture is intact (admin stays local-only by construction, durable
+auth rate limiting + session revocation are present in the schema, the DB target is the
+isolated **6700** and never dm-bot's **5432**) and that the safety tooling/docs exist. It
+**never deploys, tunnels, starts a server, touches a DB, or reads/prints `.env`** — only the
+`DATABASE_URL` **port** is ever read, never credentials. A green preflight is a *readiness
+gate, not approval to deploy*. Details: [`../../scripts/demo/README.md`](../../scripts/demo/README.md).
+
 ---
 
 ## 3. What automated checks cover (verified)

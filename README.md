@@ -64,6 +64,7 @@ These are deliberate, separately-scoped next steps — not hidden defects.
 ## Local demo
 
 - Run the demo via [`docs/sale/DEMO_RUNBOOK.md`](docs/sale/DEMO_RUNBOOK.md) (verify script names against `package.json`).
+- **Before any public-demo / tunnel / deploy decision**, run the read-only gate: `npm run demo:preflight` (security posture + tooling check; no deploy, no DB, no secrets) — see [`scripts/demo/README.md`](scripts/demo/README.md).
 - **Do not** make production claims — this is a local demo with a manual payment/delivery model.
 - **Do not** expose a public tunnel without explicit owner approval — see the tunnel runbook.
 

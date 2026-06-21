@@ -41,6 +41,8 @@
     "db:verify:lifecycle": "tsx prisma/verify-lifecycle.ts",
     "db:verify:customer-auth": "tsx prisma/verify-customer-auth.ts",
     "smoke:routes": "node scripts/smoke/route-smoke.mjs",
+    "demo:preflight": "node scripts/demo/preflight.mjs",
+    "demo:preflight:full": "node scripts/demo/preflight.mjs --full",
     "db:studio": "prisma studio",
     "db:start": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/db/aurelia-db-start.ps1",
     "db:stop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/db/aurelia-db-stop.ps1",

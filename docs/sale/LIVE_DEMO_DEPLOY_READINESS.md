@@ -185,6 +185,10 @@ Rules:
 A public demo may proceed **only** when all are green (a hosted/production deploy adds the
 launch gates in [`OWNER_DECISION_CHECKLIST.md`](./OWNER_DECISION_CHECKLIST.md)):
 
+- [ ] **Preflight gate green** (gate 0) — `npm run demo:preflight` passes (security posture +
+      tooling/docs present; DB target is the isolated 6700, not dm-bot 5432). Read-only, no
+      deploy. See [`PRE_PUBLIC_DEMO_READINESS.md`](./PRE_PUBLIC_DEMO_READINESS.md) §preflight
+      and [`../../scripts/demo/README.md`](../../scripts/demo/README.md).
 - [ ] **Build green** — `npm run build` + `npm run typecheck` pass.
 - [ ] **Env checklist filled** (§6) — values held outside git, per environment.
 - [ ] **Demo DB ready** — separate, migrated, test-only data; backup taken.
