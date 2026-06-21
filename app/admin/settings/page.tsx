@@ -1,10 +1,11 @@
 /**
  * AURELIA — Admin settings (Этап 46C — Site Settings foundation)
  *
- * First real Admin CMS surface: edit the v1 PUBLIC site settings (brand, contacts,
- * social links, footer copy). Local/dev-only + session-gated; noindex. Storefront
- * integration is the separate 46D stage — saving here persists values but does NOT
- * change the storefront yet. No design/CSS changes: built from existing admin
+ * Admin CMS surface: edit the v1 PUBLIC site settings (brand, contacts, social links,
+ * footer copy, and the manual checkout payment/delivery copy). Local/dev-only +
+ * session-gated; noindex. Saved values are LIVE on the storefront — brand/contacts/
+ * footer feed the Header/Footer (46D) and the checkout copy keys feed the checkout
+ * (46F), each with a static fallback. No design/CSS changes: built from existing admin
  * primitives only.
  */
 
@@ -62,8 +63,9 @@ export default async function AdminSettingsPage({
         <div>
           <h1 className="au-adm-title">Настройки</h1>
           <span className="au-adm-sub">
-            Публичные данные магазина: бренд, контакты, соцсети, футер. Значения
-            сохраняются в БД; вывод на витрину подключается отдельно (этап 46D).
+            Публичные данные магазина: бренд, контакты, соцсети, футер и тексты
+            оплаты/доставки на чекауте. Значения сохраняются в БД и сразу выводятся на
+            витрину (с запасным значением по умолчанию).
           </span>
         </div>
       </div>

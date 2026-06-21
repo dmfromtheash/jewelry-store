@@ -33,6 +33,8 @@ provider decisions + imagery — not core engineering.
 - Checkout with **manual** payment & delivery, server-authoritative pricing
 - Inline order confirmation (`AUR-…` code)
 - Admin: catalog / orders / variants / stock, order lifecycle, audit log
+- Customer accounts: registration / login / logout, profile editing, password change
+  with stale-session invalidation, order history + own order detail (guest checkout preserved)
 - Screenshots and sale/handoff docs
 
 ## What is not implemented yet
@@ -42,7 +44,10 @@ provider decisions + imagery — not core engineering.
 - **Production deploy** (no live hosted shop)
 - **Fiscalization (РРО/ПРРО)** / legal launch package
 - **Real product photos** (placeholders are intentional for now)
-- **Customer accounts / notifications** (email / SMS)
+- **Notifications** (email / SMS) and customer-account **email features** — password
+  reset, email verification (accounts themselves exist; these are deferred)
+- **Account hardening** — durable rate limiting, auth audit logs, guest-order linking,
+  per-device session management (deferred to public-launch hardening)
 
 These are deliberate, separately-scoped next steps — not hidden defects.
 
@@ -72,5 +77,6 @@ These are deliberate, separately-scoped next steps — not hidden defects.
 
 ## Current snapshot
 
-- **HEAD:** `13d1daa docs: add local tunnel demo runbook`
-- *Update this line only for formal handoff milestones.*
+- **Latest audited baseline:** `e9c7664 feat: harden customer session security`
+  (local `main` = `origin/main`; includes customer accounts 47A–47C).
+- *This tracks the latest formally-audited milestone, not every commit — refresh it at handoff milestones.*

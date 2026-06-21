@@ -43,6 +43,9 @@ decisions + imagery — not core engineering.
 - **Admin** (catalog CRUD, gallery/variants/stock, orders inbox/detail, lifecycle
   `submitted→processing→completed/cancelled` with restock-on-cancel, audit log,
   dashboard) — **Russian/internal by design**.
+- **Customer accounts** (registration/login/logout, scrypt hashing, a separate customer
+  session cookie, profile editing, password change with stale-session invalidation,
+  order history + own order detail) — **guest checkout preserved**.
 - **Sale docs + screenshots + runbook** — [`README.md`](./README.md),
   [`DEMO_RUNBOOK.md`](./DEMO_RUNBOOK.md),
   [`DEMO_SCREENSHOT_CHECKLIST.md`](./DEMO_SCREENSHOT_CHECKLIST.md).
@@ -68,7 +71,8 @@ runbook: [`DEMO_RUNBOOK.md`](./DEMO_RUNBOOK.md).
 - **Production deploy** — no live hosted shop.
 - **Real product photos** — placeholders only (see §6).
 - **Fiscalization (РРО/ПРРО) / legal texts** — owner + lawyer/accountant.
-- **Customer accounts / notifications** — guest checkout only; no email/SMS.
+- **Notifications (email/SMS)** and **customer-account email features** (password reset,
+  email verification) — accounts/login/profile/history exist; these are deferred.
 - **Admin Ukrainian localization** — admin stays Russian/internal by design.
 
 Detail: [`FEATURES_AND_LIMITS.md`](./FEATURES_AND_LIMITS.md).
@@ -118,7 +122,8 @@ adaptation steps: [`SETUP_AND_HANDOFF_CHECKLIST.md`](./SETUP_AND_HANDOFF_CHECKLI
 - **Payment provider integration** — *after* owner merchant/legal setup.
 - **Nova Poshta integration** — *after* owner business account.
 - **Legal / fiscal text integration** (offer, returns, privacy, РРО/ПРРО).
-- **Customer accounts / notifications** (later).
+- **Email notifications + account hardening** (email password reset/verification,
+  durable rate limiting, auth audit logs, guest-order linking) — later; core accounts done.
 
 ## 10. Red lines / honesty rules
 
@@ -131,8 +136,8 @@ adaptation steps: [`SETUP_AND_HANDOFF_CHECKLIST.md`](./SETUP_AND_HANDOFF_CHECKLI
 
 ## 11. Current final snapshot
 
-- **Current HEAD:** `8d08bf7 docs: plan product imagery gap`
-- Local demo orders exist for screenshots (`AUR-C205BFBF`, `AUR-C33C3360`,
-  `AUR-44D34A71`, `AUR-5B0E1514`) — safe fictional data; the owner may cancel them in
-  admin (cancel restocks).
-- *Update this line only when preparing a new formal handoff snapshot.*
+- **Latest audited baseline:** `e9c7664 feat: harden customer session security`
+  (local `main` = `origin/main`; includes customer accounts 47A–47C).
+- Local demo orders exist for screenshots — safe fictional data; the owner may cancel
+  them in admin (cancel restocks).
+- *This tracks the latest formally-audited milestone, not every commit — refresh it at handoff milestones.*

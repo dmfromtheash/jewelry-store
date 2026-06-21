@@ -67,6 +67,11 @@ owner must decide before a real launch.
   **inventory/restock**, orders inbox + detail, **order lifecycle**
   (`submitted → processing → completed / cancelled`) with **stock return on cancel**,
   audit log, `noindex` + local-only guard.
+- **Customer accounts** — registration / login / logout, scrypt password hashing, a
+  **separate customer session cookie**, profile editing, password change with
+  **stale-session invalidation** (`sessionVersion`/`passwordChangedAt`), order history
+  and **own order detail**; a logged-in checkout attaches `customerId`, and **guest
+  checkout is preserved**.
 - **Buyer docs + screenshots + demo runbook + provider research** (this package).
 
 ---
@@ -76,7 +81,9 @@ owner must decide before a real launch.
 - Real online **payment acquiring** (no LiqPay/WayForPay/etc. integration).
 - Payment **webhooks / "paid" state / refunds**.
 - **Carrier API / TTN (waybill) / tracking** (delivery is a manual choice + note).
-- **Customer account** & order history (guest checkout only).
+- **Customer-account email features & hardening** — email password reset, email
+  verification, durable rate limiting, auth audit logs, guest-order linking, per-device
+  session management (core accounts/login/profile/history **are** done; these are deferred).
 - **Notifications** (email / SMS).
 - **Production deploy** (no live hosted shop).
 - **Fiscalization (РРО/ПРРО)** / legal-compliance guarantees.
@@ -125,7 +132,8 @@ Operational detail: [`DEMO_RUNBOOK.md`](./DEMO_RUNBOOK.md); narrated version:
 
 ## 8. Current clean snapshot
 
-- **Sale package baseline:** `3a754d8 docs: add sale package index` (this README/index).
-- Two local demo orders exist for screenshots (`AUR-C205BFBF`, `AUR-C33C3360`) — safe
-  fictional data; the owner may cancel them in admin (cancel returns stock).
-- *Update this line only when preparing a new formal handoff snapshot.*
+- **Latest audited baseline:** `e9c7664 feat: harden customer session security`
+  (local `main` = `origin/main`; includes customer accounts 47A–47C).
+- Local demo orders exist for screenshots — safe fictional data; the owner may cancel
+  them in admin (cancel returns stock).
+- *This tracks the latest formally-audited milestone, not every commit — refresh it at handoff milestones.*
