@@ -103,8 +103,10 @@ async function main() {
     select: { orderCode: true, deliveryMethod: true, deliveryDetails: true, paymentMethod: true, currency: true },
   })
   check('order has a code', order.orderCode === orderCode)
-  check('stored paymentMethod label resolves', paymentMethodLabel(order.paymentMethod) === 'Онлайн-оплата по реквизитам')
-  check('stored deliveryMethod label resolves', deliveryMethodLabel(order.deliveryMethod) === 'Новая Почта')
+  // Labels are the Ukrainian source of truth from src/lib/orders/methods.ts (27B
+  // localisation) — assert against them, not the pre-27B Russian copy.
+  check('stored paymentMethod label resolves', paymentMethodLabel(order.paymentMethod) === 'Оплата за реквізитами')
+  check('stored deliveryMethod label resolves', deliveryMethodLabel(order.deliveryMethod) === 'Нова Пошта')
   check('stored deliveryDetails preserved', order.deliveryDetails === 'Новая Почта, отделение №12')
   check('new order currency defaults to UAH (27A intact)', order.currency === 'UAH')
 
