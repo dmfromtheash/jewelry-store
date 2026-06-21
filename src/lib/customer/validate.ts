@@ -201,3 +201,37 @@ export function validatePasswordChangeInput(input: PasswordChangeInputRaw): Pass
   if (Object.keys(errors).length > 0) return { errors }
   return { errors, value: { currentPassword, newPassword } }
 }
+
+// --- Password reset (Этап 60A) ----------------------------------------------
+// Reset (via token) sets a NEW password WITHOUT a current password — identity is
+// proven by the single-use token, not the old password. Same length rules as
+// registration / change; the confirmation, when sent, must match.
+
+export type ResetPasswordFieldErrors = Partial<Record<'newPassword' | 'newPasswordConfirm', string>>
+
+export interface ResetPasswordValidationResult {
+  errors: ResetPasswordFieldErrors
+  /** Present only when `errors` is empty. */
+  value?: { newPassword: string }
+}
+
+export function validateResetPasswordInput(input: {
+  newPassword: string
+  newPasswordConfirm?: string
+}): ResetPasswordValidationResult {
+  const errors: ResetPasswordFieldErrors = {}
+
+  const newPassword = input.newPassword ?? ''
+  if (newPassword.length < PASSWORD_MIN_LENGTH) {
+    errors.newPassword = `Пароль має містити щонайменше ${PASSWORD_MIN_LENGTH} символів.`
+  } else if (newPassword.length > PASSWORD_MAX_LENGTH) {
+    errors.newPassword = 'Пароль задовгий.'
+  }
+
+  if (input.newPasswordConfirm != null && input.newPasswordConfirm !== newPassword) {
+    errors.newPasswordConfirm = 'Паролі не співпадають.'
+  }
+
+  if (Object.keys(errors).length > 0) return { errors }
+  return { errors, value: { newPassword } }
+}

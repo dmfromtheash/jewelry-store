@@ -41,7 +41,7 @@ function main() {
 
   console.log('\nLive rehearsal — run these in order WITH the DB + dev server (NOT auto-run):\n')
   console.log('  1.  npm run db:start')
-  console.log('  2.  npm run db:verify:customer-auth')
+  console.log('  2.  npm run db:verify:customer-auth && npm run db:verify:email-ops')
   console.log('  3.  npm run db:verify:orders && npm run db:verify:order-lifecycle \\')
   console.log('         && npm run db:verify:order-confirmation && npm run db:verify:checkout-options')
   console.log('  4.  npm run dev                 # separate terminal — http://127.0.0.1:5000')

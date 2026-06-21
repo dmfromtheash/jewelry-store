@@ -18,6 +18,8 @@ const PUBLIC_CUSTOMER_SELECT = {
   email: true,
   name: true,
   phone: true,
+  // When the email was verified (Этап 60A); null = not verified. Safe display field.
+  emailVerifiedAt: true,
   createdAt: true,
 } as const
 
@@ -80,6 +82,22 @@ export async function findCustomerCredentials(
     where: { email },
     // sessionVersion is included so login can bind the issued token to it (Этап 47C).
     select: { id: true, passwordHash: true, sessionVersion: true },
+  })
+}
+
+/**
+ * Reads the minimal fields needed to start a password-reset (Этап 60A): id + the
+ * stored (normalised) email used as the outbox recipient. Returns null when no account
+ * exists — the CALLER must still return a generic response (no account-existence leak).
+ * The password hash is intentionally NOT selected here.
+ */
+export async function findCustomerForRecovery(
+  email: string,
+): Promise<{ id: string; email: string } | null> {
+  if (!email) return null
+  return prisma.customer.findUnique({
+    where: { email },
+    select: { id: true, email: true },
   })
 }
 

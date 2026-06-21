@@ -43,7 +43,8 @@ self-cleaning DB verifies; nothing committed).
 | Reviews (59A) | `npm run db:verify:reviews` | validation, aggregate, default-pending, approved-only visibility, moderation |
 | Delivery details (59A) | `npm run db:verify:delivery-details` | branch/comment validation + persistence; guest preserved; no carrier API |
 | Email outbox (59A) | `npm run db:verify:email-outbox` | honest templates (no working send/reset), lifecycle, privacy; no sending |
-| Route render | `npm run smoke:routes` | 21 routes render; admin routes **gated** when unauthenticated |
+| Email ops + recovery (60A) | `npm run db:verify:email-ops` | no-send provider facade, outbox processing, hashed single-use reset + verification tokens, session revocation (33 checks); nothing sent |
+| Route render | `npm run smoke:routes` | 23 routes render; admin routes **gated** when unauthenticated |
 | Authenticated admin | `npm run smoke:admin` | 8 admin surfaces (incl. reviews + email-outbox) render **with** a local session, **gated** without |
 | Build | `npm run build` | production build green |
 
@@ -57,20 +58,21 @@ no integration) · 🚫 not implemented / owner-gated.
 | Ukrainian storefront / catalog (DB) | ✅ | `smoke:routes`; `db:verify` | **Yes** | UAH; copy uk-UA, admin chrome stays Russian |
 | UAH manual checkout | 🟡 | `db:verify:checkout-options`, `…order-confirmation` | **Yes, as manual** | no acquirer; payment confirmed off-system |
 | Guest checkout | ✅ | `db:verify:customer-auth` (guest path) | **Yes** | preserved alongside accounts |
-| Customer account / auth / order history | ✅ | `db:verify:customer-auth` (51/51); `/account` | **Yes** | email immutable in v1; no email reset/verify |
+| Customer account / auth / order history | ✅ | `db:verify:customer-auth` (51/51); `/account` | **Yes** | email immutable in v1; reset/verify = token foundation, no delivery |
 | Admin catalog / orders | ✅ | `smoke:admin`; `db:verify:orders`, `…order-lifecycle` | **Yes, local only** | admin 404s in production by design |
 | Admin settings / content CMS | ✅ | `smoke:admin` (`/admin/settings`, `/admin/content`) | **Yes, local only** | text/settings only; no logic change |
 | Product variants / inventory / restock | ✅ | `db:verify:product-variants`, `…inventory-lifecycle` | **Yes** | restock-on-cancel covered |
 | Moderated reviews / ratings (59A) | ✅ | `db:verify:reviews`; `/admin/reviews` | **Yes, as moderated** | approved-only public; **no** purchase verification |
 | Manual delivery branch / comment (59A) | 🟡 | `db:verify:delivery-details` | **Yes, as manual** | customer-typed; **no** carrier API / TTN / tracking |
-| Email outbox foundation (59A) | 🟡 | `db:verify:email-outbox`; `/admin/email-outbox` | **Foundation only** | **nothing is sent** (records `skipped`); no provider |
+| Email outbox + no-send processing (59A/60A) | 🟡 | `db:verify:email-outbox`, `db:verify:email-ops`; `/admin/email-outbox` | **Foundation only** | **nothing is sent** (records `skipped_no_provider`); no provider |
+| Password reset + email verification (60A) | 🟡 | `db:verify:email-ops`; `/account/recover`, `/account/reset` | **Token foundation only** | hashed single-use tokens + session revocation; **no email delivery** (no provider) |
 | Auth audit log (`customer.*`) | ✅ | `db:verify:customer-auth`; `/admin/audit-log` | **Yes** | no PII/secrets stored |
 | Durable auth rate limiting | ✅ | `db:verify:customer-auth` (durable section) | **Yes, single-instance** | multi-instance atomic limiting deferred |
 | Sale docs / screenshots package | ✅ | `demo:sale-docs-check`; `docs/sale/` | **Yes** | screenshots predate `/account` shot (see §10) |
 | Preflight / rehearsal / smoke checks | ✅ | `demo:preflight`, `demo:rehearsal`, `smoke:*` | **Yes** | local, read-only; not a deploy |
 | Real payment provider API | 🚫 | — (manual model only) | **No** | LiqPay/WayForPay etc. not integrated |
 | Carrier API / TTN / tracking | 🚫 | — (manual branch/comment fields only) | **No** | Nova Poshta/Ukrposhta not integrated |
-| Real email sending / reset / verification | 🚫 | — (outbox foundation only, no provider) | **No** | nothing sent; reset/verify are honest stubs |
+| Real email sending / delivered reset / verification | 🚫 | — (token foundation only, no provider) | **No** | nothing sent; reset/verify links are **not delivered** (owner/provider-gated) |
 | Verified-purchase reviews / photos | 🚫 | — (moderated reviews only) | **No** | no purchase verification; photos not supported |
 | Public deploy / live demo | 🚫 | — (local only) | **No** | nothing hosted/tunneled |
 | Legal / fiscalization (РРО/ПРРО) | 🚫 | — (owner/lawyer-gated) | **No** | not addressed in code |
@@ -108,8 +110,10 @@ See [`OWNER_DECISION_CHECKLIST.md`](./OWNER_DECISION_CHECKLIST.md).
 
 Real online payment acquiring + webhooks / "paid" state / refunds; carrier API / TTN /
 tracking (delivery is a manual choice + manual branch/comment fields); **real email sending**
-(an outbox foundation exists — 59A — but nothing is sent: no provider; password reset / email
-verification / notifications are honest stubs); verified-purchase reviews + photos (moderated
+(an outbox + no-send processing foundation exists — 59A/60A — but nothing is sent: no
+provider; password reset / email verification now have a **hashed single-use token
+foundation** — 60A — yet links are **not delivered** without a provider; notifications are
+not sent); verified-purchase reviews + photos (moderated
 reviews exist — 59A); production deploy / hosting; multi-instance atomic rate limiting; full
 uk-UA / EN localization. Product imagery is placeholder. See
 [`FEATURES_AND_LIMITS.md`](./FEATURES_AND_LIMITS.md).
@@ -142,8 +146,10 @@ Keep the pitch honest. Do **not** tell a buyer that AURELIA already:
 - ships with finished real product photography — imagery is **placeholder** until the owner
   supplies licensed images;
 - is **guest-checkout-only** — it now has full customer accounts **and** guest checkout;
-- sends order/notification e-mails or has a working password-reset-by-email — there is an email
-  outbox **foundation** only (59A), and **nothing is actually sent**;
+- sends order/notification e-mails or delivers a password-reset / verification link by email —
+  there is an email outbox + no-send processing **foundation** (59A/60A) and a **hashed
+  single-use token** foundation for reset/verification (60A), but **nothing is actually sent**
+  and no link is delivered (no provider configured);
 - shows **verified-purchase** customer reviews — reviews are **moderated** (admin-approved) and
   carry **no** proof of purchase.
 

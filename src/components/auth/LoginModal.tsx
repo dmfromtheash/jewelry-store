@@ -84,7 +84,13 @@ export default function LoginModal({ onClose, onSwitch }: LoginModalProps) {
       </form>
 
       <div className="au-modal-aux">
-        <a href="#" onClick={(e) => e.preventDefault()}>
+        {/* Этап 60A: real reset-request route (provider-ready; nothing emailed yet). */}
+        <a
+          href="/account/recover"
+          onClick={() => {
+            onClose()
+          }}
+        >
           Забули пароль?
         </a>
       </div>

@@ -1,34 +1,40 @@
 /**
- * AURELIA — Email outbox (Этап 59A) — FOUNDATION, NO REAL SENDING
+ * AURELIA — Email outbox (Этап 59A; provider-ready processing 60A) — NO REAL SENDING
  *
- * Records intended emails into the `EmailOutbox` table for future provider wiring +
- * admin visibility. It does NOT integrate any provider (SendGrid / Mailgun / SMTP),
- * holds NO credentials, reads NO secrets, and never contacts a mail server.
+ * Records intended emails into the `EmailOutbox` table and runs them through the no-send
+ * PROVIDER facade (./provider) so every row reaches an honest terminal status. It does
+ * NOT integrate any provider (SendGrid / Mailgun / SMTP), holds NO credentials, reads NO
+ * secrets, and never contacts a mail server.
  *
- * Honest lifecycle: because no provider is configured, every enqueue is recorded as
- * `skipped` with a machine note — it is NEVER reported as sent. When a provider is
- * later wired (owner-gated), `PROVIDER_CONFIGURED` flips and rows would start as
- * `queued` for a real send step. The `sent_stub` / `failed_stub` states exist for that
- * future and are exercised by the verify script only.
+ * Lifecycle (Этап 60A): `enqueueEmail` writes a `queued` row, then immediately processes
+ * it once (best-effort) via src/lib/email/process.ts. With the default NoSendEmailProvider
+ * a deliverable row becomes `skipped_no_provider` (recorded, NOT sent) and one with no
+ * recipient becomes `failed_validation` — it is NEVER reported as sent. The
+ * `email:process:stub` CLI can drain any remaining `queued` rows. When a real provider is
+ * later wired (owner-gated), `PROVIDER_CONFIGURED` flips and `getEmailProvider()` returns
+ * the real adapter; `sent_stub` exists for that future and is exercised by verify only.
  *
- * Privacy: only a template id, status, short subject, optional machine note, and a
- * loose (no-FK) related ref are stored. The rendered BODY is never stored, and NO
- * token/secret/reset-code is ever stored here.
+ * Privacy: only a template id, status, short subject, optional machine note/last-error,
+ * attempts, and a loose (no-FK) related ref are stored. The rendered BODY is never stored,
+ * and NO token/secret/reset-code is ever stored here (reset/verification tokens live —
+ * hashed — in CustomerAccountToken, never in the outbox).
  */
 
 import 'server-only'
 
 import { prisma } from '../db/prisma'
+import { getAccountTokenStats as getAccountTokenStatsRepo } from '../customer/account-token-repo'
+import { processOutboxRow } from './process'
 import {
   EMAIL_TEMPLATES,
   renderOrderConfirmation,
+  renderPasswordReset,
+  renderEmailVerification,
   type EmailTemplateId,
 } from './templates'
 
 /** No email provider is integrated. Honest single source of truth for the lifecycle. */
 export const PROVIDER_CONFIGURED = false
-
-const NO_PROVIDER_NOTE = 'no email provider configured — recorded, not sent'
 
 export interface EnqueueEmailInput {
   template: EmailTemplateId
@@ -37,31 +43,32 @@ export interface EnqueueEmailInput {
   recipientEmail?: string | null
   relatedType?: string | null
   relatedId?: string | null
-  note?: string | null
 }
 
 /**
- * Records one outbox row. Best-effort: a write failure is swallowed + logged (without
- * payload) so it can never break the action that triggered it — same discipline as the
- * audit log. With no provider, the row is terminal `skipped` (recorded, not sent).
+ * Records one outbox row as `queued`, then processes it once through the no-send
+ * provider so it lands in an honest terminal state. Best-effort: any write/processing
+ * failure is swallowed + logged (without payload) so it can never break the action that
+ * triggered it — same discipline as the audit log. NO email is ever sent.
  */
 export async function enqueueEmail(input: EnqueueEmailInput): Promise<void> {
   try {
-    await prisma.emailOutbox.create({
+    const row = await prisma.emailOutbox.create({
       data: {
         template: input.template,
-        status: PROVIDER_CONFIGURED ? 'queued' : 'skipped',
+        status: 'queued',
         recipientEmail: input.recipientEmail ?? null,
         relatedType: input.relatedType ?? null,
         relatedId: input.relatedId ?? null,
         subject: input.subject,
-        note: input.note ?? (PROVIDER_CONFIGURED ? null : NO_PROVIDER_NOTE),
-        processedAt: PROVIDER_CONFIGURED ? null : new Date(),
       },
+      select: { id: true },
     })
+    // Process inline (no-send): moves the row to skipped_no_provider / failed_validation.
+    await processOutboxRow(prisma, row.id)
   } catch (err) {
     console.error(
-      `[email] failed to record outbox "${input.template}": ${err instanceof Error ? err.message : 'unknown error'}`,
+      `[email] failed to record/process outbox "${input.template}": ${err instanceof Error ? err.message : 'unknown error'}`,
     )
   }
 }
@@ -84,6 +91,40 @@ export async function enqueueOrderConfirmationEmail(
   })
 }
 
+/**
+ * Records a password-reset email INTENT for a customer (Этап 60A). The hashed token
+ * lives in CustomerAccountToken — it is NEVER placed in the outbox. With no provider the
+ * row is terminal `skipped_no_provider`, so the reset link is never actually delivered.
+ */
+export async function enqueuePasswordResetEmail(
+  customerId: string,
+  recipientEmail: string | null,
+): Promise<void> {
+  const { subject } = renderPasswordReset()
+  await enqueueEmail({
+    template: EMAIL_TEMPLATES.passwordReset,
+    subject,
+    recipientEmail,
+    relatedType: 'customer',
+    relatedId: customerId,
+  })
+}
+
+/** Records an email-verification INTENT for a customer (Этап 60A). No token in the row. */
+export async function enqueueEmailVerificationEmail(
+  customerId: string,
+  recipientEmail: string | null,
+): Promise<void> {
+  const { subject } = renderEmailVerification()
+  await enqueueEmail({
+    template: EMAIL_TEMPLATES.emailVerification,
+    subject,
+    recipientEmail,
+    relatedType: 'customer',
+    relatedId: customerId,
+  })
+}
+
 /** Recent outbox rows for the admin view. The BODY is never stored, so never shown. */
 export async function getRecentEmailOutbox(limit = 50) {
   return prisma.emailOutbox.findMany({
@@ -99,9 +140,16 @@ export async function getRecentEmailOutbox(limit = 50) {
       relatedId: true,
       subject: true,
       note: true,
+      attempts: true,
+      lastError: true,
       processedAt: true,
     },
   })
 }
 
 export type EmailOutboxRow = Awaited<ReturnType<typeof getRecentEmailOutbox>>[number]
+
+/** Safe account-token counts (no token values) for the admin recovery/verification view. */
+export function getAccountTokenStats() {
+  return getAccountTokenStatsRepo(prisma)
+}

@@ -123,6 +123,8 @@ async function main() {
     '/checkout',
     '/checkout/success',
     '/account', // logged-out in-page prompt (still 200)
+    '/account/recover', // password-reset request page (Этап 60A)
+    '/account/reset', // password-reset confirm page (no token → in-page notice, still 200)
     '/admin/login', // local-only login page renders in dev
   ]
 

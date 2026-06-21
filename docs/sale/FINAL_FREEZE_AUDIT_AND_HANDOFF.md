@@ -1,16 +1,20 @@
-# Final Freeze Audit & Project Handoff — AURELIA (Stage 57A; refreshed at 59A)
+# Final Freeze Audit & Project Handoff — AURELIA (Stage 57A; refreshed at 59A, 60A)
 
 > **Freeze point + handoff snapshot** after the 49A–56A sale/demo/security/readiness/
 > architecture cycle, **refreshed after Stage 59A** (trust & operations foundation:
 > moderated reviews, manual delivery branch/comment fields, and a no-send email outbox
-> foundation — all additive, design unchanged). The honest one-line status: **a strong,
-> verified, sale-ready local demo MVP; real commercial launch is blocked by
-> owner/provider/legal decisions.**
+> foundation) **and Stage 60A** (email ops & account recovery foundation: no-send email
+> provider facade + outbox processing, and a hashed single-use token foundation for
+> password reset + email verification — all additive, design unchanged). The honest
+> one-line status: **a strong, verified, sale-ready local demo MVP; real commercial launch
+> is blocked by owner/provider/legal decisions.**
 >
-> **Stage 59A note.** 59A is an additive feature superblock (one migration
-> `add_trust_and_ops_foundation`; DB backed up first). It adds real business value
-> **without** crossing any owner-gated line: **no** payment API, **no** carrier API/TTN,
-> **no** real email sending, **no** deploy. See §§3–4, §6, §13 below (updated).
+> **Stage 60A note.** 60A is an additive feature superblock (one migration
+> `add_email_account_recovery`; DB backed up first). It makes email/account recovery
+> **provider-ready without crossing any owner-gated line**: **no** real email sending, **no**
+> provider (SendGrid/Mailgun/SMTP), **no** DNS auth (SPF/DKIM/DMARC), **no** payment/carrier
+> API, **no** deploy. Reset/verification tokens are hashed + single-use, and a reset bumps
+> `sessionVersion` (revokes old sessions). See §§3–4, §6, §13 below (updated).
 >
 > Index: [`README.md`](./README.md) · start-here: [`FINAL_BUYER_HANDOFF.md`](./FINAL_BUYER_HANDOFF.md)
 > · readiness: [`DEMO_SALE_READINESS_REPORT.md`](./DEMO_SALE_READINESS_REPORT.md)
@@ -30,7 +34,8 @@ launched business. **Design is locked.**
 ## 2. Current baseline
 
 - Branch `main`; prior freeze baseline **`fb9a2a6` docs: add final freeze audit handoff**. HEAD
-  advances to the **Stage 59A** commit *(`feat: add trust and operations foundation`)*.
+  advances through the **Stage 59A** commit *(`feat: add trust and operations foundation`)* to
+  the **Stage 60A** commit *(`feat: add email account recovery foundation`)*.
 - AURELIA PostgreSQL: **localhost:6700 only**. dm-bot PostgreSQL **localhost:5432 — never touched**.
 
 ## 3. What is implemented (now, in code)
@@ -55,6 +60,13 @@ launched business. **Design is locked.**
 - **Auth security** (49A–51A): **customer-auth audit log** (`customer.*` in the admin audit
   page; no PII/secrets) + **durable DB-backed rate limiting** (`CustomerAuthThrottle`, survives
   restart; single-instance).
+- **Email ops & account recovery foundation** (60A): a **no-send email provider facade**
+  (`NoSendEmailProvider`) + outbox **processing** (`queued → skipped_no_provider/failed_validation`,
+  attempts/processedAt); a **hashed single-use token** model (`CustomerAccountToken`) powering
+  **password reset** (generic no-enumeration request, IP rate-limited, session-revoking confirm;
+  `/account/recover` + `/account/reset`) and **email verification** (`Customer.emailVerifiedAt`,
+  account-page status). **Nothing is sent** — no provider; reset/verification links are **not
+  delivered**. Admin email-outbox shows attempts + safe token **counts** (no values).
 - **Admin** (local-only by design — 404s in production): catalog CRUD, publish/hide, gallery +
   variants + stock, inventory/restock, orders inbox + detail, order lifecycle
   (`submitted→processing→completed/cancelled` with restock-on-cancel), site settings + info-page
@@ -75,7 +87,8 @@ Run via `npm run demo:rehearsal` (offline) + the live sequence. At this freeze, 
 | `db:verify:customer-auth` | 51/51 (hashing, sessions, throttle durable, audit, scoping) |
 | `db:verify:orders` · `order-confirmation` · `checkout-options` · `product-variants` · `inventory-lifecycle` | pass |
 | `db:verify:reviews` · `delivery-details` · `email-outbox` (59A) | pass (rolled-back; nothing committed) |
-| `smoke:routes` | 21/21 routes render / gated |
+| `db:verify:email-ops` (60A) | 33/33 (provider facade, outbox processing, hashed reset + verification tokens, session revocation; nothing committed) |
+| `smoke:routes` | 23/23 routes render / gated |
 | `smoke:admin` | 16/16 (8 admin surfaces incl. reviews + email-outbox) render authed + gated unauthed |
 | `build` | production build green (needs DB 6700 up) |
 
@@ -104,14 +117,14 @@ Ranges, not promises. Bumped from the older 40A buyer/MVP audit where 49A–56A 
 | **Ukrainian storefront/catalog** | **~95%** | uk-UA storefront + catalog; admin chrome stays Russian by design |
 | **Checkout / manual order flow** | **~90%** | end-to-end, server-authoritative; manual payment/delivery model + manual branch/comment fields |
 | **Reviews / social proof (59A)** | **~80%** | moderated reviews end-to-end (submit→moderate→public); no purchase verification / photos |
-| **Customer auth / account** | **~90%** | login/profile/password/history/audit/durable rate-limit; no email reset/verification |
+| **Customer auth / account** | **~90%** | login/profile/password/history/audit/durable rate-limit; reset/verification = hashed-token foundation (60A), no email delivery |
 | **Admin CMS / site management** | **~85–90%** | catalog/orders/lifecycle/settings/CMS/audit; local-only |
 | **Security / readiness tooling** | **~90%** | durable rate-limit, audit, preflight/rehearsal/smokes, sale-docs guard |
 | **Visual evidence package** | **~85%** | storefront/cart/checkout/admin + cabinet entry; authed account/audit shots are a manual/deferred polish item |
 | **Public demo readiness** | **~60–70%** | local demo + gates ready; public URL needs owner-gated hosting/secrets/access; throttle durable single-instance only |
 | **Real payment integration** | **~10–15%** | architecture/SPEC only; no provider code |
 | **Delivery / carrier integration** | **~15–20%** | manual branch/comment fields shipped (59A); carrier API/TTN still SPEC only |
-| **Email / account operations** | **~15–20%** | outbox FOUNDATION + templates shipped (59A); **nothing sent** — provider/DKIM still owner-gated |
+| **Email / account operations** | **~30–35%** | outbox + no-send processing + provider facade + hashed reset/verification **token** foundation shipped (59A/60A); **nothing sent** — provider/SPF/DKIM/DMARC still owner-gated |
 | **Real launch readiness** | **~25–30%** | gated by owner/legal/provider decisions, not engineering |
 
 ## 7. Owner-gated commercial launch blockers

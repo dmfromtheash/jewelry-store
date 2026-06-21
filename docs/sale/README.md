@@ -94,6 +94,11 @@ owner must decide before a real launch.
   logged-in submit; **approved-only** public + average/count; admin moderation at
   `/admin/reviews`, audited), **manual delivery branch/comment** fields (no carrier API/TTN),
   and an **email outbox foundation** (`/admin/email-outbox`) that **records but sends nothing**.
+- **Email ops & account recovery foundation (60A)** — a **no-send email provider facade** +
+  outbox **processing** lifecycle, and a **hashed single-use token** foundation for **password
+  reset** (session-revoking; `/account/recover` + `/account/reset`) and **email verification**
+  (`emailVerifiedAt`; account-page status). **Nothing is sent** — no provider; reset/verification
+  links are **not delivered** (owner-gated).
 - **Demo/sale readiness tooling** — `demo:preflight`, `demo:rehearsal`, `smoke:routes`,
   `smoke:admin`, `demo:sale-docs-check` (all local, read-only, no deploy; see
   [`DEMO_SALE_READINESS_REPORT.md`](./DEMO_SALE_READINESS_REPORT.md)).
@@ -107,13 +112,14 @@ owner must decide before a real launch.
 - Payment **webhooks / "paid" state / refunds**.
 - **Carrier API / TTN (waybill) / tracking** (delivery is a manual choice + manual
   branch/comment fields only — the customer types them; no live lookup).
-- **Customer-account email features & extra hardening** — email password reset, email
-  verification, guest-order linking, per-device session management, and **multi-instance**
-  rate limiting (core accounts/login/profile/history **are** done; **durable single-instance
-  rate limiting (51A) and customer-auth audit logging (49A) are also done** — these listed
-  items are the remaining deferred ones).
-- **Real email sending / notifications** (email / SMS). An email outbox **foundation** exists
-  (59A) but **nothing is sent** — no provider; password reset / verification are honest stubs.
+- **Customer-account extra hardening** — guest-order linking, per-device session management,
+  and **multi-instance** rate limiting (core accounts/login/profile/history **are** done;
+  **durable single-instance rate limiting (51A)**, **customer-auth audit logging (49A)**, and a
+  **hashed-token password-reset + email-verification foundation (60A)** are also done — these
+  listed items are the remaining deferred ones).
+- **Real email sending / notifications** (email / SMS) and **delivered** reset/verification
+  links. An email outbox + no-send processing **foundation** and a reset/verification **token
+  foundation** exist (59A/60A) but **nothing is sent** — no provider; no link is delivered.
 - **Verified-purchase reviews / photos in reviews** (reviews are **moderated**, no proof of
   purchase) — the moderated review mechanism itself **is** done (59A).
 - **Production deploy** (no live hosted shop).

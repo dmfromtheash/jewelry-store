@@ -34,6 +34,12 @@ export const CUSTOMER_THROTTLE_RULES = {
   register: { windowMs: 10 * 60 * 1000, max: 10 },
   password: { windowMs: 10 * 60 * 1000, max: 8 },
   profile: { windowMs: 10 * 60 * 1000, max: 20 },
+  // Account recovery + email verification (Этап 60A). Reset request is anonymous +
+  // email-enumeration-sensitive, so it is keyed by IP with a tight budget; confirm is
+  // keyed by IP too (token guessing). Verification request is keyed per-customer.
+  passwordReset: { windowMs: 15 * 60 * 1000, max: 5 },
+  passwordResetConfirm: { windowMs: 15 * 60 * 1000, max: 10 },
+  emailVerification: { windowMs: 15 * 60 * 1000, max: 5 },
 } as const
 
 export type ThrottleScope = keyof typeof CUSTOMER_THROTTLE_RULES

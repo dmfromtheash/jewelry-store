@@ -17,6 +17,13 @@ export const CUSTOMER_AUDIT_ACTIONS = {
   profileUpdated: 'customer.profile.updated',
   passwordChanged: 'customer.password.changed',
   throttled: 'customer.auth.throttled',
+  // Account recovery + email verification (Этап 60A). No PII/token is ever recorded —
+  // the actor is the Customer.id for known-customer events, else "anonymous".
+  passwordResetRequested: 'customer.password_reset.requested',
+  passwordResetCompleted: 'customer.password_reset.completed',
+  passwordResetFailed: 'customer.password_reset.failed',
+  emailVerificationRequested: 'customer.email_verification.requested',
+  emailVerified: 'customer.email_verification.completed',
 } as const
 
 /** Human-readable labels for the admin audit-log UI (Russian, matching the admin
@@ -30,4 +37,9 @@ export const CUSTOMER_AUDIT_ACTION_LABELS: Record<string, string> = {
   [CUSTOMER_AUDIT_ACTIONS.profileUpdated]: 'Профиль клиента обновлён',
   [CUSTOMER_AUDIT_ACTIONS.passwordChanged]: 'Клиент сменил пароль',
   [CUSTOMER_AUDIT_ACTIONS.throttled]: 'Запрос клиента отклонён (лимит)',
+  [CUSTOMER_AUDIT_ACTIONS.passwordResetRequested]: 'Запрошен сброс пароля',
+  [CUSTOMER_AUDIT_ACTIONS.passwordResetCompleted]: 'Пароль сброшен по токену',
+  [CUSTOMER_AUDIT_ACTIONS.passwordResetFailed]: 'Сброс пароля отклонён',
+  [CUSTOMER_AUDIT_ACTIONS.emailVerificationRequested]: 'Запрошено подтверждение e-mail',
+  [CUSTOMER_AUDIT_ACTIONS.emailVerified]: 'E-mail подтверждён',
 }

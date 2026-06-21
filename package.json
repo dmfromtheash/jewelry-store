@@ -43,6 +43,8 @@
     "db:verify:reviews": "tsx prisma/verify-reviews.ts",
     "db:verify:delivery-details": "tsx prisma/verify-delivery-details.ts",
     "db:verify:email-outbox": "tsx prisma/verify-email-outbox.ts",
+    "db:verify:email-ops": "tsx prisma/verify-email-ops.ts",
+    "email:process:stub": "tsx prisma/email-process.ts",
     "smoke:routes": "node scripts/smoke/route-smoke.mjs",
     "smoke:admin": "node scripts/smoke/admin-smoke.mjs",
     "demo:preflight": "node scripts/demo/preflight.mjs",

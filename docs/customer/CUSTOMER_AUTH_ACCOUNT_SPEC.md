@@ -401,3 +401,88 @@ and the `CustomerAuthThrottle` row count is asserted **unchanged** afterwards (n
 - **No password reset / email verification working flow** — foundation/templates only; needs a
   provider + a hashed-token model (deferred).
 - **No email change**, **no per-device session journal**, **no guest-order linking by email**.
+
+---
+
+# Этап 60A — Email Operations & Account Recovery Foundation
+
+Status: **implemented** (foundation). Builds the **provider-ready** password-reset and
+email-verification flows on **hashed, single-use tokens** and a **no-send** email
+provider/processor. **No real email is sent**, no provider (SendGrid/Mailgun/SMTP) is
+configured, no credentials are read, no `.env` is touched, and no DNS auth (SPF/DKIM/DMARC)
+is set up — delivery stays **owner/provider-gated**. Closes the 59A "no reset/verification
+token model" gap without claiming delivery. Additive migration only
+(`20260621222555_add_email_account_recovery`); no design/CSS change.
+
+## 60A.1 Schema (additive)
+
+- `CustomerAccountToken` — single-use recovery/verification token. Stores **only**
+  `tokenHash` (sha256 of the raw token, `@unique`), `purpose`
+  (`password_reset | email_verification`), `expiresAt`, `usedAt`, `customerId` (FK,
+  cascade). The **raw token is never persisted** (or logged, or shown in admin/docs).
+- `Customer.emailVerifiedAt DateTime?` — null = not verified. Safe display field; **not**
+  required for login or guest checkout.
+- `EmailOutbox` gains `attempts Int @default(0)` + `lastError String?` (safe machine
+  summary — never a token/secret/body). `EmailOutboxStatus` adds `skipped_no_provider`
+  and `failed_validation`.
+
+## 60A.2 Provider-ready architecture (no send)
+
+- `src/lib/email/provider.ts` — `EmailProvider` facade + **`NoSendEmailProvider`**
+  (default: validates, then returns `failed_validation` for no recipient, else
+  `skipped_no_provider` — **never sends**) and a verify-only `StubEmailProvider`
+  (`sent_stub`). `getEmailProvider()` returns NoSend (`PROVIDER_CONFIGURED = false`). The
+  **single documented boundary** where a future real adapter plugs in — it must re-render
+  the body at send time (bodies are never persisted).
+- `src/lib/email/process.ts` — injectable processor: `queued → terminal` status,
+  increments `attempts`, stamps `processedAt`, records a safe `lastError`. Idempotent
+  (a terminal row is never re-processed). Run the backlog with `npm run email:process:stub`.
+- `enqueueEmail` (server-only) now writes a `queued` row and processes it inline (no-send),
+  so the live order-confirmation path lands in an honest terminal state.
+
+## 60A.3 Password reset
+
+- `src/lib/customer/account-token.ts` (pure crypto: generate/hash, **TTL 45 min**) +
+  `account-token-repo.ts` (injectable DB primitives: create / single-use consume /
+  supersede) + `recovery.ts` (`'use server'` actions).
+- `requestPasswordResetAction` returns a **generic acknowledgement whether or not the
+  account exists** (no enumeration), is **IP rate-limited** (`passwordReset` scope) and
+  **audited** as `anonymous` (no email stored). For an existing account it creates a token
+  and enqueues a reset **intent** (recorded `skipped_no_provider` — never delivered).
+- `confirmPasswordResetAction` validates the new password, **atomically consumes** the
+  single-use token, replaces the scrypt hash via `updateCustomerPasswordAndBumpVersion`
+  (so **`sessionVersion` bumps → all prior sessions are revoked**), and audits completion.
+  Used/expired/wrong-purpose tokens are rejected generically.
+- UI: `/account/recover` (request) + `/account/reset?token=…` (confirm); the login modal
+  "Забули пароль?" now links to `/account/recover`. Copy is honest that nothing is emailed
+  until a provider is configured.
+
+## 60A.4 Email verification
+
+- `requestEmailVerificationAction` (logged-in; per-customer rate-limited) creates a token
+  and enqueues a verification **intent** (no send). `confirmEmailVerificationAction`
+  consumes a valid token and sets `emailVerifiedAt` (audited). The account page shows the
+  status + a request button. Verification is **never required** for login or checkout.
+
+## 60A.5 Admin visibility
+
+- `/admin/email-outbox` shows `attempts` + a safe `lastError`, plus **counts only** of
+  recovery/verification tokens (live / used / expired by purpose). **No token values, no
+  bodies, no secrets.**
+
+## 60A.6 Verification
+
+- `npm run db:verify:email-ops` (33 checks; all DB writes in always-rolled-back
+  transactions, counts asserted unchanged): provider facade honesty, outbox lifecycle
+  (queued→terminal, attempts/processedAt, idempotent), token crypto, reset (hashed
+  storage, password change, sessionVersion bump, single-use, expiry, supersede) and
+  verification (hashed storage, sets timestamp, single-use, expiry, purpose isolation).
+- `db:verify:customer-auth` / `db:verify:email-outbox` still pass unchanged.
+
+## 60A.7 Remaining gaps (carried forward)
+
+- **No real email delivery** — no provider (SendGrid/Mailgun/SMTP), no domain/DNS auth
+  (SPF/DKIM/DMARC). Reset/verification links are **not delivered** to real inboxes today;
+  the verify script drives the confirm step directly. All owner/provider-gated.
+- **No email change**, **no per-device session journal**, **no guest-order linking by
+  email**, **single-instance** rate-limit only.

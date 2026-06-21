@@ -150,6 +150,10 @@ function checkSecurityPosture() {
     'model ProductReview',
     'model EmailOutbox',
     'deliveryBranch',
+    // Account recovery / email verification token foundation (Этап 60A): hashed,
+    // single-use tokens + verification status. NO real email sending (owner-gated).
+    'model CustomerAccountToken',
+    'emailVerifiedAt',
   ])
   // Admin is local-only BY CONSTRUCTION: 404 in production / non-localhost.
   assertContains('src/lib/admin/guard.ts', ['ensureLocalAdmin', 'notFound', 'production'])

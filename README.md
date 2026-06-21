@@ -44,8 +44,11 @@ provider decisions + imagery — not core engineering.
 - **Production deploy** (no live hosted shop)
 - **Fiscalization (РРО/ПРРО)** / legal launch package
 - **Real product photos** (placeholders are intentional for now)
-- **Notifications** (email / SMS) and customer-account **email features** — password
-  reset, email verification (accounts themselves exist; these are deferred)
+- **Real email delivery** (email / SMS) — no provider (SendGrid/Mailgun/SMTP), no
+  sender-domain DNS (SPF/DKIM/DMARC). Email has an outbox + **no-send processing**
+  foundation, and password reset + email verification have a **hashed single-use token**
+  foundation with session-revoking reset (59A/60A) — but **no email/link is actually
+  delivered** until a provider is configured (owner-gated)
 - **Further account hardening** — guest-order linking, per-device session management, and
   **multi-instance** rate limiting (deferred). *(Durable single-instance rate limiting and
   customer-auth audit logging are already done — 49A/51A.)*

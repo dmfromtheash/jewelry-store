@@ -11,8 +11,13 @@
 import type { Metadata } from 'next'
 import { ensureLocalAdmin } from '../../../src/lib/admin/guard'
 import { requireAdminSession } from '../../../src/lib/admin/auth'
-import { getRecentEmailOutbox } from '../../../src/lib/email/outbox'
+import { getRecentEmailOutbox, getAccountTokenStats } from '../../../src/lib/email/outbox'
 import { EMAIL_TEMPLATE_LABELS, type EmailTemplateId } from '../../../src/lib/email/templates'
+
+const TOKEN_PURPOSE_LABELS: Record<string, string> = {
+  password_reset: 'Сброс пароля',
+  email_verification: 'Подтверждение e-mail',
+}
 
 export const metadata: Metadata = {
   title: 'Админ · Письма — AURELIA',
@@ -26,6 +31,7 @@ export default async function AdminEmailOutboxPage() {
   await requireAdminSession()
 
   const rows = await getRecentEmailOutbox(50)
+  const tokenStats = await getAccountTokenStats()
 
   return (
     <div className="au-container au-adm">
@@ -33,11 +39,23 @@ export default async function AdminEmailOutboxPage() {
         <div>
           <h1 className="au-adm-title">Письма (outbox)</h1>
           <span className="au-adm-sub">
-            Основа для будущих писем. Реальная отправка НЕ подключена — каждая запись
-            помечается «skipped» (записано, не отправлено). Тело письма не хранится.
+            Основа для будущих писем. Реальная отправка НЕ подключена — записи помечаются
+            «skipped_no_provider» (записано, не отправлено) или «failed_validation» (нет
+            адреса). Тело письма и токены не хранятся.
           </span>
         </div>
       </div>
+
+      {/* Account recovery / verification token stats — COUNTS ONLY, never token values. */}
+      <p className="au-adm-sub">
+        Токены восстановления/подтверждения (только счётчики, без значений):{' '}
+        {tokenStats
+          .map(
+            (s) =>
+              `${TOKEN_PURPOSE_LABELS[s.purpose] ?? s.purpose} — активных ${s.live}, использовано ${s.used}, истёкших ${s.expired}`,
+          )
+          .join(' · ')}
+      </p>
 
       {rows.length === 0 ? (
         <div className="au-adm-empty">
@@ -57,6 +75,7 @@ export default async function AdminEmailOutboxPage() {
                 <th>Получатель</th>
                 <th>Тема</th>
                 <th>Объект</th>
+                <th>Попыток</th>
                 <th>Примечание</th>
               </tr>
             </thead>
@@ -71,7 +90,8 @@ export default async function AdminEmailOutboxPage() {
                   <td>{r.recipientEmail ?? '—'}</td>
                   <td>{r.subject}</td>
                   <td>{r.relatedType ? `${r.relatedType}: ${r.relatedId ?? '—'}` : '—'}</td>
-                  <td>{r.note ?? '—'}</td>
+                  <td>{r.attempts}</td>
+                  <td>{r.lastError ?? r.note ?? '—'}</td>
                 </tr>
               ))}
             </tbody>

@@ -20,6 +20,7 @@ import { formatPrice } from '../../src/lib/catalog'
 import OpenLoginButton from './_components/OpenLoginButton'
 import ProfileForm from './_components/ProfileForm'
 import PasswordForm from './_components/PasswordForm'
+import EmailVerification from './_components/EmailVerification'
 
 export const metadata: Metadata = {
   title: 'Особистий кабінет — AURELIA',
@@ -76,6 +77,8 @@ export default async function AccountPage() {
                 <div className="au-co-line-main">
                   <span className="au-co-line-meta">E-mail</span>
                   <p className="au-co-line-name">{customer.email}</p>
+                  {/* Email verification status (Этап 60A) — foundation, nothing emailed. */}
+                  <EmailVerification verified={customer.emailVerifiedAt !== null} />
                 </div>
               </li>
             </ul>

@@ -123,10 +123,72 @@ export function auditCustomerPasswordChanged(customerId: string): Promise<void> 
 }
 
 /**
+ * Password-reset REQUESTED (Этап 60A). To avoid leaking which emails exist, this is
+ * recorded as "anonymous" with NO email — even when a matching account was found, the
+ * audit row is identical to the no-account case from the outside.
+ */
+export function auditCustomerPasswordResetRequested(): Promise<void> {
+  return recordAuditEvent({
+    actor: 'anonymous',
+    action: CUSTOMER_AUDIT_ACTIONS.passwordResetRequested,
+    success: true,
+    summary: 'Запрошен сброс пароля (если аккаунт существует).',
+  })
+}
+
+/** Password reset COMPLETED via a valid token (also revokes other-device sessions). */
+export function auditCustomerPasswordResetCompleted(customerId: string): Promise<void> {
+  return recordAuditEvent({
+    actor: customerId,
+    action: CUSTOMER_AUDIT_ACTIONS.passwordResetCompleted,
+    success: true,
+    entityType: ENTITY_CUSTOMER,
+    entityId: customerId,
+    summary: 'Пароль сброшен по токену (другие сессии завершены).',
+  })
+}
+
+/** Password reset REFUSED. `reason` is a machine token only ("invalid_or_expired_token"
+ *  | "invalid_password" | a throttle scope) — never the attempted token or password. */
+export function auditCustomerPasswordResetFailed(reason: string): Promise<void> {
+  return recordAuditEvent({
+    actor: 'anonymous',
+    action: CUSTOMER_AUDIT_ACTIONS.passwordResetFailed,
+    success: false,
+    reason,
+    summary: 'Сброс пароля отклонён.',
+  })
+}
+
+/** Email-verification email REQUESTED for a logged-in customer. */
+export function auditCustomerEmailVerificationRequested(customerId: string): Promise<void> {
+  return recordAuditEvent({
+    actor: customerId,
+    action: CUSTOMER_AUDIT_ACTIONS.emailVerificationRequested,
+    success: true,
+    entityType: ENTITY_CUSTOMER,
+    entityId: customerId,
+    summary: 'Запрошено подтверждение e-mail.',
+  })
+}
+
+/** Email VERIFIED via a valid token. */
+export function auditCustomerEmailVerified(customerId: string): Promise<void> {
+  return recordAuditEvent({
+    actor: customerId,
+    action: CUSTOMER_AUDIT_ACTIONS.emailVerified,
+    success: true,
+    entityType: ENTITY_CUSTOMER,
+    entityId: customerId,
+    summary: 'E-mail клиента подтверждён.',
+  })
+}
+
+/**
  * A customer auth attempt refused by the rate limiter. `scope` is the throttle
- * scope ("login" | "register" | "password" | "profile") — a machine reason only.
- * For authenticated scopes the customer id is recorded as the actor; for anonymous
- * scopes it stays "anonymous".
+ * scope ("login" | "register" | "password" | "profile" | "passwordReset" |
+ * "emailVerification") — a machine reason only. For authenticated scopes the customer
+ * id is recorded as the actor; for anonymous scopes it stays "anonymous".
  */
 export function auditCustomerAuthThrottled(scope: string, customerId?: string): Promise<void> {
   return recordAuditEvent({

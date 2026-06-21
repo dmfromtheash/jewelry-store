@@ -28,7 +28,7 @@
 | Delivery | manual method (`self_pickup`/`nova_poshta`/`ukrposhta`/`local_courier`) + manual branch/comment fields (`deliveryBranch`/`deliveryComment`) + free-text note | Carrier API, address model, cost calc, TTN/tracking |
 | Reviews | moderated reviews (1–5 rating, pending→approved, approved-only public, admin moderation) — Этап 59A | Verified-purchase reviews, photos in reviews, shop replies |
 | Hosting | **local** dev demo (`127.0.0.1:5000`) + readiness gates | Public demo URL, production hosting, monitoring/backups |
-| Email | **outbox FOUNDATION only** — `EmailOutbox` + template slots; **nothing is sent** (records `skipped`) — Этап 59A | Transactional provider, password reset, email verification, notifications |
+| Email | **outbox + no-send processing + provider facade** (`EmailOutbox`, `NoSendEmailProvider`) and a **hashed single-use reset/verification token foundation** (`CustomerAccountToken`, `emailVerifiedAt`, `/account/recover`+`/account/reset`) — **nothing is sent** (records `skipped_no_provider`) — Этап 59A/60A | Transactional provider + sender domain, **delivered** reset/verification, notifications |
 | Legal/fiscal | none in code | РРО/ПРРО, receipts, offer/privacy/returns |
 
 Everything in the right column is **blocked until the owner checklist is green** (§G).
@@ -147,17 +147,22 @@ hosted demo / production deploy — [`LIVE_DEMO_DEPLOY_READINESS.md`](./LIVE_DEM
 
 **Current state.** Customer accounts exist (registration/login/profile/password change/order
 history, scrypt, session revocation, durable rate limiting, auth audit — 47A–51A). An email
-**outbox FOUNDATION** now exists (Этап 59A): an `EmailOutbox` table + template slots
-(`order_confirmation`/`order_status_update`/`password_reset`/`email_verification`) + a
-`/admin/email-outbox` viewer. **No email is sent** anywhere — the foundation records each
-intended message as `skipped` (recorded, not sent), stores no body and no token, and there is
-still **no password reset, no email verification, no notifications**. The reset/verification
-template renderers are honest placeholders that embed no token. See
-[`../customer/CUSTOMER_AUTH_ACCOUNT_SPEC.md`](../customer/CUSTOMER_AUTH_ACCOUNT_SPEC.md) §59A.
+**outbox FOUNDATION** exists (Этап 59A) with a **no-send processing** lifecycle and a
+**provider facade** (Этап 60A): an `EmailOutbox` table + template slots + a `NoSendEmailProvider`
+(default) + a `/admin/email-outbox` viewer. **No email is sent** anywhere — the processor records
+each intended message as `skipped_no_provider`/`failed_validation` (recorded, not sent) and
+stores no body and no token. Password reset + email verification now have a **hashed single-use
+token foundation** (Этап 60A): `CustomerAccountToken` (sha256 hash only, short TTL, single-use),
+generic no-enumeration reset requests, session-revoking reset, `Customer.emailVerifiedAt`, and
+the `/account/recover` + `/account/reset` pages. What is still **NOT built**: real delivery — no
+provider, no authenticated sender domain — so a reset/verification link is **never delivered** to
+a real inbox today. See
+[`../customer/CUSTOMER_AUTH_ACCOUNT_SPEC.md`](../customer/CUSTOMER_AUTH_ACCOUNT_SPEC.md) §59A/§60A.
 
-**Why email is its own gate.** Password reset and email verification are **meaningless and
-unsafe without a real transactional-email provider** and an authenticated sender domain. A
-"reset" link that can't be delivered (or is spoofable) is worse than none.
+**Why email is its own gate.** Reset/verification delivery is **meaningless and unsafe without a
+real transactional-email provider** and an authenticated sender domain. A "reset" link that can't
+be delivered (or is spoofable) is worse than none — which is exactly why the token foundation
+(60A) deliberately stops short of any send.
 
 **Transactional email provider decision (owner).** Pick one (e.g. a reputable ESP / SMTP
 relay); verify deliverability for Ukraine + UAH-market addresses. **Verify capabilities and
@@ -169,22 +174,26 @@ terms at signup — do not assume.** Keep API keys/SMTP creds outside git.
 - **DMARC** — publish a policy (start `p=none` to monitor, then tighten) + alignment.
 Without SPF/DKIM/DMARC, reset/verification mail lands in spam or is spoofable.
 
-**Password-reset architecture (concept, NOT built).** Single-use, **short-TTL, hashed**
-reset token tied to the account; **generic responses** (never reveal whether an email exists);
-**rate-limited** (reuse the durable limiter, 51A); invalidate on use + on password change
-(bump `sessionVersion`). **Do not fake a reset flow without a provider.**
+**Password-reset architecture (token foundation built — 60A; DELIVERY not built).** The
+single-use, **short-TTL, hashed** reset token tied to the account, **generic responses** (never
+reveal whether an email exists), **rate-limiting**, and invalidate-on-use + on password change
+(bump `sessionVersion`) are **implemented** (`CustomerAccountToken` + `recovery.ts`). What is NOT
+built: actual email delivery of the link — that stays owner/provider-gated. **Do not claim a
+working reset-by-email flow without a provider.**
 
-**Email-verification architecture (concept).** Verify on registration / email change with a
-single-use token; an unverified account keeps reduced capability (still guest-equivalent
-checkout). Email **change** stays immutable in v1 until this exists.
+**Email-verification architecture (token foundation built — 60A; DELIVERY not built).** A
+single-use token + `Customer.emailVerifiedAt` + an account-page request action are implemented;
+an unverified account keeps reduced capability (still guest-equivalent checkout — verification is
+not required for checkout). Email **change** stays immutable in v1. Delivery is owner-gated.
 
 **Email security risks.** Account-enumeration via reset responses/timing; token leakage in
 logs/referrers; open-redirect in reset links; spoofing without DMARC; provider key compromise.
 Spec mitigations before any send.
 
-**Support / account recovery caveats.** Until email reset exists, account recovery is a
-**manual owner/support process** (verify identity out-of-band). Document the support contact +
-process; never reset a password on an unverified request.
+**Support / account recovery caveats.** Until reset email **delivery** exists (provider gated),
+account recovery is a **manual owner/support process** (verify identity out-of-band) — the token
+foundation is in place but no link is delivered. Document the support contact + process; never
+reset a password on an unverified request.
 
 ---
 

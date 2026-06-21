@@ -228,13 +228,56 @@ model Customer {
   /// When the password was last changed (Этап 47C). Audit/marker only — the
   /// authoritative revocation check is `sessionVersion`. Null until first change.
   passwordChangedAt DateTime?
+  /// When this email was verified (Этап 60A). Null = not verified. FOUNDATION only:
+  /// because no email provider is configured, a verification link is never delivered
+  /// to a real inbox today — this column exists so the verification flow + admin status
+  /// are provider-ready. Verification is NOT required for login or guest checkout.
+  emailVerifiedAt DateTime?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  orders       Order[]
-  reviews      ProductReview[]
+  orders        Order[]
+  reviews       ProductReview[]
+  accountTokens CustomerAccountToken[]
 
   @@index([email])
+}
+
+/// Purpose of a short-lived, single-use customer account token (Этап 60A).
+enum CustomerTokenPurpose {
+  password_reset
+  email_verification
+}
+
+/// Short-lived, single-use account-recovery / email-verification token (Этап 60A).
+/// FOUNDATION for password reset + email verification, provider-ready but with NO real
+/// email sending (no provider is configured, so a token link is never delivered to a
+/// real inbox today).
+///
+/// Privacy/security by construction:
+///   - ONLY the sha256 hash of the random token is stored (`tokenHash`); the raw token
+///     never touches the DB, logs, admin UI, or any doc. A stolen DB row cannot be
+///     replayed as a token.
+///   - single-use: `usedAt` is stamped on consumption and a used/expired token is
+///     rejected. Short TTL (see src/lib/customer/account-token.ts).
+///   - references the owner by `customerId` only (an opaque cuid, not PII). Cascades on
+///     customer delete so tokens never outlive the account.
+model CustomerAccountToken {
+  id         String              @id @default(cuid())
+  customerId String
+  customer   Customer            @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  purpose    CustomerTokenPurpose
+  /// sha256(rawToken) — opaque; the raw token is NEVER stored.
+  tokenHash  String              @unique
+  /// When the token stops being valid (short TTL).
+  expiresAt  DateTime
+  /// Stamped when the token is consumed; a non-null value means it can't be reused.
+  usedAt     DateTime?
+  createdAt  DateTime            @default(now())
+
+  @@index([customerId])
+  @@index([purpose])
+  @@index([expiresAt])
 }
 
 /// Privacy-safe storefront analytics event (Этап 23A). Append-only behavioral
@@ -499,15 +542,21 @@ enum EmailTemplate {
   email_verification
 }
 
-/// Honest lifecycle for an outbox row (Этап 59A). There is NO email provider, so the
-/// only real terminal state today is `skipped` (recorded but not sent). `sent_stub` /
-/// `failed_stub` exist for the future provider wiring + are exercised by the verify
-/// script; nothing here ever contacts a real mail server.
+/// Honest lifecycle for an outbox row (Этап 59A; processing + provider results 60A).
+/// There is NO email provider, so the only real terminal states today are
+/// `skipped_no_provider` (a deliverable intent recorded but not sent — no provider) and
+/// `failed_validation` (e.g. a guest order with no email address). A row starts `queued`
+/// and the no-send processor (src/lib/email/process.ts) moves it to a terminal state.
+/// `sent_stub` / `failed_stub` exist for FUTURE provider wiring + are exercised by the
+/// verify script; the legacy `skipped` value is retained for back-compat. Nothing here
+/// ever contacts a real mail server.
 enum EmailOutboxStatus {
   queued
   sent_stub
   skipped
+  skipped_no_provider
   failed_stub
+  failed_validation
 }
 
 /// Email operations FOUNDATION (Этап 59A) — a queue/record of intended emails, with
@@ -537,9 +586,16 @@ model EmailOutbox {
   subject        String
   /// Optional machine note, e.g. "no email provider configured — not sent".
   note           String?
+  /// How many times the no-send processor has touched this row (Этап 60A). 0 until
+  /// first processed; bounded by the processor (a terminal row is not re-processed).
+  attempts       Int               @default(0)
+  /// Short, SAFE machine summary of the last processing outcome (Этап 60A), e.g.
+  /// "no email provider configured" / "missing recipient". NEVER a token, secret,
+  /// stack trace, raw provider payload, or message body.
+  lastError      String?
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
-  /// When the row reached a terminal state (skipped / sent_stub / failed_stub).
+  /// When the row reached a terminal state (skipped_no_provider / sent_stub / failed_*).
   processedAt    DateTime?
 
   @@index([status])
