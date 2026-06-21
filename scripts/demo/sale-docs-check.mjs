@@ -71,11 +71,30 @@ const FALSE_FEATURES = [
 
 const NEGATION = /❌|\bno\b|\bnot\b|\bnever\b|\bwithout\b|\bmust not\b|\binstead of\b|\bisn'?t\b|\baren'?t\b|\bplaceholder\b|\bdeferred\b|\bnot yet\b|\bnothing\b|\bplanning only\b|\bdemo only\b|\bno real\b/i
 
+// Owner-gated LAUNCH architecture docs (operator/meta — they DISCUSS providers as future).
+// They must never bare-claim a provider API/deploy is implemented (false-feature scan, with
+// the negation guard so honest "when integrated"/"not implemented" lines are fine), AND they
+// must carry the owner-gate language so the gate can't be silently stripped (Stage 56A).
+const LAUNCH_DOCS = ['docs/sale/COMMERCIAL_LAUNCH_ARCHITECTURE.md']
+const GATE_MARKERS = [/owner[-\s]?gated|owner\s+checklist/i, /do\s+not\s+implement|until\b.*\bgreen|blocked\b/i]
+
 let fails = 0
 let warns = 0
 let scanned = 0
 
-function check() {
+/** Flags affirmative false-feature claims on a line (skips honest negations). */
+function scanFalseFeatures(rel, line, ln) {
+  if (NEGATION.test(line)) return
+  for (const { re, why } of FALSE_FEATURES) {
+    if (re.test(line)) {
+      console.log(`  FAIL  ${rel}:${ln} — false claim: ${why}`)
+      console.log(`        > ${line.trim().slice(0, 120)}`)
+      fails++
+    }
+  }
+}
+
+function checkBuyerDocs() {
   for (const rel of BUYER_DOCS) {
     const abs = join(ROOT, rel)
     if (!existsSync(abs)) {
@@ -95,27 +114,36 @@ function check() {
           fails++
         }
       }
-      // False-feature claims: skip honest negations/disclaimers.
-      if (NEGATION.test(line)) return
-      for (const { re, why } of FALSE_FEATURES) {
-        if (re.test(line)) {
-          console.log(`  FAIL  ${rel}:${ln} — false claim: ${why}`)
-          console.log(`        > ${line.trim().slice(0, 120)}`)
-          fails++
-        }
-      }
+      scanFalseFeatures(rel, line, ln)
     })
+  }
+}
+
+function checkLaunchDocs() {
+  for (const rel of LAUNCH_DOCS) {
+    const abs = join(ROOT, rel)
+    if (!existsSync(abs)) continue // optional — only checked when present
+    scanned++
+    const text = readFileSync(abs, 'utf8')
+    text.split(/\r?\n/).forEach((line, i) => scanFalseFeatures(rel, line, i + 1))
+    // The owner-gate language must be present (the doc cannot drift into claiming the
+    // owner-gated work is implementable now).
+    if (!GATE_MARKERS.every((re) => re.test(text))) {
+      console.log(`  FAIL  ${rel} — missing owner-gated / "do not implement until green" gate language`)
+      fails++
+    }
   }
 }
 
 function main() {
   console.log('AURELIA sale-docs consistency check\n')
-  check()
+  checkBuyerDocs()
+  checkLaunchDocs()
   console.log('')
   if (fails === 0) {
-    console.log(`SALE-DOCS OK: ${scanned} buyer-facing doc(s) scanned; no contradicting claims found (${warns} warning(s)).`)
+    console.log(`SALE-DOCS OK: ${scanned} doc(s) scanned (buyer + launch); no contradicting claims found (${warns} warning(s)).`)
   } else {
-    console.error(`SALE-DOCS FAILED: ${fails} contradicting claim(s) in buyer-facing docs, ${warns} warning(s).`)
+    console.error(`SALE-DOCS FAILED: ${fails} contradicting claim(s), ${warns} warning(s).`)
     process.exit(1)
   }
 }

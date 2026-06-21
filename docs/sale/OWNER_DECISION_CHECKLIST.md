@@ -1,7 +1,9 @@
 # Owner Decision Checklist — AURELIA Launch Readiness
 
-> Companion to [`PAYMENT_DELIVERY_PROVIDER_RESEARCH.md`](./PAYMENT_DELIVERY_PROVIDER_RESEARCH.md).
-> Package index: [`README.md`](./README.md).
+> Companion to [`PAYMENT_DELIVERY_PROVIDER_RESEARCH.md`](./PAYMENT_DELIVERY_PROVIDER_RESEARCH.md)
+> and the architecture that consumes these decisions:
+> [`COMMERCIAL_LAUNCH_ARCHITECTURE.md`](./COMMERCIAL_LAUNCH_ARCHITECTURE.md) (decision matrix +
+> post-decision roadmap). Package index: [`README.md`](./README.md).
 
 ## 1. Purpose
 

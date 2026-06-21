@@ -33,6 +33,7 @@ owner must decide before a real launch.
 10. [`PRE_PUBLIC_DEMO_READINESS.md`](./PRE_PUBLIC_DEMO_READINESS.md) — pre-public-demo readiness report with **runnable** automated checks (route render smoke + `db:verify:*`): what's verified, what's manual, what blocks public demo vs. real launch. **Verification only — nothing is deployed.**
 11. [`DEMO_SALE_READINESS_REPORT.md`](./DEMO_SALE_READINESS_REPORT.md) — the single honest demo/sale readiness answer: what's ready for a buyer, what the automated checks cover, how to run `npm run demo:rehearsal`, how admin is protected, what's owner-gated, and **what must NOT be promised to a buyer**. **Verification only — nothing is deployed.**
 12. [`SCREENSHOT_INVENTORY.md`](./SCREENSHOT_INVENTORY.md) — per-file visual-evidence inventory (what each screenshot proves, freshness, buyer-safe, predates-accounts), how capture works (`npm run demo:capture` for unauthenticated; manual checklist for authenticated), and the honest visual-evidence gap.
+13. [`COMMERCIAL_LAUNCH_ARCHITECTURE.md`](./COMMERCIAL_LAUNCH_ARCHITECTURE.md) — **owner-gated** commercial-launch architecture: payment, delivery, public-demo/hosting, email/account ops, the owner **decision matrix**, and the **post-decision roadmap**. **Architecture only — nothing is implemented or deployed.**
 
 ---
 
@@ -129,7 +130,8 @@ These are deliberate, separately-scoped next steps — not hidden defects. See
 
 Full provider context: [`PAYMENT_DELIVERY_PROVIDER_RESEARCH.md`](./PAYMENT_DELIVERY_PROVIDER_RESEARCH.md);
 practical decision checklist: [`OWNER_DECISION_CHECKLIST.md`](./OWNER_DECISION_CHECKLIST.md);
-adaptation steps: [`SETUP_AND_HANDOFF_CHECKLIST.md`](./SETUP_AND_HANDOFF_CHECKLIST.md).
+adaptation steps: [`SETUP_AND_HANDOFF_CHECKLIST.md`](./SETUP_AND_HANDOFF_CHECKLIST.md);
+how it all fits together + the post-decision roadmap: [`COMMERCIAL_LAUNCH_ARCHITECTURE.md`](./COMMERCIAL_LAUNCH_ARCHITECTURE.md).
 
 ---
 

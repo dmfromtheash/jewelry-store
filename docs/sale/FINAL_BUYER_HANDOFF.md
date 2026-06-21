@@ -122,6 +122,12 @@ adaptation steps: [`SETUP_AND_HANDOFF_CHECKLIST.md`](./SETUP_AND_HANDOFF_CHECKLI
 
 ## 9. Suggested next paid / adaptation work
 
+> The owner-gated architecture + sequencing for the items below (payment, delivery, email,
+> public demo, legal/fiscal) is consolidated in
+> [`COMMERCIAL_LAUNCH_ARCHITECTURE.md`](./COMMERCIAL_LAUNCH_ARCHITECTURE.md) — what to decide,
+> the decision matrix, and the post-decision roadmap. **All are blocked until the owner
+> checklist is green; nothing is implemented or deployed.**
+
 - **Brand adaptation** (name/logo/colours by agreement, texts, contacts).
 - **Real product image upload / catalog import** (buyer photos into existing slots).
 - **Live demo deploy** (behind the readiness checklist + owner approval).
