@@ -1,15 +1,20 @@
 'use server'
 
 /**
- * AURELIA — Customer auth server actions (Этап 47A)
+ * AURELIA — Customer auth server actions (Этап 47A; abuse protection + audit 49A)
  *
- * register / login / logout for storefront customers. Called from the auth
- * modals (client) and return a typed result the modal renders inline. Security:
+ * register / login / logout / profile / password for storefront customers. Called
+ * from the auth modals + account UI (client) and return a typed result rendered
+ * inline. Security:
  *   - passwords hashed with scrypt (never stored/logged in plaintext);
  *   - email normalised + validated; generic errors (no account-existence leak);
  *   - separate httpOnly customer session cookie issued on success;
- *   - a conservative in-memory throttle slows credential stuffing (best-effort,
- *     per-process — fails OPEN on restart, like the admin throttle).
+ *   - a best-effort in-memory throttle (src/lib/customer/throttle.ts) slows
+ *     credential stuffing on the anonymous flows (login/register, keyed by IP) and
+ *     current-password guessing / profile spam on the authenticated flows (keyed by
+ *     customer id). Per-process, fails OPEN on restart — see that module's notes;
+ *   - every auth/security event is recorded to the admin audit log (49A) with NO
+ *     PII/secret payload — see src/lib/customer/audit.ts.
  * Customers are completely separate from the admin identity and can NEVER access
  * /admin.
  */
@@ -27,6 +32,23 @@ import {
 } from './repo'
 import { getCurrentCustomer, startCustomerSession, endCustomerSession } from './session'
 import { CustomerAuthConfigError } from './token'
+import {
+  CUSTOMER_THROTTLE_RULES,
+  clearAttempts,
+  isThrottled,
+  registerAttempt,
+  type ThrottleScope,
+} from './throttle'
+import {
+  auditCustomerAuthThrottled,
+  auditCustomerLoginFailure,
+  auditCustomerLoginSuccess,
+  auditCustomerLogout,
+  auditCustomerPasswordChanged,
+  auditCustomerProfileUpdated,
+  auditCustomerRegisterFailure,
+  auditCustomerRegisterSuccess,
+} from './audit'
 import {
   validateLoginInput,
   validatePasswordChangeInput,
@@ -56,40 +78,20 @@ const THROTTLED_ERROR = 'Забагато спроб. Зачекайте тро�
 const NOT_LOGGED_IN_ERROR = 'Сесія завершилася. Увійдіть знову.'
 const CURRENT_PASSWORD_WRONG = 'Поточний пароль невірний.'
 
-// --- Best-effort in-memory auth throttle (per-process; fails open on restart) ---
-const ATTEMPT_WINDOW_MS = 10 * 60 * 1000
-const ATTEMPT_MAX = 10
-const attempts = new Map<string, { count: number; resetAt: number }>()
+// --- Throttle key helpers ---------------------------------------------------
+// Anonymous flows (login/register) are keyed by a coarse client IP; authenticated
+// flows (password/profile) are keyed by the customer id so one account's abuse can
+// never lock out everyone behind a shared IP. See ./throttle for the limitations.
 
-async function clientKey(scope: string): Promise<string> {
+async function ipKey(scope: ThrottleScope): Promise<string> {
   const h = await headers()
   const fwd = h.get('x-forwarded-for')?.split(',')[0]?.trim()
   const ip = fwd || h.get('x-real-ip')?.trim() || 'local'
   return `${scope}:${ip}`
 }
 
-function isThrottled(key: string): boolean {
-  const bucket = attempts.get(key)
-  if (!bucket) return false
-  if (Date.now() > bucket.resetAt) {
-    attempts.delete(key)
-    return false
-  }
-  return bucket.count >= ATTEMPT_MAX
-}
-
-function registerAttempt(key: string): void {
-  const now = Date.now()
-  const bucket = attempts.get(key)
-  if (!bucket || now > bucket.resetAt) {
-    attempts.set(key, { count: 1, resetAt: now + ATTEMPT_WINDOW_MS })
-    return
-  }
-  bucket.count += 1
-}
-
-function clearAttempts(key: string): void {
-  attempts.delete(key)
+function customerKey(scope: ThrottleScope, customerId: string): string {
+  return `${scope}:cust:${customerId}`
 }
 
 export async function registerCustomerAction(input: {
@@ -99,12 +101,16 @@ export async function registerCustomerAction(input: {
   name?: string
   phone?: string
 }): Promise<CustomerAuthResult> {
-  const key = await clientKey('register')
-  if (isThrottled(key)) return { ok: false, error: THROTTLED_ERROR }
+  const key = await ipKey('register')
+  if (isThrottled(key, CUSTOMER_THROTTLE_RULES.register)) {
+    await auditCustomerAuthThrottled('register')
+    return { ok: false, error: THROTTLED_ERROR }
+  }
 
   const { errors, value } = validateRegisterInput(input)
   if (!value) {
-    registerAttempt(key)
+    // Ordinary form typos count toward the budget but are NOT audited (noise).
+    registerAttempt(key, CUSTOMER_THROTTLE_RULES.register)
     return { ok: false, error: 'Перевірте поля форми.', fieldErrors: errors }
   }
 
@@ -118,11 +124,13 @@ export async function registerCustomerAction(input: {
     })
     clearAttempts(key)
     await startCustomerSession(customer.id, customer.sessionVersion)
+    await auditCustomerRegisterSuccess(customer.id)
     return { ok: true }
   } catch (e) {
     if (e instanceof DuplicateEmailError) {
       // Generic-ish: tell them the email is taken (needed UX), but no other leak.
-      registerAttempt(key)
+      registerAttempt(key, CUSTOMER_THROTTLE_RULES.register)
+      await auditCustomerRegisterFailure('duplicate_email')
       return { ok: false, error: 'Акаунт з таким e-mail вже існує.', fieldErrors: { email: ' ' } }
     }
     if (e instanceof CustomerAuthConfigError) return { ok: false, error: CONFIG_ERROR }
@@ -135,12 +143,16 @@ export async function loginCustomerAction(input: {
   email: string
   password: string
 }): Promise<CustomerAuthResult> {
-  const key = await clientKey('login')
-  if (isThrottled(key)) return { ok: false, error: THROTTLED_ERROR }
+  const key = await ipKey('login')
+  if (isThrottled(key, CUSTOMER_THROTTLE_RULES.login)) {
+    await auditCustomerAuthThrottled('login')
+    return { ok: false, error: THROTTLED_ERROR }
+  }
 
   const { ok, email, password } = validateLoginInput(input)
   if (!ok) {
-    registerAttempt(key)
+    registerAttempt(key, CUSTOMER_THROTTLE_RULES.login)
+    await auditCustomerLoginFailure()
     return { ok: false, error: GENERIC_LOGIN_ERROR }
   }
 
@@ -154,12 +166,14 @@ export async function loginCustomerAction(input: {
     const passwordOk = await verifyPassword(password, stored)
 
     if (!creds || !passwordOk) {
-      registerAttempt(key)
+      registerAttempt(key, CUSTOMER_THROTTLE_RULES.login)
+      await auditCustomerLoginFailure()
       return { ok: false, error: GENERIC_LOGIN_ERROR }
     }
 
     clearAttempts(key)
     await startCustomerSession(creds.id, creds.sessionVersion)
+    await auditCustomerLoginSuccess(creds.id)
     return { ok: true }
   } catch (e) {
     if (e instanceof CustomerAuthConfigError) return { ok: false, error: CONFIG_ERROR }
@@ -169,7 +183,10 @@ export async function loginCustomerAction(input: {
 }
 
 export async function logoutCustomerAction(): Promise<void> {
+  // Capture the subject before clearing the cookie so the audit row has an actor.
+  const customer = await getCurrentCustomer()
   await endCustomerSession()
+  if (customer) await auditCustomerLogout(customer.id)
   redirect('/')
 }
 
@@ -186,11 +203,20 @@ export async function updateCustomerProfileAction(input: {
   const customer = await getCurrentCustomer()
   if (!customer) return { ok: false, error: NOT_LOGGED_IN_ERROR }
 
+  // Anti-spam rate-limit keyed by the authenticated customer (every save counts).
+  const key = customerKey('profile', customer.id)
+  if (isThrottled(key, CUSTOMER_THROTTLE_RULES.profile)) {
+    await auditCustomerAuthThrottled('profile', customer.id)
+    return { ok: false, error: THROTTLED_ERROR }
+  }
+  registerAttempt(key, CUSTOMER_THROTTLE_RULES.profile)
+
   const { errors, value } = validateProfileInput(input)
   if (!value) return { ok: false, error: 'Перевірте поля форми.', fieldErrors: errors }
 
   try {
     await updateCustomerProfile(customer.id, value)
+    await auditCustomerProfileUpdated(customer.id)
     return { ok: true }
   } catch (e) {
     console.error('updateCustomerProfileAction failed:', e instanceof Error ? e.message : 'unknown')
@@ -218,6 +244,14 @@ export async function changeCustomerPasswordAction(input: {
   const customer = await getCurrentCustomer()
   if (!customer) return { ok: false, error: NOT_LOGGED_IN_ERROR }
 
+  // Failure-lockout keyed by the authenticated customer: a tight budget against
+  // current-password guessing. Cleared on a successful change below.
+  const key = customerKey('password', customer.id)
+  if (isThrottled(key, CUSTOMER_THROTTLE_RULES.password)) {
+    await auditCustomerAuthThrottled('password', customer.id)
+    return { ok: false, error: THROTTLED_ERROR }
+  }
+
   const { errors, value } = validatePasswordChangeInput(input)
   if (!value) return { ok: false, error: 'Перевірте поля форми.', fieldErrors: errors }
 
@@ -227,6 +261,8 @@ export async function changeCustomerPasswordAction(input: {
 
     const currentOk = await verifyPassword(value.currentPassword, creds.passwordHash)
     if (!currentOk) {
+      // Count wrong current-password guesses toward the lockout budget.
+      registerAttempt(key, CUSTOMER_THROTTLE_RULES.password)
       return { ok: false, error: CURRENT_PASSWORD_WRONG, fieldErrors: { currentPassword: ' ' } }
     }
 
@@ -236,6 +272,8 @@ export async function changeCustomerPasswordAction(input: {
     const { sessionVersion } = await updateCustomerPasswordAndBumpVersion(customer.id, newHash)
     // Re-issue THIS device a fresh token bound to the new version so it stays in.
     await startCustomerSession(customer.id, sessionVersion)
+    clearAttempts(key)
+    await auditCustomerPasswordChanged(customer.id)
     return { ok: true }
   } catch (e) {
     if (e instanceof CustomerAuthConfigError) return { ok: false, error: CONFIG_ERROR }

@@ -236,3 +236,74 @@ db.sessionVersion`) while a re-issued token for the new version is **accepted**.
   added (out of scope; the counter closes the security gap without it).
 - Route guards still depend on request cookies (not exercised by the verify script;
   covered at the data layer).
+
+---
+
+# Этап 49A — Customer Auth Abuse Protection + Audit Logging
+
+Status: **implemented**. Closes the **48A "no customer auth audit logs / no broader
+abuse protection"** gaps for the local/MVP target. No schema change, no design change.
+
+## 49A.1 Abuse protection (rate limiting)
+
+- The throttle is extracted into **`src/lib/customer/throttle.ts`** — a dependency-free,
+  per-process, in-memory limiter with **per-scope rules**:
+  - `login` / `register`: **10 attempts / 10 min**, keyed by client **IP** (anonymous flows).
+  - `password`: **8 attempts / 10 min**, keyed by **customer id** — a tight failure-lockout
+    against current-password guessing. Wrong current-password counts toward the budget;
+    a successful change clears it.
+  - `profile`: **20 saves / 10 min**, keyed by **customer id** — an anti-spam rate-limit.
+- Authenticated scopes are keyed **per customer** (`scope:cust:<id>`), so one account's
+  abuse can never lock out everyone behind a shared IP.
+- User-facing copy stays **generic** ("Забагато спроб. Зачекайте трохи…") — no signal about
+  which field/account tripped it.
+- **Limitations (unchanged, by design):** in-memory means per-process and **fails OPEN on
+  restart / HMR**, and it does **not** coordinate across instances. A public, multi-instance
+  launch still needs a shared store (Redis/DB); `throttle.ts` is the single swap-in point.
+
+## 49A.2 Customer auth audit logging
+
+- Customer auth/security events are recorded into the **existing append-only
+  `AdminAuditLog` table** under a **`customer.*` action namespace** (helpers in
+  `src/lib/customer/audit.ts`; stable ids + labels in `audit-actions.ts`). Reusing that
+  table avoids a schema change and a second admin viewer.
+- Events recorded: register success, register failure (**`duplicate_email` only** — ordinary
+  validation typos are intentionally **not** logged, to keep the log low-noise), login
+  success, login failure, logout, profile update, password change, and **throttled** auth
+  attempts (with the scope as the reason).
+- **Safety (enforced by construction):** the `actor` is the **Customer.id** (an opaque cuid,
+  not PII) for known-customer events, or **`anonymous`** otherwise. The store **never** holds
+  passwords, attempted passwords, the **email**, session cookies/tokens, the password hash,
+  or any raw request body/headers. Failure events carry only a **machine reason**. The
+  attacker-supplied email is **not** stored, so the log cannot be used to enumerate accounts.
+- Writing is **side-effect-safe** (`recordAuditEvent` swallows + logs its own errors) — a
+  logging failure can never break the auth action.
+- **Not logged (deliberate):** the stale-session rejection in `getCurrentCustomer` is a hot,
+  read-only path; auditing it there would be noisy and a read-path side effect, so it is
+  skipped.
+
+## 49A.3 Admin visibility
+
+- The existing **`/admin/audit-log`** viewer now renders `customer.*` events too: it merges
+  the admin + customer label maps, so customer rows show a readable Russian label. The viewer
+  remains **read-only, session-gated, local-only, noindex**, and still never dumps raw
+  metadata JSON. Subtitle/empty-state copy updated to mention customer events (admin UI only —
+  no storefront/design change).
+
+## 49A.4 Verification
+
+- `npm run db:verify:customer-auth` extended (now **45 checks**, all pass): throttle budget
+  trips at the limit, **clears on success**, **auto-resets** an expired window, and is
+  **isolated per customer**; every customer audit action has a label and uses the
+  `customer.*` namespace; the audit **write path** works inside an **always-rolled-back**
+  transaction. Counts (customers / orders / **audit events**) are asserted **unchanged** —
+  nothing is ever committed.
+
+## 49A.5 Remaining gaps (carried forward)
+
+- **No password reset / email verification** — still deferred (no email provider).
+- **No email change** (immutable in v1).
+- **No guest-order linking by email.**
+- **No per-device session list** (revocation stays all-or-nothing per account — 47C).
+- **Throttle is in-memory** (per-process, fails open on restart, single instance only) — a
+  durable shared store is required before a real public launch.

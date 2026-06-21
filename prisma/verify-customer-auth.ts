@@ -1,5 +1,11 @@
 /**
- * AURELIA — Customer auth verification (Этап 47A + 47B + 47C)
+ * AURELIA — Customer auth verification (Этап 47A + 47B + 47C + 49A)
+ *
+ * Этап 49A additions: the in-memory auth throttle (budget trips, clears on success,
+ * window auto-resets, per-customer keys isolated) and the customer auth audit layer
+ * (every action id is labelled, uses the customer.* namespace, and the write path
+ * works inside a rolled-back transaction against the shared AdminAuditLog table —
+ * nothing committed).
  *
  * Non-destructive checks for the customer auth + account cabinet:
  *   - password hashing: hash is NOT plaintext, verifies correct, rejects wrong;
@@ -49,6 +55,17 @@ import {
   validatePasswordChangeInput,
   normalizeEmail,
 } from '../src/lib/customer/validate'
+import {
+  CUSTOMER_THROTTLE_RULES,
+  isThrottled,
+  registerAttempt,
+  clearAttempts,
+  _resetAllAttempts,
+} from '../src/lib/customer/throttle'
+import {
+  CUSTOMER_AUDIT_ACTIONS,
+  CUSTOMER_AUDIT_ACTION_LABELS,
+} from '../src/lib/customer/audit-actions'
 
 const prisma = new PrismaClient()
 const ROLLBACK = '__AURELIA_CUSTOMER_AUTH_ROLLBACK__'
@@ -62,10 +79,12 @@ function check(label: string, ok: boolean) {
 async function main() {
   const customerCountBefore = await prisma.customer.count()
   const orderCountBefore = await prisma.order.count()
+  const auditCountBefore = await prisma.adminAuditLog.count()
 
   console.log('Customer auth:')
   console.log(`  customers in DB: ${customerCountBefore}`)
   console.log(`  orders in DB:    ${orderCountBefore}`)
+  console.log(`  audit events:    ${auditCountBefore}`)
 
   // --- 1) Password hashing (pure) ---
   const plain = `Sup3r-${randomBytes(6).toString('hex')}`
@@ -308,14 +327,70 @@ async function main() {
   check('stale token (old version) is invalidated after password change', staleTokenRejected)
   check('re-issued token (new version) is accepted after password change', freshTokenAccepted)
 
+  // --- 5d) Auth throttle / abuse protection (pure, Этап 49A) ---
+  // The in-memory limiter blocks after the rule's max attempts within the window,
+  // and a successful action (clearAttempts) resets the budget. Per-process + fails
+  // open on restart by design — this only asserts the bucket math.
+  _resetAllAttempts()
+  const loginRule = CUSTOMER_THROTTLE_RULES.login
+  const throttleKey = `login:198.51.100.7`
+  check('fresh key is not throttled', !isThrottled(throttleKey, loginRule))
+  for (let i = 0; i < loginRule.max; i++) registerAttempt(throttleKey, loginRule)
+  check('key throttled after reaching the attempt budget', isThrottled(throttleKey, loginRule))
+  clearAttempts(throttleKey)
+  check('successful action clears the throttle budget', !isThrottled(throttleKey, loginRule))
+  // An expired window auto-resets even without an explicit clear.
+  const expiredKey = `login:198.51.100.8`
+  registerAttempt(expiredKey, { windowMs: -1, max: 1 })
+  check('expired window auto-resets the budget', !isThrottled(expiredKey, { windowMs: -1, max: 1 }))
+  // Per-customer keys are independent (one account cannot lock out another).
+  _resetAllAttempts()
+  const passRule = CUSTOMER_THROTTLE_RULES.password
+  for (let i = 0; i < passRule.max; i++) registerAttempt('password:cust:A', passRule)
+  check('per-customer throttle is isolated (A throttled, B not)', isThrottled('password:cust:A', passRule) && !isThrottled('password:cust:B', passRule))
+  _resetAllAttempts()
+
+  // --- 5e) Customer auth audit labels + write path (Этап 49A) ---
+  // Every action id has a human label (the admin viewer renders by label), and the
+  // write path commits NOTHING here — exercised inside a rolled-back transaction
+  // against the shared AdminAuditLog table.
+  const allActionsLabelled = Object.values(CUSTOMER_AUDIT_ACTIONS).every(
+    (a) => typeof CUSTOMER_AUDIT_ACTION_LABELS[a] === 'string' && CUSTOMER_AUDIT_ACTION_LABELS[a].length > 0,
+  )
+  check('every customer audit action has a label', allActionsLabelled)
+  check('customer audit actions use the customer.* namespace', Object.values(CUSTOMER_AUDIT_ACTIONS).every((a) => a.startsWith('customer.')))
+
+  let auditWritePathOk = false
+  try {
+    await prisma.$transaction(async (tx) => {
+      await tx.adminAuditLog.create({
+        data: {
+          actor: 'cust_verify_audit',
+          action: CUSTOMER_AUDIT_ACTIONS.loginSuccess,
+          success: true,
+          entityType: 'customer',
+          entityId: 'cust_verify_audit',
+          summary: 'verify (rolled back)',
+        },
+      })
+      throw new Error(ROLLBACK)
+    })
+  } catch (e) {
+    if (!(e instanceof Error) || e.message !== ROLLBACK) throw e
+    auditWritePathOk = true
+  }
+  check('customer audit write path works (rolled back)', auditWritePathOk)
+
   // --- 6) Nothing committed ---
   const customerCountAfter = await prisma.customer.count()
   const orderCountAfter = await prisma.order.count()
+  const auditCountAfter = await prisma.adminAuditLog.count()
   check('no test customers committed', customerCountAfter === customerCountBefore)
   check('no test orders committed', orderCountAfter === orderCountBefore)
+  check('no test audit events committed', auditCountAfter === auditCountBefore)
 
   if (failures === 0) {
-    console.log('\nCUSTOMER AUTH VERIFY OK: hashing, sessions, validation, linking + scoping all pass; nothing committed.')
+    console.log('\nCUSTOMER AUTH VERIFY OK: hashing, sessions, validation, linking + scoping, throttle + audit all pass; nothing committed.')
   } else {
     console.error(`\nCUSTOMER AUTH VERIFY FAILED (${failures} check(s)).`)
     process.exitCode = 1
