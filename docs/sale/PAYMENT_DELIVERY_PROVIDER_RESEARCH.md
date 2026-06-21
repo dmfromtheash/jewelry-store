@@ -43,9 +43,14 @@ Verified against the repo and the sale docs (see [`FEATURES_AND_LIMITS.md`](./FE
 - **Delivery model:** **manual.** Method choice (Самовивіз / Нова Пошта / Укрпошта /
   Курʼєр) + free-text note. No carrier API, no address model, no cost calc, no TTN,
   no tracking.
-- **Checkout:** guest only; server-authoritative price (client can't set the amount).
-- **Not present yet:** customer account/order history, notifications (email/SMS),
-  provider APIs, fiscalization.
+- **Checkout:** guest **or** logged-in; server-authoritative price (client can't set
+  the amount). A logged-in customer's order is linked to their account; **guest
+  checkout is preserved**.
+- **Customer accounts present (47A–47C):** registration/login, profile editing,
+  password change with stale-session invalidation, order history + own order detail.
+- **Not present yet:** notifications (email/SMS), customer-account email features
+  (password reset, verification), provider APIs, fiscalization. **No payment history**
+  (no `Payment`/settled-state model yet).
 
 This is a deliberate, honest starting model for Ukraine — not a broken half-feature.
 
@@ -179,7 +184,8 @@ block the store from taking orders.
 - ❌ No automatic tracking.
 - ❌ No production deploy.
 - ❌ No fiscalization (РРО/ПРРО) wiring.
-- ❌ No customer account / payment history.
+- ❌ No payment history (no `Payment` / settled-state model — accounts/order history
+  exist, but a *payment* record does not until acquiring is built).
 - ❌ No hard dependency on a single provider (keep manual + COD selectable).
 
 ---
