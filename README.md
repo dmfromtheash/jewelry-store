@@ -46,8 +46,9 @@ provider decisions + imagery — not core engineering.
 - **Real product photos** (placeholders are intentional for now)
 - **Notifications** (email / SMS) and customer-account **email features** — password
   reset, email verification (accounts themselves exist; these are deferred)
-- **Account hardening** — durable rate limiting, auth audit logs, guest-order linking,
-  per-device session management (deferred to public-launch hardening)
+- **Further account hardening** — guest-order linking, per-device session management, and
+  **multi-instance** rate limiting (deferred). *(Durable single-instance rate limiting and
+  customer-auth audit logging are already done — 49A/51A.)*
 
 These are deliberate, separately-scoped next steps — not hidden defects.
 
@@ -78,6 +79,10 @@ These are deliberate, separately-scoped next steps — not hidden defects.
 
 ## Current snapshot
 
-- **Latest audited baseline:** `e9c7664 feat: harden customer session security`
-  (local `main` = `origin/main`; includes customer accounts 47A–47C).
-- *This tracks the latest formally-audited milestone, not every commit — refresh it at handoff milestones.*
+- **Customer-accounts audited baseline:** `e9c7664 feat: harden customer session security`
+  (customer accounts 47A–47C).
+- **Local `main` also includes since then:** customer-auth audit + abuse protection (49A),
+  pre-public demo smoke (50A), durable DB-backed rate limiting (51A), the public-demo
+  preflight gate (52A), and the complete demo/sale readiness checks (53A) — honest summary in
+  [`docs/sale/DEMO_SALE_READINESS_REPORT.md`](docs/sale/DEMO_SALE_READINESS_REPORT.md).
+- *This tracks formally-audited milestones, not every commit — refresh it at handoff milestones.*

@@ -19,7 +19,8 @@ behave safely enough for a **local/supervised demo** — and state plainly what 
 **public demo** and a **real launch**. It complements the planning docs above with an
 *executable* check set.
 
-Baseline verified: `e4453c9` (customer accounts 47A–47C + auth abuse protection/audit 49A).
+Baseline: customer accounts 47A–47C + auth abuse protection/audit (49A) + durable DB-backed
+rate limiting (51A) + the demo readiness/preflight tooling (50A/52A/53A) on local `main`.
 
 ---
 

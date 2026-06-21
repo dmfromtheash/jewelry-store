@@ -52,6 +52,9 @@ const STALE_NEGATIVES = [
   { re: /\bno\s+order\s+history\b/i, why: 'customer order history is implemented' },
   { re: /\bno\s+(login|registration|sign[-\s]?in|sign[-\s]?up)\b/i, why: 'login/registration are implemented' },
   { re: /accounts?\s+(are\s+|is\s+)?not\s+(yet\s+)?(implemented|supported|available)/i, why: 'customer accounts ARE implemented' },
+  // Shipped security features (49A/51A) must not be presented as missing/deferred. Self-
+  // contained (the deferral word is part of the match), so no negation guard is applied.
+  { re: /(durable\s+rate[-\s]?limit\w*|(?:customer[-\s]?auth\s+|auth\s+)audit\s+log\w*)\b.{0,45}\b(deferred|planned|still\s+missing|not\s+(yet\s+)?(implemented|done|supported|available)|—?\s*later\b)/i, why: 'durable single-instance rate limiting (51A) + customer-auth audit logging (49A) ARE implemented' },
 ]
 
 // FALSE FEATURE CLAIMS — features that are NOT built. Tight, AFFIRMATIVE patterns

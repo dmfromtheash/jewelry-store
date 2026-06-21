@@ -44,6 +44,31 @@ self-cleaning DB verifies; nothing committed).
 | Authenticated admin | `npm run smoke:admin` | 6 admin surfaces render **with** a local session, **gated** without |
 | Build | `npm run build` | production build green |
 
+## 2a. Sale claims matrix
+
+The honest "can I promise this to a buyer?" table. **Status:** ✅ done · 🟡 manual MVP (works,
+no integration) · 🚫 not implemented / owner-gated.
+
+| Capability | Status | Evidence / command / doc | Promise to buyer? | Caveat |
+|---|---|---|---|---|
+| Ukrainian storefront / catalog (DB) | ✅ | `smoke:routes`; `db:verify` | **Yes** | UAH; copy uk-UA, admin chrome stays Russian |
+| UAH manual checkout | 🟡 | `db:verify:checkout-options`, `…order-confirmation` | **Yes, as manual** | no acquirer; payment confirmed off-system |
+| Guest checkout | ✅ | `db:verify:customer-auth` (guest path) | **Yes** | preserved alongside accounts |
+| Customer account / auth / order history | ✅ | `db:verify:customer-auth` (51/51); `/account` | **Yes** | email immutable in v1; no email reset/verify |
+| Admin catalog / orders | ✅ | `smoke:admin`; `db:verify:orders`, `…order-lifecycle` | **Yes, local only** | admin 404s in production by design |
+| Admin settings / content CMS | ✅ | `smoke:admin` (`/admin/settings`, `/admin/content`) | **Yes, local only** | text/settings only; no logic change |
+| Product variants / inventory / restock | ✅ | `db:verify:product-variants`, `…inventory-lifecycle` | **Yes** | restock-on-cancel covered |
+| Auth audit log (`customer.*`) | ✅ | `db:verify:customer-auth`; `/admin/audit-log` | **Yes** | no PII/secrets stored |
+| Durable auth rate limiting | ✅ | `db:verify:customer-auth` (durable section) | **Yes, single-instance** | multi-instance atomic limiting deferred |
+| Sale docs / screenshots package | ✅ | `demo:sale-docs-check`; `docs/sale/` | **Yes** | screenshots predate `/account` shot (see §10) |
+| Preflight / rehearsal / smoke checks | ✅ | `demo:preflight`, `demo:rehearsal`, `smoke:*` | **Yes** | local, read-only; not a deploy |
+| Real payment provider API | 🚫 | — (manual model only) | **No** | LiqPay/WayForPay etc. not integrated |
+| Carrier API / TTN / tracking | 🚫 | — (manual delivery note only) | **No** | Nova Poshta/Ukrposhta not integrated |
+| Email reset / verification | 🚫 | — (deferred) | **No** | no email provider wired |
+| Public deploy / live demo | 🚫 | — (local only) | **No** | nothing hosted/tunneled |
+| Legal / fiscalization (РРО/ПРРО) | 🚫 | — (owner/lawyer-gated) | **No** | not addressed in code |
+| Real product imagery | 🚫 | placeholder (gem empty-state) | **No** | owner supplies licensed images |
+
 ## 3. How to run the local rehearsal
 
 ```sh
@@ -111,6 +136,22 @@ Keep the pitch honest. Do **not** tell a buyer that AURELIA already:
 
 The `npm run demo:sale-docs-check` script guards the buyer-facing docs against these specific
 contradictions; keep it green.
+
+## 10. Screenshot / package inventory note (Stage 54A audit)
+
+The screenshot set (`docs/sale/screenshots/` + `…/production/`) was audited for consistency,
+**not redesigned or recaptured** (no visual/design change in this stage):
+
+- **Accurate for what it shows** — storefront (home, categories, product + variant, gallery),
+  cart-with-variant, filled checkout, order confirmation, and admin (dashboard, catalog,
+  product-edit gallery/variants/stock, order detail). These flows are unchanged, so the shots
+  remain valid and **acceptable for the buyer package**.
+- **Predates** the customer account cabinet (47A–47C) and the customer-auth audit rows (49A):
+  there is **no `/account` screenshot**, and the audit-log shot does **not** show `customer.*`
+  events. Nothing shown is wrong — these features are simply not pictured.
+- **Optional future block (not done here):** add `/account` (profile + order history) and an
+  audit-log shot with `customer.*` rows, using the existing safe local-capture workflow. This
+  is a polish nicety, not a correctness gap, and is intentionally deferred.
 
 ---
 

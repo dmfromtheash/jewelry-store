@@ -46,6 +46,11 @@ decisions + imagery — not core engineering.
 - **Customer accounts** (registration/login/logout, scrypt hashing, a separate customer
   session cookie, profile editing, password change with stale-session invalidation,
   order history + own order detail) — **guest checkout preserved**.
+- **Auth security & readiness tooling** — **durable DB-backed auth rate limiting**
+  (49A → 51A; survives restart) and a **customer-auth audit log** (49A); plus local,
+  read-only readiness checks (`demo:preflight`, `demo:rehearsal`, `smoke:routes`,
+  `smoke:admin`, `demo:sale-docs-check`). The honest readiness answer + **sale claims
+  matrix** is [`DEMO_SALE_READINESS_REPORT.md`](./DEMO_SALE_READINESS_REPORT.md).
 - **Sale docs + screenshots + runbook** — [`README.md`](./README.md),
   [`DEMO_RUNBOOK.md`](./DEMO_RUNBOOK.md),
   [`DEMO_SCREENSHOT_CHECKLIST.md`](./DEMO_SCREENSHOT_CHECKLIST.md).
@@ -122,8 +127,9 @@ adaptation steps: [`SETUP_AND_HANDOFF_CHECKLIST.md`](./SETUP_AND_HANDOFF_CHECKLI
 - **Payment provider integration** — *after* owner merchant/legal setup.
 - **Nova Poshta integration** — *after* owner business account.
 - **Legal / fiscal text integration** (offer, returns, privacy, РРО/ПРРО).
-- **Email notifications + account hardening** (email password reset/verification,
-  durable rate limiting, auth audit logs, guest-order linking) — later; core accounts done.
+- **Email notifications + remaining account hardening** (email password reset/verification,
+  guest-order linking, per-device sessions, multi-instance rate limiting) — later. *(Durable
+  single-instance rate limiting and customer-auth audit logging are already done — 49A/51A.)*
 
 ## 10. Red lines / honesty rules
 
@@ -136,8 +142,12 @@ adaptation steps: [`SETUP_AND_HANDOFF_CHECKLIST.md`](./SETUP_AND_HANDOFF_CHECKLI
 
 ## 11. Current final snapshot
 
-- **Latest audited baseline:** `e9c7664 feat: harden customer session security`
-  (local `main` = `origin/main`; includes customer accounts 47A–47C).
+- **Customer-accounts audited baseline:** `e9c7664 feat: harden customer session security`
+  (customer accounts 47A–47C).
+- **Local `main` also includes since then:** customer-auth audit + abuse protection (49A),
+  pre-public demo smoke (50A), durable DB-backed rate limiting (51A), the public-demo
+  preflight gate (52A), and the complete demo/sale readiness checks (53A) — see
+  [`DEMO_SALE_READINESS_REPORT.md`](./DEMO_SALE_READINESS_REPORT.md).
 - Local demo orders exist for screenshots — safe fictional data; the owner may cancel
   them in admin (cancel restocks).
-- *This tracks the latest formally-audited milestone, not every commit — refresh it at handoff milestones.*
+- *This tracks formally-audited milestones, not every commit — refresh it at handoff milestones.*

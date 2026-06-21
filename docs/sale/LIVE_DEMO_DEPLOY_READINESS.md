@@ -34,7 +34,7 @@ provider terms, limits, and pricing change.
 
 ## 2. Current deploy-relevant state
 
-Verified against the repo at the latest audited baseline (`e9c7664`, includes customer accounts 47A–47C):
+Verified against the repo at the customer-accounts baseline (`e9c7664`, accounts 47A–47C); local `main` additionally includes customer-auth audit + abuse protection (49A), durable DB-backed rate limiting (51A), and the demo readiness/preflight tooling (50A/52A/53A):
 
 - **Stack:** Next.js 15 / React 19 / TypeScript / **Prisma** / **PostgreSQL**. This is a
   **DB-backed, server-rendered** app — it needs a reachable Postgres at runtime, not just

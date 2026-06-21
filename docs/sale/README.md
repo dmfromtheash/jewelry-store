@@ -51,6 +51,13 @@ owner must decide before a real launch.
   shots are the reference. Details: [`DEMO_SCREENSHOT_CHECKLIST.md`](./DEMO_SCREENSHOT_CHECKLIST.md) §5.
 - All screenshots are **demo assets on local/demo data** — not proof of a live
   production deployment.
+- **Screenshot currency (Stage 54A audit):** the current set is **accurate for what it
+  shows** (storefront, cart, checkout, confirmation, admin dashboard/catalog/order/
+  product-edit) and remains acceptable for the buyer package. It **predates** the customer
+  account cabinet (47A–47C) and the customer-auth audit rows (49A), so there is **no
+  `/account` shot and the audit-log shot does not show `customer.*` events** yet. A refresh
+  to add those is an **optional future block** — not required, and not done here (no visual/
+  design change in this stage).
 - **Product imagery is still placeholder** (gem empty-state, no real photos) — the
   top remaining visual gap; plan to close it in
   [`PRODUCT_IMAGERY_GAP_PLAN.md`](./PRODUCT_IMAGERY_GAP_PLAN.md).
@@ -74,6 +81,12 @@ owner must decide before a real launch.
   **stale-session invalidation** (`sessionVersion`/`passwordChangedAt`), order history
   and **own order detail**; a logged-in checkout attaches `customerId`, and **guest
   checkout is preserved**.
+- **Auth security & audit** — **durable DB-backed login/register/password/profile rate
+  limiting** (49A → 51A, survives restart) and a **customer-auth audit log** (49A,
+  `customer.*` events in the admin audit page; no PII/secrets stored).
+- **Demo/sale readiness tooling** — `demo:preflight`, `demo:rehearsal`, `smoke:routes`,
+  `smoke:admin`, `demo:sale-docs-check` (all local, read-only, no deploy; see
+  [`DEMO_SALE_READINESS_REPORT.md`](./DEMO_SALE_READINESS_REPORT.md)).
 - **Buyer docs + screenshots + demo runbook + provider research** (this package).
 
 ---
@@ -83,9 +96,11 @@ owner must decide before a real launch.
 - Real online **payment acquiring** (no LiqPay/WayForPay/etc. integration).
 - Payment **webhooks / "paid" state / refunds**.
 - **Carrier API / TTN (waybill) / tracking** (delivery is a manual choice + note).
-- **Customer-account email features & hardening** — email password reset, email
-  verification, durable rate limiting, auth audit logs, guest-order linking, per-device
-  session management (core accounts/login/profile/history **are** done; these are deferred).
+- **Customer-account email features & extra hardening** — email password reset, email
+  verification, guest-order linking, per-device session management, and **multi-instance**
+  rate limiting (core accounts/login/profile/history **are** done; **durable single-instance
+  rate limiting (51A) and customer-auth audit logging (49A) are also done** — these listed
+  items are the remaining deferred ones).
 - **Notifications** (email / SMS).
 - **Production deploy** (no live hosted shop).
 - **Fiscalization (РРО/ПРРО)** / legal-compliance guarantees.
@@ -116,26 +131,38 @@ adaptation steps: [`SETUP_AND_HANDOFF_CHECKLIST.md`](./SETUP_AND_HANDOFF_CHECKLI
 
 ## 7. Suggested live demo flow
 
+0. **Pre-demo (safe, local):** `npm run db:start`, then `npm run demo:rehearsal` (offline
+   readiness gate) and `npm run dev` → `http://127.0.0.1:5000`. **No tunnel, no public URL.**
 1. Open **home → category** (e.g. Бижутерия / Подарки) — catalog from the DB.
 2. Open a **product with variants** (`/product/serogi-kaplya`); switch the coating —
    price/variant update.
 3. **Add to cart** → cart drawer shows the **variant-aware** line.
 4. **Checkout** with safe demo data; pick **Новая Почта** + a **manual** payment option.
 5. Show the **inline order confirmation** (order code, honest manual-payment note).
-6. Log into **admin** (local dev): **dashboard**, **order detail** (variant snapshot,
-   payment/delivery), and the **catalog/product editor** (gallery/variants/stock).
-7. Show the **buyer docs + screenshots** in this folder.
-8. State the **limits honestly** (manual payment/delivery; no live deploy yet).
+6. **Customer account** (`/account`): register/login, profile, and **own order history /
+   order detail** — guest checkout still works too.
+7. Log into **admin** (local dev): **dashboard**, **order detail** (variant snapshot,
+   payment/delivery), the **catalog/product editor** (gallery/variants/stock), and the
+   **audit log** (admin + `customer.*` events).
+8. Show the **readiness checks** (`npm run smoke:routes` / `smoke:admin`) and the
+   **buyer docs + screenshots** in this folder.
+9. State the **limits honestly** (manual payment/delivery; no live deploy; admin local-only).
+10. **After the demo:** stop the server (Ctrl+C) and `npm run db:stop`.
 
 Operational detail: [`DEMO_RUNBOOK.md`](./DEMO_RUNBOOK.md); narrated version:
-[`BUYER_DEMO_SCRIPT.md`](./BUYER_DEMO_SCRIPT.md).
+[`BUYER_DEMO_SCRIPT.md`](./BUYER_DEMO_SCRIPT.md); full readiness picture +
+**sale claims matrix**: [`DEMO_SALE_READINESS_REPORT.md`](./DEMO_SALE_READINESS_REPORT.md).
 
 ---
 
 ## 8. Current clean snapshot
 
-- **Latest audited baseline:** `e9c7664 feat: harden customer session security`
-  (local `main` = `origin/main`; includes customer accounts 47A–47C).
+- **Customer-accounts audited baseline:** `e9c7664 feat: harden customer session security`
+  (customer accounts 47A–47C).
+- **Since then, local `main` also includes:** customer-auth audit + abuse protection (49A),
+  pre-public demo smoke (50A), durable DB-backed rate limiting (51A), the public-demo
+  preflight gate (52A), and the complete demo/sale readiness checks (53A). The honest
+  readiness summary lives in [`DEMO_SALE_READINESS_REPORT.md`](./DEMO_SALE_READINESS_REPORT.md).
 - Local demo orders exist for screenshots — safe fictional data; the owner may cancel
   them in admin (cancel returns stock).
-- *This tracks the latest formally-audited milestone, not every commit — refresh it at handoff milestones.*
+- *This tracks formally-audited milestones, not every commit — refresh it at handoff milestones.*
