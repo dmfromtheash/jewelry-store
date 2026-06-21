@@ -31,6 +31,7 @@ owner must decide before a real launch.
 8. [`LIVE_DEMO_DEPLOY_READINESS.md`](./LIVE_DEMO_DEPLOY_READINESS.md) — honest live-demo / deploy-readiness audit (local vs temporary tunnel vs hosted vs production; gates and blockers). **Planning only — nothing is deployed.**
 9. [`LOCAL_TUNNEL_DEMO_RUNBOOK.md`](./LOCAL_TUNNEL_DEMO_RUNBOOK.md) — safe runbook for a short, supervised buyer demo over a temporary tunnel (storefront only; admin stays local). **Docs-only — no tunnel is created.**
 10. [`PRE_PUBLIC_DEMO_READINESS.md`](./PRE_PUBLIC_DEMO_READINESS.md) — pre-public-demo readiness report with **runnable** automated checks (route render smoke + `db:verify:*`): what's verified, what's manual, what blocks public demo vs. real launch. **Verification only — nothing is deployed.**
+11. [`DEMO_SALE_READINESS_REPORT.md`](./DEMO_SALE_READINESS_REPORT.md) — the single honest demo/sale readiness answer: what's ready for a buyer, what the automated checks cover, how to run `npm run demo:rehearsal`, how admin is protected, what's owner-gated, and **what must NOT be promised to a buyer**. **Verification only — nothing is deployed.**
 
 ---
 

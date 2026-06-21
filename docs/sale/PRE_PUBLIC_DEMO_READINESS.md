@@ -64,6 +64,25 @@ isolated **6700** and never dm-bot's **5432**) and that the safety tooling/docs 
 `DATABASE_URL` **port** is ever read, never credentials. A green preflight is a *readiness
 gate, not approval to deploy*. Details: [`../../scripts/demo/README.md`](../../scripts/demo/README.md).
 
+### Full local rehearsal + sale-doc consistency + authenticated admin (Stage 53A)
+
+```sh
+npm run demo:rehearsal         # offline checks now + prints the ordered live sequence
+npm run demo:sale-docs-check   # buyer-facing docs don't contradict the build
+npm run smoke:admin            # authenticated admin surfaces (needs the dev server + ADMIN_* in .env)
+```
+
+- **`demo:rehearsal`** orchestrates the offline checks (preflight, typecheck, prisma validate,
+  sale-docs) and prints the ordered **live** sequence (DB + dev server) — it never starts a
+  server/DB, deploys, tunnels, resets, seeds, or prints secrets.
+- **`demo:sale-docs-check`** scans the buyer-facing sale docs for claims that contradict the
+  build (e.g. "guest-checkout-only", "payment API implemented", "deployed to production",
+  "public admin ready", "imagery complete") and fails on them.
+- **`smoke:admin`** mints a **local** admin session (never printing the secret/token) and
+  asserts the 6 admin surfaces render when authenticated **and** stay gated when not. It
+  **SKIPs cleanly** if `ADMIN_*` is not configured. The full picture lives in
+  [`DEMO_SALE_READINESS_REPORT.md`](./DEMO_SALE_READINESS_REPORT.md).
+
 ---
 
 ## 3. What automated checks cover (verified)

@@ -1,10 +1,31 @@
-# AURELIA — Smoke harness (Этап 50A)
+# AURELIA — Smoke harness (Этап 50A · 53A)
 
-Dependency-free HTTP **route render smoke** for the business-critical flows. It runs
-against an already-running AURELIA server using Node's built-in `fetch` — **no browser
-engine, no new dependency**. GET-only: it never writes data and never submits an order.
+Dependency-free HTTP **render smokes** for the business-critical flows. They run against an
+already-running AURELIA server using Node's built-in `fetch` — **no browser engine, no new
+dependency**. GET-only: they never write data and never submit an order.
 
-## What it checks
+```sh
+npm run smoke:routes   # storefront + admin-gating (unauthenticated)
+npm run smoke:admin    # authenticated admin surfaces (53A)
+```
+
+## Authenticated admin smoke (`scripts/smoke/admin-smoke.mjs`, 53A)
+
+`npm run smoke:admin` smoke-tests the **authenticated** admin surfaces (`/admin`,
+`/admin/orders`, `/admin/catalog`, `/admin/settings`, `/admin/content`, `/admin/audit-log`)
+locally and safely:
+
+- It loads `.env` into the process via Node's built-in `process.loadEnvFile()` and **mints a
+  local `au_admin_session` cookie** (mirroring `src/lib/admin/auth.ts`). The secret, the token,
+  and admin page bodies are **never printed**; the cookie is sent only to localhost.
+- For each surface it asserts BOTH: **with** the session → 200 + the authenticated shell
+  marker (`au-adm-shell`); **without** it → still **gated** (redirect to `/admin/login`). So it
+  proves admin renders for an authenticated local operator yet stays closed otherwise.
+- It does **not** weaken `ensureLocalAdmin` (admin still 404s in production / off-localhost),
+  does not expose admin, and writes nothing. If `ADMIN_USERNAME` / `ADMIN_SESSION_SECRET` are
+  not configured it **SKIPs cleanly** (exit 0) — there is nothing to mint and that is fine.
+
+## What the route smoke checks
 
 `scripts/smoke/route-smoke.mjs` (run via `npm run smoke:routes`):
 

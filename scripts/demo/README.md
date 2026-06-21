@@ -1,21 +1,44 @@
-# AURELIA — Public-demo preflight (Этап 52A)
+# AURELIA — Demo readiness scripts (Этап 52A · 53A)
 
-A dependency-free, **local, read-only** gate to run **before** any public-demo / tunnel /
-deploy decision. Same Node-built-ins style as `scripts/smoke/`. It exists to make it hard
-to accidentally expose the project in an unsafe state.
+Dependency-free, **local, read-only** gates to run **before** any public-demo / tunnel /
+deploy decision. Same Node-built-ins style as `scripts/smoke/`. They make it hard to
+accidentally expose the project in an unsafe state, and keep the sale package honest.
 
-> **Preflight is not a deployment.** It does not deploy, tunnel, expose, start a server,
-> or touch any database, and it never reads or prints `.env` / secrets.
+> **None of these deploy.** They do not deploy, tunnel, expose, start a server, reset/seed a
+> DB, and they never read or print `.env` / secrets (the preflight reads only the
+> `DATABASE_URL` **port**; the admin smoke loads `.env` into memory to mint a *local* session
+> but never prints the secret or token).
 
 ## Commands
 
 ```sh
-npm run demo:preflight        # static gate — fast; no DB, no server, no build
+npm run demo:preflight        # static security gate — fast; no DB, no server, no build
 npm run demo:preflight:full   # static gate + typecheck + prisma validate (safe child checks)
+npm run demo:sale-docs-check  # buyer-facing sale docs don't contradict the build (53A)
+npm run demo:rehearsal        # offline checks now + prints the ordered live sequence (53A)
 ```
+
+Related (in `scripts/smoke/`): `npm run smoke:routes` (route render + admin gating) and
+`npm run smoke:admin` (authenticated admin surfaces — 53A).
 
 Exit code is non-zero only on a **hard FAIL**. `WARN` / `INFO` items never fail the gate —
 they are flagged for a human to review.
+
+## `demo:rehearsal` (53A)
+
+One command to rehearse local demo/sale readiness. It runs the **offline** checks
+(`demo:preflight`, `typecheck`, `prisma validate`, `demo:sale-docs-check`) and then **prints**
+the ordered **live** sequence that needs the AURELIA DB (6700) + a running dev server
+(`db:verify:*`, `smoke:routes`, `smoke:admin`, `build`). It never starts a server/DB itself.
+
+## `demo:sale-docs-check` (53A)
+
+Scans the **buyer-facing** sale docs (not the operator/meta readiness docs, which legitimately
+discuss limitations) for claims that contradict the current build — stale negatives
+("guest-checkout-only", "no customer account / order history") and false features ("payment
+API implemented", "carrier API integrated", "deployed to production", "public admin ready",
+"real imagery complete"). Lines that are honest negations/disclaimers are skipped. It **fails**
+on a contradiction and never rewrites docs.
 
 ## What it verifies
 
