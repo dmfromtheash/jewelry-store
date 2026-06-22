@@ -72,13 +72,13 @@ function isStatus(value: string): value is ProductFormStatus {
  *   - 'empty' when nothing was entered,
  *   - 'invalid' when the input is not a valid non-negative amount.
  */
-function parseRubToMinor(raw: string): { value: number } | 'empty' | 'invalid' {
+function parseUahToMinor(raw: string): { value: number } | 'empty' | 'invalid' {
   const cleaned = raw.replace(/\s/g, '').replace(',', '.')
   if (cleaned.length === 0) return 'empty'
   if (!/^\d+(\.\d{1,2})?$/.test(cleaned)) return 'invalid'
-  const rub = Number(cleaned)
-  if (!Number.isFinite(rub) || rub < 0) return 'invalid'
-  return { value: Math.round(rub * 100) }
+  const uah = Number(cleaned)
+  if (!Number.isFinite(uah) || uah < 0) return 'invalid'
+  return { value: Math.round(uah * 100) }
 }
 
 /**
@@ -203,7 +203,7 @@ export function parseProductForm(formData: FormData): ParseProductResult {
   if (!isStatus(status)) return { ok: false, error: 'status' }
 
   const priceRaw = str(formData, 'price')
-  const parsedPrice = parseRubToMinor(priceRaw)
+  const parsedPrice = parseUahToMinor(priceRaw)
   let price: number | null
   if (status === 'available') {
     // Available products must carry a positive price.
