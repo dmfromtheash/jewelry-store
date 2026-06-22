@@ -116,6 +116,13 @@ owner must decide before a real launch.
   reviews only; no-review products last, never faked) + active-filter summary/reset. All
   shareable URLs, fully local — **no** AI/semantic search, external search engine, or
   merchandising automation.
+- **Admin operations dashboard (65A)** — `/admin/dashboard` upgraded into a real-data command
+  center: overview cards (orders / reviews / promos / email-outbox / catalog health / customer
+  accounts), a single **"Needs attention" queue** (severity + links), and honest **owner-gated
+  readiness warnings** (email not configured / no payment provider / no carrier API / not
+  deployed / admin local-only / placeholder imagery / no external BI). Safe aggregates only —
+  no secrets/tokens/email bodies/PII; readiness command names are **documentation text**, the
+  web admin never executes anything.
 - **Demo/sale readiness tooling** — `demo:preflight`, `demo:rehearsal`, `smoke:routes`,
   `smoke:admin`, `demo:sale-docs-check` (all local, read-only, no deploy; see
   [`DEMO_SALE_READINESS_REPORT.md`](./DEMO_SALE_READINESS_REPORT.md)).
@@ -145,6 +152,9 @@ owner must decide before a real launch.
 - **AI/semantic search, external search engine (Algolia/Elasticsearch/…), merchandising
   automation** — local price/material filters, richer search and an approved-review rating sort
   **are** done (64A), but these advanced discovery features are not built.
+- **External analytics/BI integration** and **command execution from the web admin** — an admin
+  operations dashboard with safe local aggregates **is** done (65A), but no external BI is wired
+  and the admin UI never runs shell/CLI commands (command names are documentation only).
 - **Production deploy** (no live hosted shop).
 - **Fiscalization (РРО/ПРРО)** / legal-compliance guarantees.
 - Full **uk-UA / EN localization** and secondary currencies (storefront copy is

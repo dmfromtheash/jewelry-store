@@ -147,6 +147,7 @@ async function main() {
 
   const surfaces = [
     '/admin',
+    '/admin/dashboard',
     '/admin/orders',
     '/admin/catalog',
     '/admin/reviews',

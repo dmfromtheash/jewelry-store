@@ -1,4 +1,4 @@
-# Final Freeze Audit & Project Handoff — AURELIA (Stage 57A; refreshed at 59A, 60A, 62A, 63A, 64A)
+# Final Freeze Audit & Project Handoff — AURELIA (Stage 57A; refreshed at 59A, 60A, 62A, 63A, 64A, 65A)
 
 > **Freeze point + handoff snapshot** after the 49A–56A sale/demo/security/readiness/
 > architecture cycle, **refreshed after Stage 59A** (trust & operations foundation:
@@ -93,6 +93,13 @@ launched business. **Design is locked.**
   variants + stock, inventory/restock, orders inbox + detail, order lifecycle
   (`submitted→processing→completed/cancelled` with restock-on-cancel), site settings + info-page
   CMS, audit log.
+- **Admin operations dashboard** (65A): `/admin/dashboard` upgraded into a real-data command
+  center — orders/reviews/promos/email-outbox/catalog-health/customer overview cards, a single
+  **"Needs attention" queue** (severity action/warn/info + links), and honest **owner-gated
+  readiness warnings** (email not configured / no payment provider / no carrier API / not
+  deployed / admin local-only / placeholder imagery / no external BI). Safe aggregates only —
+  no secrets/tokens/email bodies/PII; command names are documentation text (NO execution from
+  the web admin). Admin-local CSS only (3 severity badge classes).
 - **Demo/sale/readiness tooling** (50A/52A/53A/55A): preflight gate, rehearsal, route + admin
   smokes, sale-docs checker, screenshot-capture helper.
 
@@ -113,8 +120,9 @@ Run via `npm run demo:rehearsal` (offline) + the live sequence. At this freeze, 
 | `db:verify:catalog-ux` · `db:verify:wishlist` (62A) | pass (rating honesty, JSON-LD, sort/filter; wishlist add/idempotent/remove + isolation + hidden handling, rolled back) |
 | `db:verify:promotions` (63A) | pass (discount math round/cap/clamp + no negative total, eligibility, order snapshot, usage-limit concurrency, no-promo compatibility; rolled back) |
 | `db:verify:advanced-catalog-ux` (64A) | pass (price parse/filter, material facet, richer search, honest approved-review rating sort, approved-only aggregate excludes pending/rejected/unpublished; rolled back) |
+| `db:verify:admin-dashboard` (65A) | pass (promo classification, attention queue, readiness, SAFE email projection, customer counts; rolled back) |
 | `smoke:routes` | 24/24 routes render / gated |
-| `smoke:admin` | 18/18 (9 admin surfaces incl. reviews + promotions + email-outbox) render authed + gated unauthed |
+| `smoke:admin` | 20/20 (10 admin surfaces incl. dashboard + reviews + promotions + email-outbox) render authed + gated unauthed |
 | `build` | production build green (needs DB 6700 up) |
 
 ## 5. Key commands
@@ -146,6 +154,7 @@ Ranges, not promises. Bumped from the older 40A buyer/MVP audit where 49A–56A 
 | **Account wishlist (62A)** | **~85%** | DB-backed, customerId-scoped, published-only, guest preserved; no card-level state, no notifications |
 | **Promotions / discounts (63A)** | **~75%** | manual-checkout promo codes (%/fixed), server-authoritative, admin-managed, usage-limit-safe; no gift cards / stackable / marketing automation / provider discounts |
 | **Catalog discovery / search (64A)** | **~80%** | price + material filters, richer local search, honest approved-review rating sort, shareable URLs; no AI/external search engine / merchandising automation |
+| **Admin operations dashboard (65A)** | **~85%** | real-data overview + attention queue + owner-gated warnings; safe aggregates only; no external BI, no command execution from UI |
 | **Customer auth / account** | **~90%** | login/profile/password/history/audit/durable rate-limit; reset/verification = hashed-token foundation (60A), no email delivery |
 | **Admin CMS / site management** | **~85–90%** | catalog/orders/lifecycle/settings/CMS/audit; local-only |
 | **Security / readiness tooling** | **~90%** | durable rate-limit, audit, preflight/rehearsal/smokes, sale-docs guard |

@@ -151,7 +151,21 @@
   color: var(--au-danger);
 }
 .au-adm-badge--queued,
-.au-adm-badge--skipped {
+.au-adm-badge--skipped,
+.au-adm-badge--skipped_no_provider {
+  background: var(--au-surface);
+  color: var(--au-ink-soft);
+}
+/* Dashboard attention-queue severity (Этап 65A) — reuse existing tints. */
+.au-adm-badge--action {
+  background: var(--au-gold-tint);
+  color: var(--au-gold);
+}
+.au-adm-badge--warn {
+  background: #f6e7e2;
+  color: var(--au-danger);
+}
+.au-adm-badge--info {
   background: var(--au-surface);
   color: var(--au-ink-soft);
 }

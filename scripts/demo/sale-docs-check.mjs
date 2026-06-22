@@ -34,6 +34,11 @@
  *     range / rating sort / richer local search implemented" is HONEST. But there is NO AI/
  *     semantic search, NO external search engine (Algolia/Elastic/…), and NO merchandising
  *     automation — so claiming those is FALSE.
+ *   - An admin OPERATIONS DASHBOARD exists (Этап 65A: read-only overview + "needs attention"
+ *     queue + owner-gated readiness warnings + links). So "admin operations dashboard
+ *     implemented" is HONEST. But the web admin CANNOT execute shell/CLI commands (command
+ *     names are documentation text only) and NO external analytics/BI platform is integrated —
+ *     so claiming either is FALSE.
  *
  * Lines that are clearly NEGATIONS / honest disclaimers (contain ❌, "no ", "not",
  * "without", "must not", "never", "instead of", "isn't") are SKIPPED for the
@@ -117,6 +122,12 @@ const FALSE_FEATURES = [
   { re: /\b(elasticsearch|elastic\s+search|algolia|meilisearch|typesense|opensearch|solr)\s+(is\s+)?(integrated|implemented|connected|configured|live|enabled)\b/i, why: 'no external search engine/service is integrated (local search only)' },
   { re: /\bexternal\s+search\s+(engine|service|provider)\s+(is\s+)?(integrated|implemented|connected|live|enabled)\b/i, why: 'no external search engine/service is integrated (local search only)' },
   { re: /\b(merchandising|personalization|recommendation)\s+(automation|engine|ai)\s+(is\s+)?(implemented|integrated|live|enabled|automated)\b/i, why: 'no merchandising/recommendation automation is implemented' },
+  // Admin operations dashboard (Этап 65A): the dashboard IS implemented (read-only overview +
+  // owner-gated warnings + links). What must NOT be claimed: that the web admin can EXECUTE
+  // shell/CLI commands, or that an external analytics/BI platform is integrated. Negation-guarded.
+  { re: /\badmin\s+(panel\s+|ui\s+|dashboard\s+)?(can\s+)?(run|runs|execute|executes|trigger|triggers)\s+(shell|terminal|cli|npm|bash|server)\b/i, why: 'the web admin cannot run shell/CLI commands — command names are shown as text only' },
+  { re: /\b(shell|terminal|cli)\s+commands?\s+(can\s+be\s+)?(run|executed|triggered)\s+from\s+(the\s+)?(web\s+)?admin\b/i, why: 'no shell/CLI execution from the web admin' },
+  { re: /\b(external\s+)?(analytics|bi|business\s+intelligence)\s+(platform|provider|service|suite|integration)\s+(is\s+)?(integrated|implemented|connected|live|enabled)\b/i, why: 'no external analytics/BI platform is integrated (local counts only)' },
 ]
 
 const NEGATION = /❌|\bno\b|\bnot\b|\bnever\b|\bwithout\b|\bmust not\b|\binstead of\b|\bisn'?t\b|\baren'?t\b|\bplaceholder\b|\bdeferred\b|\bnot yet\b|\bnothing\b|\bplanning only\b|\bdemo only\b|\bno real\b/i

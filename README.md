@@ -42,6 +42,8 @@ provider decisions + imagery — not core engineering.
   server-authoritative discount (total never negative), usage-limit-safe, audited
 - Advanced catalog discovery (64A): URL-driven **price range** + **material/coating filter**,
   richer local search, and an **honest rating sort** (approved reviews only) — shareable URLs
+- Admin **operations dashboard** (65A): real-data overview (orders/reviews/promos/email/catalog/
+  customers) + a **"needs attention" queue** + owner-gated readiness warnings (local, safe aggregates)
 - Screenshots and sale/handoff docs
 
 ## What is not implemented yet
@@ -65,6 +67,9 @@ provider decisions + imagery — not core engineering.
 - **AI/semantic search, external search engine (Algolia/Elasticsearch/…), merchandising
   automation** (deferred). *(Local DB-backed price/material filters, richer search, and an
   approved-review rating sort are already done — 64A.)*
+- **External analytics/BI** and **running commands from the web admin** (not built / not
+  allowed). *(An admin operations dashboard with safe local aggregates is already done — 65A;
+  readiness commands are text-only documentation.)*
 
 These are deliberate, separately-scoped next steps — not hidden defects.
 
