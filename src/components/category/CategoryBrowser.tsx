@@ -5,23 +5,26 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import ProductCard from '../product/ProductCard'
 import DiscoveryControls from '../search/DiscoveryControls'
 import {
+  deriveMaterials,
+  filterByMaterial,
+  filterByPrice,
   filterByStatus,
+  parseMaterial,
+  parsePriceRange,
   parseSort,
   parseStatus,
   productCountLabel,
   sortProducts,
   type Product,
-  type SortKey,
-  type StatusFilter,
 } from '../../lib/catalog'
 
 /**
- * AURELIA — CategoryBrowser (client) — Этап 12A
+ * AURELIA — CategoryBrowser (client) — Этап 12A; price/material Этап 64A
  *
- * Makes the category toolbar functional: status filter + sort over the
- * category's products, all frontend-only. `sort` and `status` live in the URL
- * (?sort=&status=) so they survive a reload. Renders the product grid and an
- * empty state. Receives plain catalog data — never duplicates it.
+ * Makes the category toolbar functional: status + price range + material/coating facet +
+ * sort over the category's products, all frontend-only over the server-provided snapshot.
+ * Every control lives in the URL (?status=&minPrice=&maxPrice=&material=&sort=) so the view
+ * is shareable and survives a reload. Renders the product grid + an honest empty state.
  */
 
 export default function CategoryBrowser({ products }: { products: Product[] }) {
@@ -31,17 +34,16 @@ export default function CategoryBrowser({ products }: { products: Product[] }) {
 
   const sort = parseSort(searchParams.get('sort'))
   const status = parseStatus(searchParams.get('status'))
+  const price = parsePriceRange(searchParams.get('minPrice'), searchParams.get('maxPrice'))
+  const materials = useMemo(() => deriveMaterials(products), [products])
+  const material = parseMaterial(searchParams.get('material'), products) ?? null
 
   const setParams = useCallback(
-    (next: { sort?: SortKey; status?: StatusFilter }) => {
+    (next: Record<string, string | null>) => {
       const params = new URLSearchParams(searchParams.toString())
-      if (next.sort !== undefined) {
-        if (next.sort === 'recommended') params.delete('sort')
-        else params.set('sort', next.sort)
-      }
-      if (next.status !== undefined) {
-        if (next.status === 'all') params.delete('status')
-        else params.set('status', next.status)
+      for (const [key, value] of Object.entries(next)) {
+        if (value === null || value === '') params.delete(key)
+        else params.set(key, value)
       }
       const qs = params.toString()
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
@@ -49,32 +51,44 @@ export default function CategoryBrowser({ products }: { products: Product[] }) {
     [router, pathname, searchParams],
   )
 
+  const resetAll = useCallback(() => {
+    router.replace(pathname, { scroll: false })
+  }, [router, pathname])
+
   const visible = useMemo(
-    () => sortProducts(filterByStatus(products, status), sort),
-    [products, status, sort],
+    () =>
+      sortProducts(
+        filterByMaterial(filterByPrice(filterByStatus(products, status), price), material),
+        sort,
+      ),
+    [products, status, price, material, sort],
   )
 
   return (
     <div className="au-cat-browser">
       <DiscoveryControls
         sort={sort}
-        onSortChange={(s) => setParams({ sort: s })}
+        onSortChange={(s) => setParams({ sort: s === 'recommended' ? null : s })}
         status={status}
-        onStatusChange={(s) => setParams({ status: s })}
+        onStatusChange={(s) => setParams({ status: s === 'all' ? null : s })}
         countLabel={productCountLabel(visible.length)}
+        priceMin={price.min !== undefined ? String(price.min) : ''}
+        priceMax={price.max !== undefined ? String(price.max) : ''}
+        onPriceApply={(min, max) => setParams({ minPrice: min || null, maxPrice: max || null })}
+        materials={materials}
+        material={material}
+        onMaterialChange={(m) => setParams({ material: m })}
+        onResetAll={resetAll}
       />
 
       {visible.length === 0 ? (
         <div className="au-discovery-empty">
           <p className="au-discovery-empty-title">Нічого не знайдено</p>
           <p className="au-discovery-empty-sub">
-            У цій категорії немає товарів з обраним фільтром.
+            У цій категорії немає товарів з обраними фільтрами. Спробуйте змінити ціну,
+            матеріал чи наявність.
           </p>
-          <button
-            className="au-btn au-btn--ghost"
-            type="button"
-            onClick={() => setParams({ status: 'all', sort: 'recommended' })}
-          >
+          <button className="au-btn au-btn--ghost" type="button" onClick={resetAll}>
             Скинути фільтри
           </button>
         </div>

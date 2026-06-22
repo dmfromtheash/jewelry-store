@@ -40,6 +40,8 @@ provider decisions + imagery — not core engineering.
   (`customerId`-scoped; guest localStorage favourites preserved)
 - Manual-checkout **promo codes / discounts** (63A): admin-managed percent/fixed codes,
   server-authoritative discount (total never negative), usage-limit-safe, audited
+- Advanced catalog discovery (64A): URL-driven **price range** + **material/coating filter**,
+  richer local search, and an **honest rating sort** (approved reviews only) — shareable URLs
 - Screenshots and sale/handoff docs
 
 ## What is not implemented yet
@@ -60,6 +62,9 @@ provider decisions + imagery — not core engineering.
 - **Gift cards, stackable promotions, automatic/marketing campaigns, CRM/email marketing,
   payment-provider discounts** (deferred). *(Manual-checkout promo codes / discounts are already
   done — 63A; they do not stack — one code per order.)*
+- **AI/semantic search, external search engine (Algolia/Elasticsearch/…), merchandising
+  automation** (deferred). *(Local DB-backed price/material filters, richer search, and an
+  approved-review rating sort are already done — 64A.)*
 
 These are deliberate, separately-scoped next steps — not hidden defects.
 

@@ -50,3 +50,30 @@ export async function getReviewSummaryBySlug(slug: string): Promise<ReviewSummar
   })
   return summarizeRatings(rows.map((r) => r.rating))
 }
+
+/**
+ * Approved-review aggregates for many products at once (Этап 64A — catalog rating sort).
+ * One grouped query over APPROVED reviews only (pending/rejected excluded), keyed by
+ * productId. Products with no approved reviews are simply absent from the map → the caller
+ * treats them as 0/0 (never a faked rating). For the current small catalog this is a single
+ * cheap groupBy; at large scale this would move to a denormalised counter (documented).
+ */
+export async function getApprovedReviewAggregatesByProductIds(
+  productIds: string[],
+): Promise<Map<string, ReviewSummary>> {
+  const map = new Map<string, ReviewSummary>()
+  if (productIds.length === 0) return map
+  const groups = await prisma.productReview.groupBy({
+    by: ['productId'],
+    where: { status: APPROVED, productId: { in: productIds }, product: { isPublished: true } },
+    _count: { rating: true },
+    _avg: { rating: true },
+  })
+  for (const g of groups) {
+    const count = g._count.rating
+    const avg = g._avg.rating ?? 0
+    // Round to one decimal to match summarizeRatings / the PDP display.
+    map.set(g.productId, { count, average: Math.round(avg * 10) / 10 })
+  }
+  return map
+}

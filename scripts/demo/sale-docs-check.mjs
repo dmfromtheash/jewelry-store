@@ -29,6 +29,11 @@
  *     implemented" is HONEST now. But gift cards, marketing automation/CRM, STACKABLE
  *     promotions, automatic campaigns, and payment-provider-level discounts are NOT built — so
  *     "gift cards implemented" / "stackable promotions" / "marketing automation live" are FALSE.
+ *   - Advanced catalog discovery exists (Этап 64A: URL price-range + material/coating facet +
+ *     richer LOCAL search + honest approved-review rating sort). So "catalog filters / price
+ *     range / rating sort / richer local search implemented" is HONEST. But there is NO AI/
+ *     semantic search, NO external search engine (Algolia/Elastic/…), and NO merchandising
+ *     automation — so claiming those is FALSE.
  *
  * Lines that are clearly NEGATIONS / honest disclaimers (contain ❌, "no ", "not",
  * "without", "must not", "never", "instead of", "isn't") are SKIPPED for the
@@ -104,6 +109,14 @@ const FALSE_FEATURES = [
   { re: /\bstackable\s+(promotions?|discounts?|coupons?|campaigns?)\s+(are\s+)?(implemented|supported|available|enabled|live)\b/i, why: 'promo codes do NOT stack (one code per order); stackable promotions are not implemented' },
   { re: /\b(automatic|scheduled)\s+(marketing\s+)?(promo\w*|discount|campaign)s?\s+(are\s+)?(implemented|live|running|automated|enabled)\b/i, why: 'no automatic/scheduled marketing campaigns (manual promo codes only)' },
   { re: /\b(payment|provider|gateway|acquirer)[-\s]?(level\s+)?(discounts?|coupons?|promotions?)\s+(are\s+)?(integrated|implemented|connected|live)\b/i, why: 'no payment-provider/gateway discounts (manual checkout promo codes only)' },
+  // Catalog discovery (Этап 64A): local DB-backed filters/search/rating-sort ARE implemented,
+  // so "catalog filters / price range / rating sort / richer local search implemented" is honest.
+  // What is NOT built: AI search, an external search ENGINE/service, and merchandising automation.
+  // Affirmative + negation-guarded (honest "no AI search" lines pass).
+  { re: /\b(ai|ml|semantic|vector|neural|llm)[-\s]?(powered\s+)?search\s+(is\s+)?(implemented|integrated|live|enabled|available|added)\b/i, why: 'no AI/semantic search is implemented (local DB-backed search only)' },
+  { re: /\b(elasticsearch|elastic\s+search|algolia|meilisearch|typesense|opensearch|solr)\s+(is\s+)?(integrated|implemented|connected|configured|live|enabled)\b/i, why: 'no external search engine/service is integrated (local search only)' },
+  { re: /\bexternal\s+search\s+(engine|service|provider)\s+(is\s+)?(integrated|implemented|connected|live|enabled)\b/i, why: 'no external search engine/service is integrated (local search only)' },
+  { re: /\b(merchandising|personalization|recommendation)\s+(automation|engine|ai)\s+(is\s+)?(implemented|integrated|live|enabled|automated)\b/i, why: 'no merchandising/recommendation automation is implemented' },
 ]
 
 const NEGATION = /❌|\bno\b|\bnot\b|\bnever\b|\bwithout\b|\bmust not\b|\binstead of\b|\bisn'?t\b|\baren'?t\b|\bplaceholder\b|\bdeferred\b|\bnot yet\b|\bnothing\b|\bplanning only\b|\bdemo only\b|\bno real\b/i

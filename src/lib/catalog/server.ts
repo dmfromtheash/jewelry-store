@@ -15,6 +15,7 @@ import 'server-only'
 
 import { prisma } from '../db/prisma'
 import { mapDbProductToProduct } from './map'
+import { getApprovedReviewAggregatesByProductIds } from '../reviews/server'
 import type { CategorySlug, Product } from './types'
 
 // Relations the mapper needs. `include` also returns all Product scalar fields
@@ -51,13 +52,32 @@ const orderBySku = { sku: 'asc' as const }
 // in src/lib/admin/catalog.ts and intentionally do NOT apply this filter.
 const publishedOnly = { isPublished: true } as const
 
+/**
+ * Maps DB rows → frontend products AND attaches APPROVED-review aggregates (Этап 64A) so the
+ * catalog rating sort is honest. Each row carries its `id` (scalar from `include`); a single
+ * grouped query resolves the aggregates, and any product without approved reviews stays 0/0.
+ */
+async function mapRowsWithAggregates(
+  rows: (Parameters<typeof mapDbProductToProduct>[0] & { id: string })[],
+): Promise<Product[]> {
+  const aggregates = await getApprovedReviewAggregatesByProductIds(rows.map((r) => r.id))
+  return rows.map((row) => {
+    const agg = aggregates.get(row.id)
+    return {
+      ...mapDbProductToProduct(row),
+      approvedRating: agg?.average ?? 0,
+      approvedReviewCount: agg?.count ?? 0,
+    }
+  })
+}
+
 export async function getAllProductsFromDb(): Promise<Product[]> {
   const rows = await prisma.product.findMany({
     where: publishedOnly,
     include: productInclude,
     orderBy: orderBySku,
   })
-  return rows.map(mapDbProductToProduct)
+  return mapRowsWithAggregates(rows)
 }
 
 export async function getProductBySlugFromDb(slug: string): Promise<Product | null> {
@@ -78,7 +98,7 @@ export async function getProductsByCategorySlugFromDb(
     include: productInclude,
     orderBy: orderBySku,
   })
-  return rows.map(mapDbProductToProduct)
+  return mapRowsWithAggregates(rows)
 }
 
 export async function getAllProductSlugsFromDb(): Promise<string[]> {

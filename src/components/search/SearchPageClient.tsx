@@ -6,23 +6,28 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import ProductCard from '../product/ProductCard'
 import DiscoveryControls from './DiscoveryControls'
 import {
+  deriveMaterials,
+  filterByMaterial,
+  filterByPrice,
   filterByStatus,
+  normalizeSearchQuery,
+  parseMaterial,
+  parsePriceRange,
   parseSort,
   parseStatus,
   productCountLabel,
   searchProducts,
   sortProducts,
-  type SortKey,
-  type StatusFilter,
 } from '../../lib/catalog'
 import { useCatalog } from '../../lib/catalog/CatalogProvider'
 
 /**
- * AURELIA — SearchPageClient (client) — Этап 12A
+ * AURELIA — SearchPageClient (client) — Этап 12A; price/material Этап 64A
  *
- * Frontend-only search results. Reads q / sort / status from the URL (so they
- * survive a reload), runs the in-memory catalog search, and renders the grid
- * with empty / no-results states. No backend or API.
+ * Frontend-only search over the server-provided catalog snapshot. Reads
+ * q / sort / status / minPrice / maxPrice / material from the URL (shareable, reload-safe),
+ * runs the local word-prefix search, applies the filters + sort, and renders the grid with
+ * honest empty/no-results states. No backend, API or external search service.
  */
 
 export default function SearchPageClient() {
@@ -31,20 +36,22 @@ export default function SearchPageClient() {
   const searchParams = useSearchParams()
   const { products } = useCatalog()
 
-  const q = (searchParams.get('q') ?? '').trim()
+  const q = normalizeSearchQuery(searchParams.get('q'))
   const sort = parseSort(searchParams.get('sort'))
   const status = parseStatus(searchParams.get('status'))
+  const price = parsePriceRange(searchParams.get('minPrice'), searchParams.get('maxPrice'))
+
+  // Base matches for the query (before filters) — drives the material facet + filtering.
+  const matched = useMemo(() => (q ? searchProducts(q, products) : []), [q, products])
+  const materials = useMemo(() => deriveMaterials(matched), [matched])
+  const material = parseMaterial(searchParams.get('material'), matched) ?? null
 
   const setParams = useCallback(
-    (next: { sort?: SortKey; status?: StatusFilter }) => {
+    (next: Record<string, string | null>) => {
       const params = new URLSearchParams(searchParams.toString())
-      if (next.sort !== undefined) {
-        if (next.sort === 'recommended') params.delete('sort')
-        else params.set('sort', next.sort)
-      }
-      if (next.status !== undefined) {
-        if (next.status === 'all') params.delete('status')
-        else params.set('status', next.status)
+      for (const [key, value] of Object.entries(next)) {
+        if (value === null || value === '') params.delete(key)
+        else params.set(key, value)
       }
       const qs = params.toString()
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
@@ -52,10 +59,22 @@ export default function SearchPageClient() {
     [router, pathname, searchParams],
   )
 
-  const results = useMemo(() => {
-    if (!q) return []
-    return sortProducts(filterByStatus(searchProducts(q, products), status), sort)
-  }, [q, status, sort, products])
+  // Reset clears the filters/sort but KEEPS the search query.
+  const resetFilters = useCallback(() => {
+    const params = new URLSearchParams()
+    if (q) params.set('q', q)
+    const qs = params.toString()
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
+  }, [router, pathname, q])
+
+  const results = useMemo(
+    () =>
+      sortProducts(
+        filterByMaterial(filterByPrice(filterByStatus(matched, status), price), material),
+        sort,
+      ),
+    [matched, status, price, material, sort],
+  )
 
   // Empty query — nothing searched yet.
   if (!q) {
@@ -85,25 +104,28 @@ export default function SearchPageClient() {
 
       <DiscoveryControls
         sort={sort}
-        onSortChange={(s) => setParams({ sort: s })}
+        onSortChange={(s) => setParams({ sort: s === 'recommended' ? null : s })}
         status={status}
-        onStatusChange={(s) => setParams({ status: s })}
+        onStatusChange={(s) => setParams({ status: s === 'all' ? null : s })}
         countLabel={productCountLabel(results.length)}
+        priceMin={price.min !== undefined ? String(price.min) : ''}
+        priceMax={price.max !== undefined ? String(price.max) : ''}
+        onPriceApply={(min, max) => setParams({ minPrice: min || null, maxPrice: max || null })}
+        materials={materials}
+        material={material}
+        onMaterialChange={(m) => setParams({ material: m })}
+        onResetAll={resetFilters}
       />
 
       {results.length === 0 ? (
         <div className="au-search-state">
           <p className="au-search-state-title">Нічого не знайдено</p>
           <p className="au-search-state-sub">
-            За запитом «{q}» з обраним фільтром товарів немає. Спробуйте змінити запит
-            або скинути фільтр.
+            За запитом «{q}» з обраними фільтрами товарів немає. Спробуйте змінити запит,
+            ціну, матеріал або скинути фільтри.
           </p>
           <div className="au-search-state-actions">
-            <button
-              className="au-btn au-btn--ghost"
-              type="button"
-              onClick={() => setParams({ status: 'all', sort: 'recommended' })}
-            >
+            <button className="au-btn au-btn--ghost" type="button" onClick={resetFilters}>
               Скинути фільтри
             </button>
             <Link className="au-btn au-btn--ghost" href="/category/bijouterie">

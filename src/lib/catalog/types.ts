@@ -79,4 +79,10 @@ export interface Product {
   /** ISO creation timestamp (Этап 62A). Drives the honest "Спочатку новинки" sort.
    *  Optional/serializable — absent for mock fixtures that predate it. */
   createdAt?: string
+  /** Average of APPROVED reviews only (Этап 64A), 1-decimal; 0 when none. Computed
+   *  server-side from ProductReview — NOT the legacy `rating` column. Drives honest
+   *  rating sort; 0 (no reviews) is sorted last, never faked. */
+  approvedRating?: number
+  /** Count of APPROVED reviews only (Этап 64A); 0 when none. */
+  approvedReviewCount?: number
 }

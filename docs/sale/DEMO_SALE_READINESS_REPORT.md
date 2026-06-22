@@ -47,6 +47,7 @@ self-cleaning DB verifies; nothing committed).
 | Catalog UX / SEO (62A) | `npm run db:verify:catalog-ux` | honest rating (no fake stars), Product JSON-LD (no faked aggregateRating, UAH offers), metadata builder, sort/filter validation |
 | Account wishlist (62A) | `npm run db:verify:wishlist` | add/idempotent/remove, customer isolation, hidden-product exclusion; rolled back (nothing committed) |
 | Promotions / discounts (63A) | `npm run db:verify:promotions` | normalize, discount math (round/cap/clamp, no negative total), eligibility, order snapshot, usage-limit concurrency, no-promo compatibility; rolled back |
+| Advanced catalog UX (64A) | `npm run db:verify:advanced-catalog-ux` | price-range parse/filter, material facet (real coatings), richer search, honest approved-review rating sort, approved-only aggregate (pending/rejected/unpublished excluded); rolled back |
 | Route render | `npm run smoke:routes` | 24 routes render; admin routes **gated** when unauthenticated |
 | Authenticated admin | `npm run smoke:admin` | 9 admin surfaces (incl. reviews + promotions + email-outbox) render **with** a local session, **gated** without |
 | Build | `npm run build` | production build green |
@@ -78,6 +79,8 @@ no integration) · 🚫 not implemented / owner-gated.
 | Manual-checkout promo codes / discounts (63A) | ✅ | `db:verify:promotions`; `/admin/promotions` | **Yes, as manual** | server-authoritative %/fixed; total never negative; one code per order |
 | Admin promo management (63A) | ✅ | `smoke:admin` (`/admin/promotions`) | **Yes, local only** | create/edit/activate/archive (soft-delete); audited |
 | Gift cards / stackable promos / marketing automation | 🚫 | — (not built) | **No** | promo codes don't stack; no gift cards; no CRM/email marketing; no provider-side discounts |
+| Catalog discovery: price/material filters + rating sort + richer search (64A) | ✅ | `db:verify:advanced-catalog-ux`; `/category/*`, `/search` | **Yes** | URL-driven, shareable; rating sort = approved reviews only; material facet from real coatings |
+| AI / external search engine / merchandising automation | 🚫 | — (local search only) | **No** | no AI/semantic search, no Algolia/Elastic, no recommendation automation |
 | Sale docs / screenshots package | ✅ | `demo:sale-docs-check`; `docs/sale/` | **Yes** | screenshots predate `/account` shot (see §10) |
 | Preflight / rehearsal / smoke checks | ✅ | `demo:preflight`, `demo:rehearsal`, `smoke:*` | **Yes** | local, read-only; not a deploy |
 | Real payment provider API | 🚫 | — (manual model only) | **No** | LiqPay/WayForPay etc. not integrated |

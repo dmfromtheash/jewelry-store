@@ -110,6 +110,12 @@ owner must decide before a real launch.
   (client sends only the code; subtotal + discount recomputed from the catalog; total never
   negative; usage limit race-safe). **No** gift cards / stackable promos / marketing automation
   / payment-provider discounts.
+- **Advanced catalog discovery (64A)** — URL-driven **price range** (`minPrice`/`maxPrice`,
+  validated) + a **material/coating facet** derived from real product data + **richer local
+  search** (name/description/SKU/category/specs/material) + an **honest rating sort** (approved
+  reviews only; no-review products last, never faked) + active-filter summary/reset. All
+  shareable URLs, fully local — **no** AI/semantic search, external search engine, or
+  merchandising automation.
 - **Demo/sale readiness tooling** — `demo:preflight`, `demo:rehearsal`, `smoke:routes`,
   `smoke:admin`, `demo:sale-docs-check` (all local, read-only, no deploy; see
   [`DEMO_SALE_READINESS_REPORT.md`](./DEMO_SALE_READINESS_REPORT.md)).
@@ -136,6 +142,9 @@ owner must decide before a real launch.
 - **Gift cards, stackable promotions, automatic/marketing campaigns, CRM/email marketing,
   payment-provider discounts** — manual-checkout promo codes **are** done (63A; one code per
   order, they do not stack), but these advanced promo features are not built.
+- **AI/semantic search, external search engine (Algolia/Elasticsearch/…), merchandising
+  automation** — local price/material filters, richer search and an approved-review rating sort
+  **are** done (64A), but these advanced discovery features are not built.
 - **Production deploy** (no live hosted shop).
 - **Fiscalization (РРО/ПРРО)** / legal-compliance guarantees.
 - Full **uk-UA / EN localization** and secondary currencies (storefront copy is
