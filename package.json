@@ -46,6 +46,7 @@
     "db:verify:email-ops": "tsx prisma/verify-email-ops.ts",
     "db:verify:wishlist": "tsx prisma/verify-wishlist.ts",
     "db:verify:catalog-ux": "tsx prisma/verify-catalog-ux.ts",
+    "db:verify:promotions": "tsx prisma/verify-promotions.ts",
     "email:process:stub": "tsx prisma/email-process.ts",
     "smoke:routes": "node scripts/smoke/route-smoke.mjs",
     "smoke:admin": "node scripts/smoke/admin-smoke.mjs",

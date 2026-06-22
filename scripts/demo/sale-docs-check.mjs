@@ -23,8 +23,12 @@
  *     "email verification delivered" / "SMTP configured" are all FALSE.
  *   - Catalog UX / SEO / server-side account wishlist exist (Этап 62A: honest approved-only
  *     ratings, product/category metadata + Product JSON-LD, URL filters/sorting, DB-backed
- *     wishlist). But there is STILL no promo/discount engine — so "discount engine
- *     implemented" / "coupon system live" are FALSE.
+ *     wishlist).
+ *   - A MANUAL-checkout promo/discount foundation exists (Этап 63A: admin promo codes +
+ *     server-authoritative percent/fixed discount on the order). So "promo/discount foundation
+ *     implemented" is HONEST now. But gift cards, marketing automation/CRM, STACKABLE
+ *     promotions, automatic campaigns, and payment-provider-level discounts are NOT built — so
+ *     "gift cards implemented" / "stackable promotions" / "marketing automation live" are FALSE.
  *
  * Lines that are clearly NEGATIONS / honest disclaimers (contain ❌, "no ", "not",
  * "without", "must not", "never", "instead of", "isn't") are SKIPPED for the
@@ -90,10 +94,16 @@ const FALSE_FEATURES = [
   { re: /\b(sendgrid|mailgun|postmark|amazon\s*ses|smtp)\s+(is\s+)?(configured|integrated|connected|wired|live|enabled|set\s*up)\b/i, why: 'no email provider (SendGrid/Mailgun/SMTP/…) is configured — owner-gated' },
   { re: /\b(spf|dkim|dmarc)\b.{0,30}\b(configured|set\s*up|done|complete|passing|in\s+place)\b/i, why: 'no email DNS auth (SPF/DKIM/DMARC) is set up — owner-gated' },
   { re: /\bemail\s+provider\s+(integration\s+)?(is\s+)?(live|implemented|integrated|connected|wired)\b/i, why: 'no email provider integration is live — foundation only' },
-  // Promo/discount engine is explicitly NOT built (Этап 62A is catalog-UX/SEO/wishlist, not promo).
-  // Affirmative + negation-guarded so honest "no discount engine" wording stays fine. Deliberately
-  // scoped to a promo/discount/coupon ENGINE/SYSTEM/campaign so it can't trip catalog-UX prose.
-  { re: /\b(promo|discount|coupon|sale)\s+(engine|system|campaign|module)\s+(is\s+)?(implemented|built|live|available|enabled|integrated|done)\b/i, why: 'no promo/discount engine is implemented (not part of 62A)' },
+  // Promotions (Этап 63A): a MANUAL-checkout promo/discount foundation IS implemented (admin
+  // promo codes + server-authoritative discount). So "promo/discount foundation implemented"
+  // is now honest and must NOT be flagged. What is still NOT built — and must not be claimed —
+  // is gift cards, marketing automation/CRM, STACKABLE promotions, automatic campaigns, and any
+  // payment-provider-level discount. Affirmative + negation-guarded (honest "no …" lines pass).
+  { re: /\bgift\s*cards?\s+(are\s+)?(implemented|supported|available|live|enabled|sold|issued)\b/i, why: 'no gift cards are implemented' },
+  { re: /\b(marketing\s+automation|email\s+marketing|drip\s+campaign\w*|crm\s+integration)\s+(is\s+|are\s+)?(implemented|integrated|live|enabled|connected|available)\b/i, why: 'no marketing automation / email marketing / CRM integration is implemented' },
+  { re: /\bstackable\s+(promotions?|discounts?|coupons?|campaigns?)\s+(are\s+)?(implemented|supported|available|enabled|live)\b/i, why: 'promo codes do NOT stack (one code per order); stackable promotions are not implemented' },
+  { re: /\b(automatic|scheduled)\s+(marketing\s+)?(promo\w*|discount|campaign)s?\s+(are\s+)?(implemented|live|running|automated|enabled)\b/i, why: 'no automatic/scheduled marketing campaigns (manual promo codes only)' },
+  { re: /\b(payment|provider|gateway|acquirer)[-\s]?(level\s+)?(discounts?|coupons?|promotions?)\s+(are\s+)?(integrated|implemented|connected|live)\b/i, why: 'no payment-provider/gateway discounts (manual checkout promo codes only)' },
 ]
 
 const NEGATION = /❌|\bno\b|\bnot\b|\bnever\b|\bwithout\b|\bmust not\b|\binstead of\b|\bisn'?t\b|\baren'?t\b|\bplaceholder\b|\bdeferred\b|\bnot yet\b|\bnothing\b|\bplanning only\b|\bdemo only\b|\bno real\b/i

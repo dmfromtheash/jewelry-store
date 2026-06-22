@@ -90,6 +90,12 @@ export default async function AdminOrderDetailPage({
               <span>Подытог</span>
               <span>{formatPrice(order.subtotalAmount / 100)}</span>
             </div>
+            {order.discountMinor > 0 && (
+              <div>
+                <span>Скидка{order.promoCode ? ` (${order.promoCode})` : ''}</span>
+                <span>−{formatPrice(order.discountMinor / 100)}</span>
+              </div>
+            )}
             <div className="au-adm-totals-grand">
               <span>Итого</span>
               <span>{formatPrice(order.totalAmount / 100)}</span>

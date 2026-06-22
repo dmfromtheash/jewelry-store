@@ -40,6 +40,11 @@ export const AUDIT_ACTIONS = {
   pageUpdated: 'admin.page.updated',
   reviewApproved: 'admin.review.approved',
   reviewRejected: 'admin.review.rejected',
+  promoCreated: 'admin.promo.created',
+  promoUpdated: 'admin.promo.updated',
+  promoActivated: 'admin.promo.activated',
+  promoDeactivated: 'admin.promo.deactivated',
+  promoArchived: 'admin.promo.archived',
 } as const
 
 /** Human-readable labels for the audit-log UI (fallback: the raw action). */
@@ -61,6 +66,11 @@ export const AUDIT_ACTION_LABELS: Record<string, string> = {
   [AUDIT_ACTIONS.pageUpdated]: 'Инфо-страница обновлена',
   [AUDIT_ACTIONS.reviewApproved]: 'Отзыв одобрен',
   [AUDIT_ACTIONS.reviewRejected]: 'Отзыв отклонён',
+  [AUDIT_ACTIONS.promoCreated]: 'Промокод создан',
+  [AUDIT_ACTIONS.promoUpdated]: 'Промокод обновлён',
+  [AUDIT_ACTIONS.promoActivated]: 'Промокод активирован',
+  [AUDIT_ACTIONS.promoDeactivated]: 'Промокод деактивирован',
+  [AUDIT_ACTIONS.promoArchived]: 'Промокод архивирован',
 }
 
 export interface AuditEventInput {

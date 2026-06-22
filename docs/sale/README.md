@@ -104,6 +104,12 @@ owner must decide before a real launch.
   `aggregateRating` only with approved reviews), **URL-param filters/sorting**, and a
   **server-side account wishlist** (`/account` «Обране»; `customerId`-scoped; **guest
   localStorage favourites preserved**). No promo/discount engine.
+- **Promotions / discounts (63A)** — **manual-checkout promo codes** managed in
+  `/admin/promotions` (percent or fixed ₴, min subtotal, max-discount cap, validity window,
+  usage limit, activate/deactivate, **soft-archive**). The discount is **server-authoritative**
+  (client sends only the code; subtotal + discount recomputed from the catalog; total never
+  negative; usage limit race-safe). **No** gift cards / stackable promos / marketing automation
+  / payment-provider discounts.
 - **Demo/sale readiness tooling** — `demo:preflight`, `demo:rehearsal`, `smoke:routes`,
   `smoke:admin`, `demo:sale-docs-check` (all local, read-only, no deploy; see
   [`DEMO_SALE_READINESS_REPORT.md`](./DEMO_SALE_READINESS_REPORT.md)).
@@ -127,8 +133,9 @@ owner must decide before a real launch.
   foundation** exist (59A/60A) but **nothing is sent** — no provider; no link is delivered.
 - **Verified-purchase reviews / photos in reviews** (reviews are **moderated**, no proof of
   purchase) — the moderated review mechanism itself **is** done (59A).
-- **Promo / discount / coupon engine** — catalog UX, SEO/meta and the server-side account
-  wishlist **are** done (62A), but no discount/promo engine is built.
+- **Gift cards, stackable promotions, automatic/marketing campaigns, CRM/email marketing,
+  payment-provider discounts** — manual-checkout promo codes **are** done (63A; one code per
+  order, they do not stack), but these advanced promo features are not built.
 - **Production deploy** (no live hosted shop).
 - **Fiscalization (РРО/ПРРО)** / legal-compliance guarantees.
 - Full **uk-UA / EN localization** and secondary currencies (storefront copy is

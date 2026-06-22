@@ -71,6 +71,18 @@ export default async function AccountOrderDetailPage({
               ))}
             </ul>
 
+            {order.discountMinor > 0 && (
+              <>
+                <div className="au-co-total">
+                  <span>Сума</span>
+                  <span className="au-co-total-val">{formatPrice(order.subtotalAmount / 100)}</span>
+                </div>
+                <div className="au-co-total">
+                  <span>Знижка{order.promoCode ? ` (${order.promoCode})` : ''}</span>
+                  <span className="au-co-total-val">−{formatPrice(order.discountMinor / 100)}</span>
+                </div>
+              </>
+            )}
             <div className="au-co-total">
               <span>Разом</span>
               <span className="au-co-total-val">{formatPrice(order.totalAmount / 100)}</span>

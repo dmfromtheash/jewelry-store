@@ -46,8 +46,9 @@ self-cleaning DB verifies; nothing committed).
 | Email ops + recovery (60A) | `npm run db:verify:email-ops` | no-send provider facade, outbox processing, hashed single-use reset + verification tokens, session revocation (33 checks); nothing sent |
 | Catalog UX / SEO (62A) | `npm run db:verify:catalog-ux` | honest rating (no fake stars), Product JSON-LD (no faked aggregateRating, UAH offers), metadata builder, sort/filter validation |
 | Account wishlist (62A) | `npm run db:verify:wishlist` | add/idempotent/remove, customer isolation, hidden-product exclusion; rolled back (nothing committed) |
-| Route render | `npm run smoke:routes` | 23 routes render; admin routes **gated** when unauthenticated |
-| Authenticated admin | `npm run smoke:admin` | 8 admin surfaces (incl. reviews + email-outbox) render **with** a local session, **gated** without |
+| Promotions / discounts (63A) | `npm run db:verify:promotions` | normalize, discount math (round/cap/clamp, no negative total), eligibility, order snapshot, usage-limit concurrency, no-promo compatibility; rolled back |
+| Route render | `npm run smoke:routes` | 24 routes render; admin routes **gated** when unauthenticated |
+| Authenticated admin | `npm run smoke:admin` | 9 admin surfaces (incl. reviews + promotions + email-outbox) render **with** a local session, **gated** without |
 | Build | `npm run build` | production build green |
 
 ## 2a. Sale claims matrix
@@ -74,6 +75,9 @@ no integration) · 🚫 not implemented / owner-gated.
 | Honest approved-only product rating (62A) | ✅ | `db:verify:catalog-ux`; `/product/[slug]` | **Yes** | no fake 5-star when 0 approved reviews |
 | Catalog filters / sorting (62A) | ✅ | `db:verify:catalog-ux` | **Yes** | URL params; invalid params fall back safely |
 | Server-side account wishlist (62A) | ✅ | `db:verify:wishlist`; `/account` | **Yes** | `customerId`-scoped; published-only; guest localStorage preserved |
+| Manual-checkout promo codes / discounts (63A) | ✅ | `db:verify:promotions`; `/admin/promotions` | **Yes, as manual** | server-authoritative %/fixed; total never negative; one code per order |
+| Admin promo management (63A) | ✅ | `smoke:admin` (`/admin/promotions`) | **Yes, local only** | create/edit/activate/archive (soft-delete); audited |
+| Gift cards / stackable promos / marketing automation | 🚫 | — (not built) | **No** | promo codes don't stack; no gift cards; no CRM/email marketing; no provider-side discounts |
 | Sale docs / screenshots package | ✅ | `demo:sale-docs-check`; `docs/sale/` | **Yes** | screenshots predate `/account` shot (see §10) |
 | Preflight / rehearsal / smoke checks | ✅ | `demo:preflight`, `demo:rehearsal`, `smoke:*` | **Yes** | local, read-only; not a deploy |
 | Real payment provider API | 🚫 | — (manual model only) | **No** | LiqPay/WayForPay etc. not integrated |

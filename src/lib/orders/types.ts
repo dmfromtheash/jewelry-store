@@ -33,6 +33,9 @@ export interface OrderDraftInput {
   deliveryComment?: string
   paymentMethod: string
   items: OrderDraftItemInput[]
+  /** Optional promo code STRING (Этап 63A). The server normalises + re-validates it and
+   *  recomputes the discount authoritatively — a client discount/total is never trusted. */
+  promoCode?: string
 }
 
 /** Max length for the optional free-text delivery note. */
@@ -54,6 +57,7 @@ export type OrderFieldErrors = Partial<
     | 'deliveryBranch'
     | 'deliveryComment'
     | 'paymentMethod'
+    | 'promoCode'
     | 'items',
     string
   >

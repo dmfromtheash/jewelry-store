@@ -5,8 +5,9 @@ import Link from 'next/link'
 import { useCart } from '../cart/CartProvider'
 import { formatPrice } from '../../lib/catalog'
 import { createOrderDraft } from '../../lib/orders/actions'
+import { previewPromoAction } from '../../lib/promo/actions'
 import { validateOrderDraftFields, hasErrors } from '../../lib/orders/validate'
-import type { OrderDraftInput, OrderFieldErrors } from '../../lib/orders/types'
+import type { OrderDraftInput, OrderDraftItemInput, OrderFieldErrors } from '../../lib/orders/types'
 import {
   DELIVERY_METHODS,
   PAYMENT_METHODS,
@@ -41,6 +42,18 @@ interface OrderConfirmation {
   deliveryMethod: string
   deliveryBranch: string
   deliveryDetails: string
+  /** Applied promo snapshot (Этап 63A): null = no promo. Display-only; the server is
+   *  authoritative on the stored amounts. */
+  promoCode: string | null
+  discountMinor: number
+  totalMinor: number
+}
+
+/** A successfully PREVIEWED promo (server-validated). Display-only; re-validated at submit. */
+interface AppliedPromo {
+  code: string
+  discountMinor: number
+  totalMinor: number
 }
 
 const GemIcon = () => (
@@ -95,6 +108,48 @@ export default function CheckoutPageClient({
   const [generalError, setGeneralError] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
 
+  // Promo code (Этап 63A). `applied` is a server-validated PREVIEW; the order action
+  // re-validates + recomputes the discount authoritatively at submit.
+  const [promoInput, setPromoInput] = useState('')
+  const [appliedPromo, setAppliedPromo] = useState<AppliedPromo | null>(null)
+  const [promoError, setPromoError] = useState<string | null>(null)
+  const [promoPending, setPromoPending] = useState(false)
+
+  // The cart lines the server prices (slug + qty + optional variantId). Shared by the
+  // promo preview and the order submit so both price the exact same cart.
+  const buildItems = (): OrderDraftItemInput[] =>
+    lines.map((line) => ({ slug: line.slug, qty: line.qty, variantId: line.variantId }))
+
+  async function handleApplyPromo() {
+    const code = promoInput.trim()
+    if (!code || promoPending || lines.length === 0) return
+    setPromoPending(true)
+    setPromoError(null)
+    try {
+      const res = await previewPromoAction(code, buildItems())
+      if (res.ok) {
+        setAppliedPromo({ code: res.code, discountMinor: res.discountMinor, totalMinor: res.totalMinor })
+        setPromoInput(res.code)
+        setErrors((prev) => ({ ...prev, promoCode: undefined }))
+      } else {
+        setAppliedPromo(null)
+        setPromoError(res.error)
+      }
+    } catch {
+      setAppliedPromo(null)
+      setPromoError('Не вдалося перевірити промокод. Спробуйте ще раз.')
+    } finally {
+      setPromoPending(false)
+    }
+  }
+
+  function handleRemovePromo() {
+    setAppliedPromo(null)
+    setPromoInput('')
+    setPromoError(null)
+    setErrors((prev) => ({ ...prev, promoCode: undefined }))
+  }
+
   // begin_checkout: fire once when the cart first has items (cart hydrates from
   // localStorage after mount). Counts/totals only — never any contact data.
   const beganCheckout = useRef(false)
@@ -143,7 +198,10 @@ export default function CheckoutPageClient({
       // (the server independently re-checks isPublished as the hard guarantee).
       // variantId is forwarded when present (Этап 30D) — the server resolves the
       // default when it is absent and recomputes the price either way.
-      items: lines.map((line) => ({ slug: line.slug, qty: line.qty, variantId: line.variantId })),
+      items: buildItems(),
+      // Only the server-validated, applied code is sent (Этап 63A). The server re-validates
+      // it and recomputes the discount — a tampered discount/total is never trusted.
+      promoCode: appliedPromo?.code,
     }
 
     // Instant UX feedback using the SAME rules the server enforces.
@@ -166,9 +224,19 @@ export default function CheckoutPageClient({
           deliveryMethod: payload.deliveryMethod,
           deliveryBranch: payload.deliveryBranch ?? '',
           deliveryDetails: payload.deliveryDetails ?? '',
+          // Promo snapshot from the validated preview (server stored the authoritative amounts).
+          promoCode: appliedPromo?.code ?? null,
+          discountMinor: appliedPromo?.discountMinor ?? 0,
+          totalMinor: appliedPromo ? appliedPromo.totalMinor : Math.round(subtotal * 100),
         })
         clear() // order is persisted server-side; safe to empty the local cart
         return // confirmation view takes over (keeps `pending` irrelevant)
+      }
+      // A rejected/exhausted promo at submit: drop the stale preview so the shown total
+      // reverts to the full subtotal and the customer can retry or remove it.
+      if (result.fieldErrors?.promoCode) {
+        setAppliedPromo(null)
+        setPromoError(result.fieldErrors.promoCode)
       }
       setErrors(result.fieldErrors ?? {})
       setGeneralError(result.error)
@@ -217,6 +285,20 @@ export default function CheckoutPageClient({
                 <span className="au-co-line-meta">Адреса</span>
                 <span className="au-co-line-name">{confirmation.deliveryDetails}</span>
               </li>
+            )}
+            {confirmation.discountMinor > 0 && (
+              <>
+                <li className="au-co-line">
+                  <span className="au-co-line-meta">Промокод</span>
+                  <span className="au-co-line-name">
+                    {confirmation.promoCode} (−{formatPrice(confirmation.discountMinor / 100)})
+                  </span>
+                </li>
+                <li className="au-co-line">
+                  <span className="au-co-line-meta">Сума до сплати</span>
+                  <span className="au-co-line-name"><strong>{formatPrice(confirmation.totalMinor / 100)}</strong></span>
+                </li>
+              </>
             )}
           </ul>
 
@@ -473,10 +555,63 @@ export default function CheckoutPageClient({
             </p>
           )}
 
-          <div className="au-co-total">
-            <span>Разом</span>
-            <span className="au-co-total-val">{formatPrice(subtotal)}</span>
+          {/* Promo code (Этап 63A). Minimal, reuses existing field/line classes — no new
+              layout. The server validates the code and recomputes the discount; the client
+              only previews it. */}
+          <div className="au-field au-co-promo">
+            <label htmlFor="co-promo">Промокод</label>
+            <div className="au-co-row">
+              <input
+                id="co-promo"
+                type="text"
+                placeholder="Напр.: WELCOME10"
+                value={promoInput}
+                onChange={(e) => setPromoInput(e.target.value)}
+                disabled={!!appliedPromo || lines.length === 0}
+                aria-invalid={!!promoError}
+              />
+              {appliedPromo ? (
+                <button className="au-btn au-btn--ghost" type="button" onClick={handleRemovePromo}>
+                  Прибрати
+                </button>
+              ) : (
+                <button
+                  className="au-btn au-btn--ghost"
+                  type="button"
+                  onClick={handleApplyPromo}
+                  disabled={promoPending || promoInput.trim().length === 0 || lines.length === 0}
+                >
+                  {promoPending ? 'Перевірка…' : 'Застосувати'}
+                </button>
+              )}
+            </div>
+            {promoError && <p className="au-field-error">{promoError}</p>}
+            {appliedPromo && (
+              <p className="au-co-note">Промокод {appliedPromo.code} застосовано.</p>
+            )}
           </div>
+
+          {appliedPromo ? (
+            <>
+              <div className="au-co-line">
+                <span className="au-co-line-meta">Сума</span>
+                <span className="au-co-line-name">{formatPrice(subtotal)}</span>
+              </div>
+              <div className="au-co-line">
+                <span className="au-co-line-meta">Знижка</span>
+                <span className="au-co-line-name">−{formatPrice(appliedPromo.discountMinor / 100)}</span>
+              </div>
+              <div className="au-co-total">
+                <span>До сплати</span>
+                <span className="au-co-total-val">{formatPrice(appliedPromo.totalMinor / 100)}</span>
+              </div>
+            </>
+          ) : (
+            <div className="au-co-total">
+              <span>Разом</span>
+              <span className="au-co-total-val">{formatPrice(subtotal)}</span>
+            </div>
+          )}
 
           {(generalError || errors.items) && (
             <p className="au-field-error" role="alert">

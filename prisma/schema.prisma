@@ -190,8 +190,19 @@ model Order {
   /// is confirmed manually.
   paymentMethod  String
 
-  subtotalAmount Int         // minor units (kopecks)
-  totalAmount    Int         // minor units (kopecks)
+  subtotalAmount Int         // minor units (kopecks) — sum of line totals BEFORE any discount
+  /// Promo discount applied to this order in integer MINOR units (Этап 63A). Default 0,
+  /// so every pre-63A order stays valid and unchanged. Server-authoritative: recomputed
+  /// from the catalog + the promo rules at checkout, never trusted from the client.
+  /// Invariant: 0 <= discountMinor <= subtotalAmount, and totalAmount = subtotalAmount - discountMinor.
+  discountMinor  Int         @default(0)
+  /// Loose reference to the PromoCode applied (Этап 63A). No FK / no cascade — like
+  /// OrderItem.productId, so the order survives a promo being archived/removed. Null = no promo.
+  promoCodeId    String?
+  /// Snapshot of the normalised promo code text applied (Этап 63A), kept for audit/display
+  /// even if the PromoCode is later renamed/archived. Null = no promo.
+  promoCode      String?
+  totalAmount    Int         // minor units (kopecks) — FINAL total = subtotalAmount - discountMinor
   currency       String      @default("UAH")
 
   items          OrderItem[]
@@ -200,6 +211,62 @@ model Order {
 
   @@index([status])
   @@index([customerId])
+}
+
+/// Discount kind for a PromoCode (Этап 63A). `percent` uses `percentValue` (whole percent,
+/// 1–100); `fixed_amount` uses `amountMinor` (integer minor units).
+enum PromoType {
+  percent
+  fixed_amount
+}
+
+/// Manual-checkout promotion / discount code (Этап 63A — promotions foundation).
+/// Server-authoritative: a customer may submit only the code STRING; the server recomputes
+/// the subtotal from the catalog and the discount from these rules — a client can never set
+/// its own discount or total. NO payment-provider / marketing-automation / gift-card / CRM
+/// integration: this is a manual-checkout discount only.
+///
+/// Money + safety by construction:
+///   - all money is integer MINOR units (kopecks); percent is a whole-number 1–100. No floats.
+///   - `code` is stored normalised UPPERCASE and is unique; lookups normalise the input.
+///   - soft-delete only (`archivedAt`) — codes are never hard-deleted, so order history that
+///     references a code stays auditable.
+///   - `usedCount` is incremented transactionally INSIDE the order commit (guarded by
+///     `usageLimit`), so a code can't be over-redeemed under concurrent checkout.
+model PromoCode {
+  id               String    @id @default(cuid())
+  /// Normalised UPPERCASE code the customer types, e.g. "WELCOME10". Unique.
+  code             String    @unique
+  /// Admin-facing label / internal name (not shown publicly).
+  internalName     String
+  type             PromoType
+  /// Whole percent 1–100 when `type = percent`; null for fixed.
+  percentValue     Int?
+  /// Discount amount in integer MINOR units when `type = fixed_amount`; null for percent.
+  amountMinor      Int?
+  /// Currency for a fixed-amount discount; must match the order currency (UAH today).
+  currency         String    @default("UAH")
+  isActive         Boolean   @default(true)
+  /// Optional validity window (inclusive start / exclusive end). Null = unbounded.
+  startsAt         DateTime?
+  endsAt           DateTime?
+  /// Minimum order subtotal (minor units) required to use the code. Null = no minimum.
+  minSubtotalMinor Int?
+  /// Caps a PERCENT discount at this many minor units. Null = uncapped.
+  maxDiscountMinor Int?
+  /// Max total redemptions. Null = unlimited. Enforced transactionally via `usedCount`.
+  usageLimit       Int?
+  /// Successful redemptions so far. Incremented only inside a committed order tx.
+  usedCount        Int       @default(0)
+  /// Optional admin notes (plain text, validated on write).
+  notes            String?
+  /// Soft-delete marker (Этап 63A). Non-null = archived/hidden; never hard-deleted.
+  archivedAt       DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([isActive])
+  @@index([archivedAt])
 }
 
 /// Storefront customer account (Этап 47A). Additive + guest-first: accounts are

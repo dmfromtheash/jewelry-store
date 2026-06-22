@@ -38,6 +38,8 @@ provider decisions + imagery — not core engineering.
 - Catalog UX & SEO (62A): honest approved-only product ratings, product/category metadata +
   Product JSON-LD, URL-param filters/sorting, and a **server-side account wishlist**
   (`customerId`-scoped; guest localStorage favourites preserved)
+- Manual-checkout **promo codes / discounts** (63A): admin-managed percent/fixed codes,
+  server-authoritative discount (total never negative), usage-limit-safe, audited
 - Screenshots and sale/handoff docs
 
 ## What is not implemented yet
@@ -55,8 +57,9 @@ provider decisions + imagery — not core engineering.
 - **Further account hardening** — guest-order linking, per-device session management, and
   **multi-instance** rate limiting (deferred). *(Durable single-instance rate limiting and
   customer-auth audit logging are already done — 49A/51A.)*
-- **Promo / discount / coupon engine** (deferred). *(Catalog UX, SEO/meta and the server-side
-  account wishlist are already done — 62A.)*
+- **Gift cards, stackable promotions, automatic/marketing campaigns, CRM/email marketing,
+  payment-provider discounts** (deferred). *(Manual-checkout promo codes / discounts are already
+  done — 63A; they do not stack — one code per order.)*
 
 These are deliberate, separately-scoped next steps — not hidden defects.
 

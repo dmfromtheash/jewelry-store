@@ -214,6 +214,9 @@ const CUSTOMER_ORDER_DETAIL_SELECT = {
   deliveryComment: true,
   paymentMethod: true,
   subtotalAmount: true,
+  // Promo/discount snapshot (Этап 63A). 0 / null on every pre-63A order.
+  discountMinor: true,
+  promoCode: true,
   totalAmount: true,
   currency: true,
   createdAt: true,
