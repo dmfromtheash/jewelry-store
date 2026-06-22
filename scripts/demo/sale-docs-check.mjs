@@ -128,6 +128,18 @@ const FALSE_FEATURES = [
   { re: /\badmin\s+(panel\s+|ui\s+|dashboard\s+)?(can\s+)?(run|runs|execute|executes|trigger|triggers)\s+(shell|terminal|cli|npm|bash|server)\b/i, why: 'the web admin cannot run shell/CLI commands — command names are shown as text only' },
   { re: /\b(shell|terminal|cli)\s+commands?\s+(can\s+be\s+)?(run|executed|triggered)\s+from\s+(the\s+)?(web\s+)?admin\b/i, why: 'no shell/CLI execution from the web admin' },
   { re: /\b(external\s+)?(analytics|bi|business\s+intelligence)\s+(platform|provider|service|suite|integration)\s+(is\s+)?(integrated|implemented|connected|live|enabled)\b/i, why: 'no external analytics/BI platform is integrated (local counts only)' },
+  // Admin customers + support view (Этап 68A): a READ-ONLY admin customer list/detail + support
+  // summary + safe aggregates IS implemented, so "admin customer support view / customer summary /
+  // safe customer aggregates implemented" is HONEST and must NOT be flagged. What is NOT built —
+  // and must not be claimed: a full CRM platform, an external support-desk/helpdesk integration,
+  // customer impersonation, public customer admin, and any visibility/management of token VALUES.
+  // Affirmative + negation-guarded (honest "no CRM" / "not a support desk" lines pass).
+  { re: /\b(full\s+|complete\s+)?crm\s+(platform|system|suite)?\s*(is\s+)?(implemented|integrated|built|live|available|ready)\b/i, why: 'no CRM platform — admin has a read-only customer support view only' },
+  { re: /\b(support\s+desk|help\s*desk|helpdesk|ticketing|zendesk|intercom|freshdesk)\s+(integration\s+)?(is\s+)?(integrated|implemented|connected|live|enabled)\b/i, why: 'no external support-desk/helpdesk integration (read-only support summary only)' },
+  { re: /\b(customer\s+)?impersonat\w+\s+(is\s+|are\s+)?(implemented|available|supported|enabled|possible|allowed|live|added|built)\b/i, why: 'no customer impersonation — the admin customer area is strictly read-only' },
+  { re: /\b(log|sign)\s*in\s+as\s+(a\s+)?customer\s+(is\s+)?(implemented|available|supported|enabled|possible|allowed|works|works\s+now)\b/i, why: 'no "log in as customer" — the admin customer area is strictly read-only' },
+  { re: /\b(customer\s+)?(reset|verification|recovery|account)\s+tokens?\s+(values?\s+)?(are\s+)?(visible|shown|displayed|exposed|editable|manageable|revealed)\b/i, why: 'customer token VALUES are never visible/managed — only hashed, reported as counts' },
+  { re: /\bpublic\s+customer\s+admin\s+(is\s+)?(ready|available|live|enabled|exposed)\b/i, why: 'the customer admin is local-only by design; never public' },
 ]
 
 const NEGATION = /❌|\bno\b|\bnot\b|\bnever\b|\bwithout\b|\bmust not\b|\binstead of\b|\bisn'?t\b|\baren'?t\b|\bplaceholder\b|\bdeferred\b|\bnot yet\b|\bnothing\b|\bplanning only\b|\bdemo only\b|\bno real\b/i

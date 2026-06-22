@@ -128,7 +128,7 @@ async function main() {
     '/admin/login', // local-only login page renders in dev
   ]
 
-  const adminRoutes = ['/admin/audit-log', '/admin/orders', '/admin/catalog', '/admin/dashboard', '/admin/promotions']
+  const adminRoutes = ['/admin/audit-log', '/admin/orders', '/admin/catalog', '/admin/dashboard', '/admin/promotions', '/admin/customers']
 
   for (const r of publicRoutes) await expectOk(r)
   for (const r of adminRoutes) await expectGatedAdmin(r)

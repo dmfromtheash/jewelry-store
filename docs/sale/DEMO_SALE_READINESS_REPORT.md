@@ -49,8 +49,9 @@ self-cleaning DB verifies; nothing committed).
 | Promotions / discounts (63A) | `npm run db:verify:promotions` | normalize, discount math (round/cap/clamp, no negative total), eligibility, order snapshot, usage-limit concurrency, no-promo compatibility; rolled back |
 | Advanced catalog UX (64A) | `npm run db:verify:advanced-catalog-ux` | price-range parse/filter, material facet (real coatings), richer search, honest approved-review rating sort, approved-only aggregate (pending/rejected/unpublished excluded); rolled back |
 | Admin operations dashboard (65A) | `npm run db:verify:admin-dashboard` | promo classification, attention queue + severity, readiness warnings, SAFE email projection (no recipient/subject/note/lastError), customer verified/unverified counts; rolled back |
-| Route render | `npm run smoke:routes` | 24 routes render; admin routes **gated** when unauthenticated |
-| Authenticated admin | `npm run smoke:admin` | 10 admin surfaces (incl. dashboard + reviews + promotions + email-outbox) render **with** a local session, **gated** without |
+| Admin customers + support (68A) | `npm run db:verify:admin-customers` | support indicators, list aggregates + last-order, SAFE customer projection (no passwordHash), SAFE outbox projection, token COUNTS only (no value/hash), support signals; rolled back |
+| Route render | `npm run smoke:routes` | 25 routes render; admin routes **gated** when unauthenticated |
+| Authenticated admin | `npm run smoke:admin` | 11 admin surfaces (incl. dashboard + reviews + customers + promotions + email-outbox) render **with** a local session, **gated** without |
 | Build | `npm run build` | production build green |
 
 ## 2a. Sale claims matrix
@@ -84,6 +85,8 @@ no integration) · 🚫 not implemented / owner-gated.
 | AI / external search engine / merchandising automation | 🚫 | — (local search only) | **No** | no AI/semantic search, no Algolia/Elastic, no recommendation automation |
 | Admin operations dashboard + attention queue (65A) | ✅ | `db:verify:admin-dashboard`; `smoke:admin` (`/admin/dashboard`) | **Yes, local only** | real-data overview + owner-gated warnings; safe aggregates only |
 | Web admin runs shell commands / external BI integration | 🚫 | — (text-only command names; local counts) | **No** | no command execution from the admin UI; no external BI/analytics |
+| Admin customers + support summary (68A) | ✅ | `db:verify:admin-customers`; `smoke:admin` (`/admin/customers`) | **Yes, local only** | read-only support view; safe aggregates + indicators; no secrets/tokens shown |
+| Full CRM / support-desk / customer impersonation | 🚫 | — (read-only support view only) | **No** | not a CRM; no Zendesk/Intercom; no "log in as customer"; token values never shown |
 | Sale docs / screenshots package | ✅ | `demo:sale-docs-check`; `docs/sale/` | **Yes** | screenshots predate `/account` shot (see §10) |
 | Preflight / rehearsal / smoke checks | ✅ | `demo:preflight`, `demo:rehearsal`, `smoke:*` | **Yes** | local, read-only; not a deploy |
 | Real payment provider API | 🚫 | — (manual model only) | **No** | LiqPay/WayForPay etc. not integrated |

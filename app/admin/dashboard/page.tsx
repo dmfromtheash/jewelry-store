@@ -214,9 +214,11 @@ export default async function AdminDashboardPage() {
         <KpiCard label="В избранном (всего)" value={String(customers.wishlistItems)} />
       </div>
       <p className="au-adm-note">
-        По покупателям показываются только агрегаты — персональные данные (e-mail и т. п.) здесь
-        не выводятся.
+        На дашборде показываются только агрегаты. Детали по конкретному покупателю (заказы,
+        отзывы, избранное, статус писем) — в разделе «Покупатели» (только просмотр, без
+        редактирования и без секретов/токенов).
       </p>
+      <p className="au-adm-cta"><Link className="au-adm-link" href="/admin/customers">Покупатели →</Link></p>
 
       {/* ---- Readiness / owner-gated ---- */}
       <h2 className="au-adm-section-title">Готовность (под решение владельца)</h2>
@@ -244,6 +246,7 @@ export default async function AdminDashboardPage() {
           <Link className="au-btn au-btn--primary" href="/admin/orders">Заказы</Link>
           <Link className="au-btn au-btn--ghost" href="/admin/catalog">Каталог</Link>
           <Link className="au-btn au-btn--ghost" href="/admin/reviews">Отзывы</Link>
+          <Link className="au-btn au-btn--ghost" href="/admin/customers">Покупатели</Link>
           <Link className="au-btn au-btn--ghost" href="/admin/promotions">Промокоды</Link>
           <Link className="au-btn au-btn--ghost" href="/admin/email-outbox">Письма</Link>
           <Link className="au-btn au-btn--ghost" href="/admin/settings">Настройки</Link>

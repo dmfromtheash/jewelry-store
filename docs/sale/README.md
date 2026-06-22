@@ -123,6 +123,9 @@ owner must decide before a real launch.
   deployed / admin local-only / placeholder imagery / no external BI). Safe aggregates only —
   no secrets/tokens/email bodies/PII; readiness command names are **documentation text**, the
   web admin never executes anything.
+- **Admin customers + support view (68A)** — read-only `/admin/customers` (list + per-customer
+  support summary: orders / reviews / wishlist / email status + honest support indicators). Safe
+  aggregates only; **not a CRM**, no impersonation, no token values shown.
 - **Demo/sale readiness tooling** — `demo:preflight`, `demo:rehearsal`, `smoke:routes`,
   `smoke:admin`, `demo:sale-docs-check` (all local, read-only, no deploy; see
   [`DEMO_SALE_READINESS_REPORT.md`](./DEMO_SALE_READINESS_REPORT.md)).

@@ -48,6 +48,7 @@
     "db:verify:catalog-ux": "tsx prisma/verify-catalog-ux.ts",
     "db:verify:advanced-catalog-ux": "tsx prisma/verify-advanced-catalog-ux.ts",
     "db:verify:admin-dashboard": "tsx prisma/verify-admin-dashboard.ts",
+    "db:verify:admin-customers": "tsx prisma/verify-admin-customers.ts",
     "db:verify:promotions": "tsx prisma/verify-promotions.ts",
     "email:process:stub": "tsx prisma/email-process.ts",
     "smoke:routes": "node scripts/smoke/route-smoke.mjs",

@@ -44,6 +44,8 @@ provider decisions + imagery — not core engineering.
   richer local search, and an **honest rating sort** (approved reviews only) — shareable URLs
 - Admin **operations dashboard** (65A): real-data overview (orders/reviews/promos/email/catalog/
   customers) + a **"needs attention" queue** + owner-gated readiness warnings (local, safe aggregates)
+- Admin **customers + support view** (68A): read-only `/admin/customers` list + per-customer support
+  summary (orders/reviews/wishlist/email status + indicators); safe aggregates only — no secrets/tokens
 - Screenshots and sale/handoff docs
 
 ## What is not implemented yet
