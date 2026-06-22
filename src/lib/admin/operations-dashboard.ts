@@ -71,6 +71,8 @@ export interface AttentionInput {
   promos: { exhausted: number; expiringSoon: number }
   catalog: { withoutPrice: number; withoutImage: number; zeroStockPurchasable: number }
   customers: { unverified: number }
+  /** Active product interests ("back-in-stock") waiting on the owner (Этап 69A). */
+  interests: { active: number }
 }
 
 /**
@@ -94,6 +96,7 @@ export function buildAttentionQueue(input: AttentionInput): AttentionItem[] {
   add(input.promos.exhausted > 0, { key: 'promo-exhausted', label: 'Промокоды исчерпали лимит', count: input.promos.exhausted, severity: 'info', href: '/admin/promotions' })
   add(input.promos.expiringSoon > 0, { key: 'promo-expiring', label: 'Промокоды скоро истекают', count: input.promos.expiringSoon, severity: 'info', href: '/admin/promotions' })
   add(input.catalog.withoutImage > 0, { key: 'catalog-noimage', label: 'Товары без изображения (демо-плейсхолдер)', count: input.catalog.withoutImage, severity: 'info', href: '/admin/catalog' })
+  add(input.interests.active > 0, { key: 'product-interest', label: 'Ожидания поступления товаров (письма не отправляются)', count: input.interests.active, severity: 'info', href: '/admin/customers' })
   add(input.customers.unverified > 0, { key: 'customers-unverified', label: 'Аккаунты без подтверждённого e-mail', count: input.customers.unverified, severity: 'info', href: '/admin/customers?verified=unverified' })
 
   const rank: Record<AttentionSeverity, number> = { action: 0, warn: 1, info: 2 }

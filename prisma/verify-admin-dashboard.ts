@@ -63,6 +63,7 @@ async function main() {
     promos: { exhausted: 0, expiringSoon: 0 },
     catalog: { withoutPrice: 0, withoutImage: 0, zeroStockPurchasable: 0 },
     customers: { unverified: 0 },
+    interests: { active: 0 },
   }
   check('empty inputs → empty queue', buildAttentionQueue(zero).length === 0)
 
@@ -72,10 +73,12 @@ async function main() {
     reviews: { pending: 3 },
     email: { queued: 5, failed: 0 },
     promos: { exhausted: 1, expiringSoon: 0 },
+    interests: { active: 4 },
   })
   check('queue surfaces submitted orders as action', some.some((i) => i.key === 'orders-submitted' && i.severity === 'action' && i.count === 2))
   check('queue surfaces pending reviews as action', some.some((i) => i.key === 'reviews-pending' && i.severity === 'action'))
   check('queue surfaces queued email as warn', some.some((i) => i.key === 'email-queued' && i.severity === 'warn'))
+  check('queue surfaces active product interest as info', some.some((i) => i.key === 'product-interest' && i.severity === 'info' && i.count === 4))
   check('queue excludes zero-count conditions (no email-failed)', !some.some((i) => i.key === 'email-failed'))
   check('queue ordered action → warn → info', (() => {
     const rank = { action: 0, warn: 1, info: 2 } as const

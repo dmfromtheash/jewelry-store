@@ -49,7 +49,7 @@ export default async function AdminCustomerDetailPage({
   const data = await getAdminCustomerDetail(decodeURIComponent(customerId))
   if (!data) notFound()
 
-  const { profile, counts, recentOrders, reviews, wishlist, recentEmail, indicators } = data
+  const { profile, engagement, counts, recentOrders, reviews, wishlist, interests, recentEmail, indicators } = data
 
   return (
     <div className="au-container au-adm">
@@ -59,7 +59,9 @@ export default async function AdminCustomerDetailPage({
             ← Все покупатели
           </Link>
           <h1 className="au-adm-title">{profile.name ?? profile.email}</h1>
-          <span className="au-adm-sub">ID {profile.shortId} · {profile.email}</span>
+          <span className="au-adm-sub">
+            ID {profile.shortId} · {profile.email} · {engagement.label} (информационно, без баллов/денег)
+          </span>
         </div>
         {profile.emailVerified ? (
           <span className="au-adm-badge au-adm-badge--approved">E-mail подтверждён</span>
@@ -208,6 +210,36 @@ export default async function AdminCustomerDetailPage({
             )}
           </div>
 
+          {/* Product interest / back-in-stock (Этап 69A) — record-keeping only, NO emails sent. */}
+          <div className="au-adm-card">
+            <h2 className="au-adm-card-title">Ожидания поступления ({counts.activeInterests})</h2>
+            <p className="au-adm-note">
+              Покупатель отметил «сообщить, когда будет доступно». Письма НЕ отправляются (нет
+              провайдера) — это список ожидания для ручной обработки владельцем.
+            </p>
+            {interests.length === 0 ? (
+              <p className="au-adm-note">Активных ожиданий нет.</p>
+            ) : (
+              <ul className="au-adm-feed">
+                {interests.map((it) => (
+                  <li key={it.id} className="au-adm-feed-row">
+                    <span className="au-adm-feed-main">
+                      <Link className="au-adm-link" href={`/product/${it.slug}`}>{it.name}</Link>
+                    </span>
+                    <span className="au-adm-feed-aside">
+                      {it.available ? (
+                        <span className="au-adm-badge au-adm-badge--approved">В продаже</span>
+                      ) : (
+                        <span className="au-adm-badge au-adm-badge--pending">Ожидается</span>
+                      )}
+                      <span className="au-adm-feed-time">{dayFmt.format(it.createdAt)}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
           {/* Email / support */}
           <div className="au-adm-card">
             <h2 className="au-adm-card-title">Письма (outbox) ({counts.emailEvents})</h2>
@@ -276,6 +308,10 @@ export default async function AdminCustomerDetailPage({
               <dd>{counts.reviews}</dd>
               <dt>Избранное</dt>
               <dd>{counts.wishlist}</dd>
+              <dt>Сохранённые поиски</dt>
+              <dd>{counts.savedSearches}</dd>
+              <dt>Ожидания (back-in-stock)</dt>
+              <dd>{counts.activeInterests}</dd>
               <dt>События писем</dt>
               <dd>{counts.emailEvents}</dd>
             </dl>

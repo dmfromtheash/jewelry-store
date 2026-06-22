@@ -39,6 +39,11 @@
  *     implemented" is HONEST. But the web admin CANNOT execute shell/CLI commands (command
  *     names are documentation text only) and NO external analytics/BI platform is integrated —
  *     so claiming either is FALSE.
+ *   - A CUSTOMER ACCOUNT / LOYALTY FOUNDATION exists (Этап 69A: account-dashboard polish, saved
+ *     catalog searches, a back-in-stock/product-interest foundation that RECORDS interest but
+ *     sends NOTHING, and a NON-financial engagement label). So those are HONEST. But real loyalty
+ *     POINTS, cashback, store credit/wallet, automatic personalized discounts, real back-in-stock
+ *     EMAILS, and any external marketing-automation/CRM are NOT built — claiming those is FALSE.
  *
  * Lines that are clearly NEGATIONS / honest disclaimers (contain ❌, "no ", "not",
  * "without", "must not", "never", "instead of", "isn't") are SKIPPED for the
@@ -140,6 +145,19 @@ const FALSE_FEATURES = [
   { re: /\b(log|sign)\s*in\s+as\s+(a\s+)?customer\s+(is\s+)?(implemented|available|supported|enabled|possible|allowed|works|works\s+now)\b/i, why: 'no "log in as customer" — the admin customer area is strictly read-only' },
   { re: /\b(customer\s+)?(reset|verification|recovery|account)\s+tokens?\s+(values?\s+)?(are\s+)?(visible|shown|displayed|exposed|editable|manageable|revealed)\b/i, why: 'customer token VALUES are never visible/managed — only hashed, reported as counts' },
   { re: /\bpublic\s+customer\s+admin\s+(is\s+)?(ready|available|live|enabled|exposed)\b/i, why: 'the customer admin is local-only by design; never public' },
+  // Customer account / loyalty foundation (Этап 69A): account polish, saved searches, a
+  // back-in-stock/product-interest FOUNDATION (records interest, sends NOTHING), and a
+  // NON-financial engagement label ("новый/активный/постоянный покупатель") ARE implemented —
+  // so those are HONEST. What is NOT built — and must not be claimed: real loyalty POINTS,
+  // cashback, store credit / wallet / balance, automatic personalized discounts, real
+  // back-in-stock EMAILS/notifications, and any external marketing-automation/CRM. Affirmative
+  // + negation-guarded (honest "no loyalty points" / "no emails sent" lines pass).
+  { re: /\bloyalty\s+(points?|rewards?|program\w*|scheme)\s+(are\s+|is\s+)?(implemented|live|enabled|available|active|earned|awarded|supported)\b/i, why: 'no loyalty points/rewards programme — the engagement label is informational only (no points)' },
+  { re: /\b(cashback|store\s+credit|store\s+wallet|points?\s+balance|reward\s+points?|loyalty\s+balance)\s+(are\s+|is\s+)?(implemented|available|supported|earned|credited|live|enabled)\b/i, why: 'no cashback / store credit / points balance — the label carries no money' },
+  { re: /\b(loyalty\s+)?(tier|points?)[-\s]?based\s+(pricing|discounts?)\s+(are\s+|is\s+)?(implemented|available|live|enabled)\b/i, why: 'the engagement label never affects price/total (no tier-based pricing/discounts)' },
+  { re: /\b(automatic|personalized|personalised|targeted)\s+(discounts?|coupons?|offers?|pricing)\s+(are\s+|is\s+)?(implemented|applied|live|enabled|automated)\b/i, why: 'no automatic/personalized discounts (manual checkout promo codes only)' },
+  { re: /\bback[-\s]?in[-\s]?stock\s+(e?-?mails?|notifications?|alerts?)\s+(are\s+|is\s+)?(sent|delivered|dispatched|enabled|active|automated|implemented)\b/i, why: 'back-in-stock is a record-only foundation — NO emails/notifications are sent (no provider)' },
+  { re: /\b(product\s+)?(interest|wishlist|restock)\s+(e?-?mail\s+)?(notifications?|alerts?)\s+(are\s+|is\s+)?(sent|delivered|enabled|active|automated)\b/i, why: 'no interest/restock notifications are sent — interest is recorded only (no provider)' },
 ]
 
 const NEGATION = /❌|\bno\b|\bnot\b|\bnever\b|\bwithout\b|\bmust not\b|\binstead of\b|\bisn'?t\b|\baren'?t\b|\bplaceholder\b|\bdeferred\b|\bnot yet\b|\bnothing\b|\bplanning only\b|\bdemo only\b|\bno real\b/i

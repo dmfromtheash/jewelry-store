@@ -50,6 +50,7 @@ self-cleaning DB verifies; nothing committed).
 | Advanced catalog UX (64A) | `npm run db:verify:advanced-catalog-ux` | price-range parse/filter, material facet (real coatings), richer search, honest approved-review rating sort, approved-only aggregate (pending/rejected/unpublished excluded); rolled back |
 | Admin operations dashboard (65A) | `npm run db:verify:admin-dashboard` | promo classification, attention queue + severity, readiness warnings, SAFE email projection (no recipient/subject/note/lastError), customer verified/unverified counts; rolled back |
 | Admin customers + support (68A) | `npm run db:verify:admin-customers` | support indicators, list aggregates + last-order, SAFE customer projection (no passwordHash), SAFE outbox projection, token COUNTS only (no value/hash), support signals; rolled back |
+| Customer loyalty foundation (69A) | `npm run db:verify:customer-loyalty` | non-financial engagement label (no money/points field), saved-search validation + safe URL, saved-search & product-interest CRUD/isolation, hidden-product rejection, **no email/outbox row created**; rolled back |
 | Route render | `npm run smoke:routes` | 25 routes render; admin routes **gated** when unauthenticated |
 | Authenticated admin | `npm run smoke:admin` | 11 admin surfaces (incl. dashboard + reviews + customers + promotions + email-outbox) render **with** a local session, **gated** without |
 | Build | `npm run build` | production build green |
@@ -87,6 +88,9 @@ no integration) · 🚫 not implemented / owner-gated.
 | Web admin runs shell commands / external BI integration | 🚫 | — (text-only command names; local counts) | **No** | no command execution from the admin UI; no external BI/analytics |
 | Admin customers + support summary (68A) | ✅ | `db:verify:admin-customers`; `smoke:admin` (`/admin/customers`) | **Yes, local only** | read-only support view; safe aggregates + indicators; no secrets/tokens shown |
 | Full CRM / support-desk / customer impersonation | 🚫 | — (read-only support view only) | **No** | not a CRM; no Zendesk/Intercom; no "log in as customer"; token values never shown |
+| Account polish + saved searches + product-interest foundation (69A) | ✅ | `db:verify:customer-loyalty`; `/account` | **Yes** | `customerId`-scoped; saved searches store validated fields (no raw URL); interest is login-gated record-keeping |
+| Non-financial engagement label (69A) | ✅ | `db:verify:customer-loyalty` | **Yes, as informational** | new/active/loyal from counts; **no** points/money; never affects price/total/discount |
+| Loyalty points / cashback / store credit / real back-in-stock emails | 🚫 | — (not built) | **No** | no points/cashback/wallet; no auto/personalized discounts; interest sends **nothing** (no provider); no marketing automation/CRM |
 | Sale docs / screenshots package | ✅ | `demo:sale-docs-check`; `docs/sale/` | **Yes** | screenshots predate `/account` shot (see §10) |
 | Preflight / rehearsal / smoke checks | ✅ | `demo:preflight`, `demo:rehearsal`, `smoke:*` | **Yes** | local, read-only; not a deploy |
 | Real payment provider API | 🚫 | — (manual model only) | **No** | LiqPay/WayForPay etc. not integrated |

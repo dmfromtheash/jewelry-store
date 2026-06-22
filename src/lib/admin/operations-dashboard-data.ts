@@ -14,7 +14,13 @@
 
 import 'server-only'
 
-import { OrderStatus, ReviewStatus, EmailOutboxStatus, ProductStatus } from '@prisma/client'
+import {
+  OrderStatus,
+  ReviewStatus,
+  EmailOutboxStatus,
+  ProductStatus,
+  CustomerInterestStatus,
+} from '@prisma/client'
 import { prisma } from '../db/prisma'
 import { PROVIDER_CONFIGURED } from '../email/outbox'
 import {
@@ -82,6 +88,11 @@ export interface OperationsDashboard {
     newLast7Days: number
     wishlistItems: number
   }
+  /** Account engagement foundation (Этап 69A) — counts only, NO money/points/notifications. */
+  engagement: {
+    savedSearches: number
+    activeInterests: number
+  }
   attention: AttentionItem[]
   readiness: ReadinessItem[]
 }
@@ -110,6 +121,8 @@ export async function getOperationsDashboard(now: Date = new Date()): Promise<Op
     customersVerified,
     customersNew,
     wishlistItems,
+    savedSearchesTotal,
+    activeInterestsTotal,
   ] = await Promise.all([
     prisma.order.groupBy({ by: ['status'], _count: { _all: true } }),
     prisma.order.findMany({
@@ -150,6 +163,8 @@ export async function getOperationsDashboard(now: Date = new Date()): Promise<Op
     prisma.customer.count({ where: { emailVerifiedAt: { not: null } } }),
     prisma.customer.count({ where: { createdAt: { gte: newCustomerSince } } }),
     prisma.customerWishlistItem.count(),
+    prisma.customerSavedSearch.count(),
+    prisma.customerProductInterest.count({ where: { status: CustomerInterestStatus.active } }),
   ])
 
   // --- Orders ---
@@ -245,6 +260,11 @@ export async function getOperationsDashboard(now: Date = new Date()): Promise<Op
     wishlistItems,
   }
 
+  const engagement = {
+    savedSearches: savedSearchesTotal,
+    activeInterests: activeInterestsTotal,
+  }
+
   const attention = buildAttentionQueue({
     orders: { submitted: orders.submitted, processing: orders.processing },
     reviews: { pending: reviews.pending },
@@ -252,6 +272,7 @@ export async function getOperationsDashboard(now: Date = new Date()): Promise<Op
     promos: { exhausted, expiringSoon },
     catalog: { withoutPrice, withoutImage, zeroStockPurchasable },
     customers: { unverified: customers.unverified },
+    interests: { active: activeInterestsTotal },
   })
 
   return {
@@ -261,6 +282,7 @@ export async function getOperationsDashboard(now: Date = new Date()): Promise<Op
     email,
     catalog,
     customers,
+    engagement,
     attention,
     readiness: buildReadinessWarnings(PROVIDER_CONFIGURED),
   }

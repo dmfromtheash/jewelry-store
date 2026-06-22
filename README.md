@@ -46,6 +46,9 @@ provider decisions + imagery — not core engineering.
   customers) + a **"needs attention" queue** + owner-gated readiness warnings (local, safe aggregates)
 - Admin **customers + support view** (68A): read-only `/admin/customers` list + per-customer support
   summary (orders/reviews/wishlist/email status + indicators); safe aggregates only — no secrets/tokens
+- Customer **account polish + loyalty foundation** (69A): upgraded `/account` overview, **saved catalog
+  searches**, **back-in-stock product-interest** tracking (records interest, **sends nothing**), and a
+  **non-financial** engagement label (no points/money; never affects price/total)
 - Screenshots and sale/handoff docs
 
 ## What is not implemented yet
@@ -66,6 +69,10 @@ provider decisions + imagery — not core engineering.
 - **Gift cards, stackable promotions, automatic/marketing campaigns, CRM/email marketing,
   payment-provider discounts** (deferred). *(Manual-checkout promo codes / discounts are already
   done — 63A; they do not stack — one code per order.)*
+- **Loyalty points / cashback / store credit / wallet, automatic or personalized discounts,
+  real back-in-stock emails/notifications** (deferred). *(Saved searches, a back-in-stock
+  product-interest foundation that sends nothing, and a non-financial engagement label are
+  already done — 69A; the label carries no money and never changes an order total.)*
 - **AI/semantic search, external search engine (Algolia/Elasticsearch/…), merchandising
   automation** (deferred). *(Local DB-backed price/material filters, richer search, and an
   approved-review rating sort are already done — 64A.)*

@@ -61,6 +61,7 @@ async function main() {
     wishlistUnavailableCount: 0,
     liveRecoveryTokenCount: 0,
     manualDeliveryOrderCount: 0,
+    activeInterestCount: 0,
   }
   check('healthy customer → no indicators', buildCustomerSupportIndicators(calm, 'cid').length === 0)
 
@@ -74,6 +75,7 @@ async function main() {
       wishlistUnavailableCount: 1,
       liveRecoveryTokenCount: 1,
       manualDeliveryOrderCount: 1,
+      activeInterestCount: 2,
     },
     'cid',
   )
@@ -225,6 +227,7 @@ async function main() {
           wishlistUnavailableCount,
           liveRecoveryTokenCount: tokenLive,
           manualDeliveryOrderCount,
+          activeInterestCount: 0,
         },
         customer.id,
       )

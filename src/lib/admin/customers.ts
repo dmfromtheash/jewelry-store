@@ -25,10 +25,12 @@ import {
   ProductStatus,
   ReviewStatus,
   CustomerTokenPurpose,
+  CustomerInterestStatus,
   Prisma,
 } from '@prisma/client'
 import { prisma } from '../db/prisma'
 import { buildCustomerSupportIndicators, type CustomerSupportInput } from './customer-support'
+import { computeEngagement, type EngagementTier } from '../customer/engagement'
 
 const LIST_LIMIT = 200
 const RECENT_ORDERS = 10
@@ -94,25 +96,50 @@ export async function getAdminCustomers(opts: AdminCustomersQuery = {}) {
       phone: true,
       emailVerifiedAt: true,
       createdAt: true,
-      _count: { select: { orders: true, reviews: true, wishlist: true } },
+      _count: { select: { orders: true, reviews: true, wishlist: true, savedSearches: true } },
       // Last order date only — bounded to ONE row per customer, so no N+1 blow-up at demo scale.
       orders: { select: { createdAt: true }, orderBy: { createdAt: 'desc' }, take: 1 },
     },
   })
 
-  return rows.map((c) => ({
-    id: c.id,
-    shortId: shortCustomerId(c.id),
-    email: c.email,
-    name: c.name,
-    phone: c.phone,
-    emailVerified: c.emailVerifiedAt != null,
-    createdAt: c.createdAt,
-    orderCount: c._count.orders,
-    reviewCount: c._count.reviews,
-    wishlistCount: c._count.wishlist,
-    lastOrderAt: c.orders[0]?.createdAt ?? null,
-  }))
+  // Active product-interest counts for the listed customers in ONE grouped query (no N+1).
+  const ids = rows.map((c) => c.id)
+  const interestGroups = ids.length
+    ? await prisma.customerProductInterest.groupBy({
+        by: ['customerId'],
+        where: { customerId: { in: ids }, status: CustomerInterestStatus.active },
+        _count: { _all: true },
+      })
+    : []
+  const activeInterestByCustomer = new Map(interestGroups.map((g) => [g.customerId, g._count._all]))
+
+  return rows.map((c) => {
+    const activeInterests = activeInterestByCustomer.get(c.id) ?? 0
+    const engagement = computeEngagement({
+      orders: c._count.orders,
+      reviews: c._count.reviews,
+      wishlist: c._count.wishlist,
+      savedSearches: c._count.savedSearches,
+      activeInterests,
+    })
+    return {
+      id: c.id,
+      shortId: shortCustomerId(c.id),
+      email: c.email,
+      name: c.name,
+      phone: c.phone,
+      emailVerified: c.emailVerifiedAt != null,
+      createdAt: c.createdAt,
+      orderCount: c._count.orders,
+      reviewCount: c._count.reviews,
+      wishlistCount: c._count.wishlist,
+      savedSearchCount: c._count.savedSearches,
+      activeInterestCount: activeInterests,
+      engagementTier: engagement.tier as EngagementTier,
+      engagementLabel: engagement.labelRu,
+      lastOrderAt: c.orders[0]?.createdAt ?? null,
+    }
+  })
 }
 
 export type AdminCustomerListItem = Awaited<ReturnType<typeof getAdminCustomers>>[number]
@@ -146,7 +173,9 @@ export async function getAdminCustomerDetail(customerId: string, now: Date = new
       sessionVersion: true,
       passwordChangedAt: true,
       createdAt: true,
-      _count: { select: { orders: true, reviews: true, wishlist: true, accountTokens: true } },
+      _count: {
+        select: { orders: true, reviews: true, wishlist: true, accountTokens: true, savedSearches: true },
+      },
     },
   })
   if (!customer) return null
@@ -179,6 +208,8 @@ export async function getAdminCustomerDetail(customerId: string, now: Date = new
     tokensTotal,
     tokensLiveReset,
     tokensLiveVerify,
+    activeInterestCount,
+    activeInterests,
   ] = await Promise.all([
     prisma.order.findMany({
       where: { customerId },
@@ -240,6 +271,19 @@ export async function getAdminCustomerDetail(customerId: string, now: Date = new
     prisma.customerAccountToken.count({
       where: { customerId, purpose: CustomerTokenPurpose.email_verification, usedAt: null, expiresAt: { gt: now } },
     }),
+    prisma.customerProductInterest.count({
+      where: { customerId, status: CustomerInterestStatus.active },
+    }),
+    prisma.customerProductInterest.findMany({
+      where: { customerId, status: CustomerInterestStatus.active, product: { isPublished: true } },
+      orderBy: { createdAt: 'desc' },
+      take: WISHLIST_LIMIT,
+      select: {
+        id: true,
+        createdAt: true,
+        product: { select: { name: true, slug: true, isPublished: true, status: true } },
+      },
+    }),
   ])
 
   const indicatorInput: CustomerSupportInput = {
@@ -251,7 +295,17 @@ export async function getAdminCustomerDetail(customerId: string, now: Date = new
     wishlistUnavailableCount,
     liveRecoveryTokenCount: tokensLiveReset,
     manualDeliveryOrderCount,
+    activeInterestCount,
   }
+
+  // Non-financial engagement label (Этап 69A) — informational only, no money/points effect.
+  const engagement = computeEngagement({
+    orders: customer._count.orders,
+    reviews: customer._count.reviews,
+    wishlist: customer._count.wishlist,
+    savedSearches: customer._count.savedSearches,
+    activeInterests: activeInterestCount,
+  })
 
   return {
     profile: {
@@ -266,10 +320,13 @@ export async function getAdminCustomerDetail(customerId: string, now: Date = new
       passwordChangedAt: customer.passwordChangedAt,
       createdAt: customer.createdAt,
     },
+    engagement: { tier: engagement.tier, label: engagement.labelRu },
     counts: {
       orders: customer._count.orders,
       reviews: customer._count.reviews,
       wishlist: customer._count.wishlist,
+      savedSearches: customer._count.savedSearches,
+      activeInterests: activeInterestCount,
       emailEvents: emailEventsTotal,
       tokensTotal,
       tokensLiveReset,
@@ -282,6 +339,13 @@ export async function getAdminCustomerDetail(customerId: string, now: Date = new
       slug: w.product.slug,
       available: w.product.isPublished && w.product.status === ProductStatus.available,
       createdAt: w.createdAt,
+    })),
+    interests: activeInterests.map((i) => ({
+      id: i.id,
+      name: i.product.name,
+      slug: i.product.slug,
+      available: i.product.isPublished && i.product.status === ProductStatus.available,
+      createdAt: i.createdAt,
     })),
     recentEmail,
     indicators: buildCustomerSupportIndicators(indicatorInput, customer.id),

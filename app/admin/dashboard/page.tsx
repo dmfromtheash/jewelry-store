@@ -54,7 +54,7 @@ export default async function AdminDashboardPage() {
   await ensureLocalAdmin()
   await requireAdminSession()
 
-  const { orders, reviews, promos, email, catalog, customers, attention, readiness } =
+  const { orders, reviews, promos, email, catalog, customers, engagement, attention, readiness } =
     await getOperationsDashboard()
 
   return (
@@ -212,6 +212,8 @@ export default async function AdminDashboardPage() {
         <KpiCard label="Не подтверждён" value={String(customers.unverified)} />
         <KpiCard label="Новых за 7 дней" value={String(customers.newLast7Days)} />
         <KpiCard label="В избранном (всего)" value={String(customers.wishlistItems)} />
+        <KpiCard label="Сохранённые поиски" value={String(engagement.savedSearches)} />
+        <KpiCard label="Ожидания поступления" value={String(engagement.activeInterests)} hint="письма не шлются" />
       </div>
       <p className="au-adm-note">
         На дашборде показываются только агрегаты. Детали по конкретному покупателю (заказы,

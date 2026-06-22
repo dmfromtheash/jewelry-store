@@ -46,6 +46,8 @@ export interface CustomerSupportInput {
   liveRecoveryTokenCount: number
   /** Orders that carry a manual delivery branch/comment the owner must fulfil by hand. */
   manualDeliveryOrderCount: number
+  /** Active product interests ("back-in-stock") the customer is waiting on (Этап 69A). */
+  activeInterestCount: number
 }
 
 const SEVERITY_RANK: Record<SupportSeverity, number> = { action: 0, warn: 1, info: 2 }
@@ -98,6 +100,12 @@ export function buildCustomerSupportIndicators(
     label: 'Есть заказы с ручной доставкой, но не указан телефон для связи',
     severity: 'warn',
     href: `/admin/customers/${customerId}`,
+  })
+  add(input.activeInterestCount > 0, {
+    key: 'active-interest',
+    label: `Ждёт поступления товаров: ${input.activeInterestCount} (письма не отправляются — нет провайдера)`,
+    severity: 'info',
+    href: '/admin/catalog',
   })
   add(input.wishlistUnavailableCount > 0, {
     key: 'wishlist-unavailable',

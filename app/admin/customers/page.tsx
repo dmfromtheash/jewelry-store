@@ -118,9 +118,12 @@ export default async function AdminCustomersPage({
                 <th>Имя</th>
                 <th>Телефон</th>
                 <th>E-mail</th>
+                <th>Статус</th>
                 <th>Заказы</th>
                 <th>Отзывы</th>
                 <th>Избранное</th>
+                <th>Поиски</th>
+                <th>Ожид.</th>
                 <th>Посл. заказ</th>
                 <th>Регистрация</th>
               </tr>
@@ -143,9 +146,12 @@ export default async function AdminCustomersPage({
                       <span className="au-adm-badge au-adm-badge--pending">Не подтверждён</span>
                     )}
                   </td>
+                  <td>{c.engagementLabel}</td>
                   <td>{c.orderCount}</td>
                   <td>{c.reviewCount}</td>
                   <td>{c.wishlistCount}</td>
+                  <td>{c.savedSearchCount}</td>
+                  <td>{c.activeInterestCount}</td>
                   <td>{c.lastOrderAt ? dateFmt.format(c.lastOrderAt) : '—'}</td>
                   <td>{dateFmt.format(c.createdAt)}</td>
                 </tr>

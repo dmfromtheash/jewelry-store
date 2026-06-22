@@ -4,6 +4,7 @@ import { useCallback, useMemo } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import ProductCard from '../product/ProductCard'
 import DiscoveryControls from '../search/DiscoveryControls'
+import SaveSearchControl from '../search/SaveSearchControl'
 import {
   deriveMaterials,
   filterByMaterial,
@@ -31,6 +32,10 @@ export default function CategoryBrowser({ products }: { products: Product[] }) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+
+  // The category slug for a saved search (e.g. "/category/bijouterie" → "bijouterie"). The
+  // saved-search validator re-checks it against the allowlist, so an unexpected path is safe.
+  const categorySlug = pathname.split('/').filter(Boolean).pop() ?? null
 
   const sort = parseSort(searchParams.get('sort'))
   const status = parseStatus(searchParams.get('status'))
@@ -79,6 +84,16 @@ export default function CategoryBrowser({ products }: { products: Product[] }) {
         material={material}
         onMaterialChange={(m) => setParams({ material: m })}
         onResetAll={resetAll}
+      />
+
+      {/* Save the current category + filters (Этап 69A) — logged-in customers only (action-gated). */}
+      <SaveSearchControl
+        categorySlug={categorySlug}
+        sort={sort}
+        status={status}
+        minPrice={price.min !== undefined ? String(price.min) : null}
+        maxPrice={price.max !== undefined ? String(price.max) : null}
+        material={material}
       />
 
       {visible.length === 0 ? (

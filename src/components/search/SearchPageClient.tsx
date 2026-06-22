@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import ProductCard from '../product/ProductCard'
 import DiscoveryControls from './DiscoveryControls'
+import SaveSearchControl from './SaveSearchControl'
 import {
   deriveMaterials,
   filterByMaterial,
@@ -115,6 +116,16 @@ export default function SearchPageClient() {
         material={material}
         onMaterialChange={(m) => setParams({ material: m })}
         onResetAll={resetFilters}
+      />
+
+      {/* Save the current search/filters (Этап 69A) — logged-in customers only (action-gated). */}
+      <SaveSearchControl
+        query={q}
+        sort={sort}
+        status={status}
+        minPrice={price.min !== undefined ? String(price.min) : null}
+        maxPrice={price.max !== undefined ? String(price.max) : null}
+        material={material}
       />
 
       {results.length === 0 ? (

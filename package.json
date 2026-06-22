@@ -50,6 +50,7 @@
     "db:verify:admin-dashboard": "tsx prisma/verify-admin-dashboard.ts",
     "db:verify:admin-customers": "tsx prisma/verify-admin-customers.ts",
     "db:verify:promotions": "tsx prisma/verify-promotions.ts",
+    "db:verify:customer-loyalty": "tsx prisma/verify-customer-loyalty.ts",
     "email:process:stub": "tsx prisma/email-process.ts",
     "smoke:routes": "node scripts/smoke/route-smoke.mjs",
     "smoke:admin": "node scripts/smoke/admin-smoke.mjs",

@@ -1,4 +1,4 @@
-# Final Freeze Audit & Project Handoff — AURELIA (Stage 57A; refreshed at 59A, 60A, 62A, 63A, 64A, 65A, 68A)
+# Final Freeze Audit & Project Handoff — AURELIA (Stage 57A; refreshed at 59A, 60A, 62A, 63A, 64A, 65A, 68A, 69A)
 
 > **Freeze point + handoff snapshot** after the 49A–56A sale/demo/security/readiness/
 > architecture cycle, **refreshed after Stage 59A** (trust & operations foundation:
@@ -105,6 +105,14 @@ launched business. **Design is locked.**
   reviews/wishlist, email-outbox SAFE metadata, account-token COUNTS, and a support-indicator
   summary). **Read-only** — no edit/delete/impersonate; never shows a password hash, token value/
   hash, cookie/session, email body, or recipient. Linked from admin nav + dashboard.
+- **Customer account polish + loyalty foundation** (69A): upgraded `/account` overview (profile/
+  activity summary, **non-financial** engagement label, wishlist, **saved catalog searches**,
+  **back-in-stock product-interest** tracking, order history, own-reviews summary); additive
+  `CustomerSavedSearch` + `CustomerProductInterest` models. Saved searches store **validated
+  fields only** (no raw URL); interest is **login-gated record-keeping** that sends **nothing**
+  (no provider). Engagement label is informational — **no points/cashback/credit**, never affects
+  price/total/discount. Admin customer list/detail + dashboard show the safe counts/label.
+  Existing storefront classes only — no design/CSS change.
 - **Demo/sale/readiness tooling** (50A/52A/53A/55A): preflight gate, rehearsal, route + admin
   smokes, sale-docs checker, screenshot-capture helper.
 
@@ -127,6 +135,7 @@ Run via `npm run demo:rehearsal` (offline) + the live sequence. At this freeze, 
 | `db:verify:advanced-catalog-ux` (64A) | pass (price parse/filter, material facet, richer search, honest approved-review rating sort, approved-only aggregate excludes pending/rejected/unpublished; rolled back) |
 | `db:verify:admin-dashboard` (65A) | pass (promo classification, attention queue, readiness, SAFE email projection, customer counts; rolled back) |
 | `db:verify:admin-customers` (68A) | pass (support indicators, list aggregates, SAFE customer/outbox projections, token counts only, support signals; rolled back) |
+| `db:verify:customer-loyalty` (69A) | pass (non-financial engagement label, saved-search validation + safe URL, saved-search & product-interest CRUD/isolation, hidden-product rejection, no email/outbox row; rolled back) |
 | `smoke:routes` | 25/25 routes render / gated |
 | `smoke:admin` | 22/22 (11 admin surfaces incl. dashboard + reviews + customers + promotions + email-outbox) render authed + gated unauthed |
 | `build` | production build green (needs DB 6700 up) |
@@ -162,6 +171,7 @@ Ranges, not promises. Bumped from the older 40A buyer/MVP audit where 49A–56A 
 | **Catalog discovery / search (64A)** | **~80%** | price + material filters, richer local search, honest approved-review rating sort, shareable URLs; no AI/external search engine / merchandising automation |
 | **Admin operations dashboard (65A)** | **~85%** | real-data overview + attention queue + owner-gated warnings; safe aggregates only; no external BI, no command execution from UI |
 | **Admin customers + support (68A)** | **~80%** | read-only customer list/detail + support indicators; safe aggregates, no secrets/tokens; not a CRM, no impersonation, no support-desk integration |
+| **Customer account polish + loyalty foundation (69A)** | **~80%** | account overview + saved searches + back-in-stock interest foundation + non-financial engagement label; customerId-scoped; **no points/money**, no real interest emails, no marketing automation/CRM |
 | **Customer auth / account** | **~90%** | login/profile/password/history/audit/durable rate-limit; reset/verification = hashed-token foundation (60A), no email delivery |
 | **Admin CMS / site management** | **~85–90%** | catalog/orders/lifecycle/settings/CMS/audit; local-only |
 | **Security / readiness tooling** | **~90%** | durable rate-limit, audit, preflight/rehearsal/smokes, sale-docs guard |

@@ -530,3 +530,72 @@ changes.
 
 - No wishlist state shown on storefront cards (optional; avoided to respect the card design
   lock). No price-drop/back-in-stock notifications. No promo/discount engine.
+
+---
+
+# Этап 69A — Account polish, saved searches, product-interest & engagement (loyalty foundation)
+
+Status: **implemented**. Additive, guest-first. **No money/points**, no real emails, no
+payment/delivery APIs, no design/CSS changes (existing storefront classes only).
+
+## 69A.1 What was added
+
+- **Account dashboard polish (`/account`).** A single server aggregator
+  (`src/lib/customer/account-dashboard.ts`, `server-only`) batches the customer's OWN data
+  (orders, wishlist, review-status counts, saved searches, active interests) and derives the
+  engagement label. The page now shows a profile/activity summary, the **non-financial
+  engagement label**, email-verification state, wishlist, saved searches, product-interest
+  tracking, order history, and a **reviews summary** (the customer's own pending/approved/
+  rejected counts). Existing `au-co-*` classes only — no redesign.
+- **Saved catalog searches.** Additive model **`CustomerSavedSearch`** (migration
+  `add_customer_loyalty_foundation`): `label`, `query?`, `categorySlug?`, `sort?`,
+  `statusFilter?`, `minPrice?`, `maxPrice?`, `material?`, `lastViewedAt?`, scoped by
+  `customerId` (cascade). Validation + a **safe relative URL builder** live in the pure
+  `src/lib/customer/saved-search.ts` (label length-capped + markup-stripped; query via the
+  catalog normaliser; category/sort/status against fixed allowlists; prices clamped/swapped).
+  **Only validated FIELDS are stored — never a raw URL.** A small "Зберегти пошук" control in
+  the catalog/search discovery toolbar creates one (login-gated by the action); the account
+  lists them with rebuilt links + a remove form. Repo caps the count per customer.
+- **Back-in-stock / product interest foundation.** Additive model
+  **`CustomerProductInterest`** (`type` `back_in_stock|price_drop|general`, `status`
+  `active|fulfilled|cancelled`, `@@unique([customerId, productId, type])`, cascades). A
+  logged-in customer registers interest on an unavailable product via a button on the PDP
+  (`ProductInterestButton`, shown only when `!isProductPurchasable`); the account lists active
+  interests with a cancel form. **Nothing is emailed and no notification is ever sent** (no
+  provider) — the copy says so. Guests cannot register interest (login required).
+- **Non-financial engagement label.** Pure `src/lib/customer/engagement.ts` derives a tier
+  (`new`/`active`/`loyal`) + UA/RU labels from activity counts. **Informational only:** no
+  points, cashback, store credit, balance, or tier-based pricing; it never affects a price,
+  total, or discount and is **not** connected to the promo engine.
+- **Admin visibility.** `/admin/customers` list + detail show saved-search and active-interest
+  counts, an active-interest list, and the engagement label (read-only, safe aggregates). The
+  operations dashboard counts saved searches + active interests and adds an info attention item
+  for active interests. No impersonation, no destructive actions, no token/hash/body exposure.
+
+## 69A.2 Security / privacy
+
+- Every read/write is **re-scoped to the verified session owner** — a client id is never
+  trusted; one customer can never see/alter another's saved searches or interests.
+- Saved-search inputs are validated/normalised server-side; only catalog-valid, markup-free
+  fields are stored, and the in-app link is **rebuilt** from those fields (no stored raw URL,
+  so no `javascript:`/`data:`/external link can be smuggled).
+- Product interest resolves a **slug → published product** server-side; hidden/unknown
+  products are rejected. The unique key makes "add" idempotent.
+- The admin sees **counts and safe product references** only — never an email body, token,
+  hash, cookie, or another customer's data.
+
+## 69A.3 Verification
+
+- `npm run db:verify:customer-loyalty` — engagement label (non-financial; result carries no
+  money/points field), saved-search validation + safe URL builder, saved-search and
+  product-interest DB behaviour (create/list/remove/cancel/reactivate), customer isolation,
+  hidden-product rejection, and **no email/outbox row created**, all inside an
+  always-rolled-back transaction (nothing committed).
+
+## 69A.4 Remaining gaps (carried forward)
+
+- **No real loyalty programme** (no points/cashback/store credit/wallet/balance), **no
+  automatic or personalized discounts**, **no real back-in-stock emails/notifications**, and
+  **no external marketing-automation/CRM**. These are deliberately out of scope and remain
+  owner/provider-gated future stages. No wishlist/interest state on storefront cards (card
+  design lock respected).

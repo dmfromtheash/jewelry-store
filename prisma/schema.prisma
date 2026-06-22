@@ -78,6 +78,7 @@ model Product {
   images      ProductImage[]
   reviews     ProductReview[]
   wishlistedBy CustomerWishlistItem[]
+  interestedBy CustomerProductInterest[]
 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -308,6 +309,8 @@ model Customer {
   reviews       ProductReview[]
   accountTokens CustomerAccountToken[]
   wishlist      CustomerWishlistItem[]
+  savedSearches CustomerSavedSearch[]
+  productInterests CustomerProductInterest[]
 
   @@index([email])
 }
@@ -333,6 +336,94 @@ model CustomerWishlistItem {
   @@unique([customerId, productId])
   @@index([customerId])
   @@index([productId])
+}
+
+/// Saved catalog search / filter set for a logged-in customer (Этап 69A — account
+/// convenience, NOT marketing automation). Stores ONLY safe, validated filter FIELDS
+/// (never a raw URL, never HTML/script): the storefront rebuilds a relative /search or
+/// /category link from these fields at render time (src/lib/customer/saved-search.ts).
+///
+/// Privacy + safety by construction:
+///   - HARD-SCOPED by `customerId` (server actions re-derive the owner from the verified
+///     session), so one customer can never read/alter another's saved searches; cascades on
+///     customer delete.
+///   - every field is validated/normalised server-side (label length-capped + markup-stripped,
+///     query via the catalog search normaliser, categorySlug/sort/status against fixed
+///     allowlists, prices clamped to safe integers). No automated email/alert is attached —
+///     this is a convenience bookmark only (NO back-in-stock cron, NO notification).
+model CustomerSavedSearch {
+  id           String   @id @default(cuid())
+  customerId   String
+  customer     Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  /// Customer-facing label (validated plain text, length-capped).
+  label        String
+  /// Normalised search text (catalog word-prefix search). Null = no text query.
+  query        String?
+  /// Catalog scope: "bijouterie" | "gifts" (allowlist) or null = sitewide /search.
+  categorySlug String?
+  /// SortKey from the catalog (validated against the allowlist). Null = default.
+  sort         String?
+  /// StatusFilter: "all" | "available" | "coming-soon" (validated). Null = all.
+  statusFilter String?
+  /// Inclusive price bounds in WHOLE UAH (validated non-negative integers). Null = no bound.
+  minPrice     Int?
+  maxPrice     Int?
+  /// Material/coating facet value (validated plain text). Null = no material filter.
+  material     String?
+  /// When the customer last opened this saved search (audit/UX only). Null until first open.
+  lastViewedAt DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([customerId])
+}
+
+/// What a customer is tracking on a product (Этап 69A). Today only `back_in_stock` is wired
+/// in the UI; `price_drop` / `general` are reserved enum slots for future use.
+enum CustomerInterestType {
+  back_in_stock
+  price_drop
+  general
+}
+
+/// Lifecycle of a product interest (Этап 69A). `active` = still waiting; `fulfilled` =
+/// the condition was met (admin/owner action — there is NO automatic notification);
+/// `cancelled` = the customer withdrew interest.
+enum CustomerInterestStatus {
+  active
+  fulfilled
+  cancelled
+}
+
+/// Back-in-stock / product-interest FOUNDATION (Этап 69A) — NO real notifications.
+/// A logged-in customer can register interest in a product (typically one that is
+/// coming-soon / out of stock). This is provider-ready record-keeping ONLY: NOTHING is
+/// emailed, NO cron/notification fires, and the customer is never promised a real message.
+/// The admin/dashboard may show interest COUNTS so the owner can act manually.
+///
+/// Privacy + safety by construction:
+///   - HARD-SCOPED by `customerId` (server actions re-derive the owner from the verified
+///     session); guests cannot register interest (login required). Cascades on customer/
+///     product delete so nothing dangles.
+///   - the product is resolved by SLUG → a real product server-side (never an arbitrary id);
+///     `@@unique([customerId, productId, type])` makes "add" idempotent.
+model CustomerProductInterest {
+  id          String                 @id @default(cuid())
+  customerId  String
+  customer    Customer               @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product                @relation(fields: [productId], references: [id], onDelete: Cascade)
+  type        CustomerInterestType   @default(back_in_stock)
+  status      CustomerInterestStatus @default(active)
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+  /// Stamped when the interest is marked fulfilled (manual/owner action). Null while active.
+  fulfilledAt DateTime?
+
+  @@unique([customerId, productId, type])
+  @@index([customerId])
+  @@index([productId])
+  @@index([status])
 }
 
 /// Purpose of a short-lived, single-use customer account token (Этап 60A).

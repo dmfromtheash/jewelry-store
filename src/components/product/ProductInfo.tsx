@@ -1,7 +1,9 @@
 import type { ReactNode } from 'react'
 import type { Product } from '../../lib/catalog'
+import { isProductPurchasable } from '../../lib/catalog/availability'
 import type { ReviewSummary } from '../../lib/reviews/types'
 import ProductBuyPanel from './ProductBuyPanel'
+import ProductInterestButton from './ProductInterestButton'
 
 /**
  * AURELIA — ProductInfo (server component)
@@ -102,8 +104,13 @@ export default function ProductInfo({
       </div>
 
       {product ? (
-        // Reactive price + status + variant selector + buy row (Этап 30D).
-        <ProductBuyPanel product={product} />
+        // Reactive price + status + variant selector + buy row (Этап 30D). For a product that
+        // can't be bought right now (coming-soon / no price / out of stock) we additionally
+        // offer a back-in-stock interest action (Этап 69A) — login-gated, NO email is sent.
+        <>
+          <ProductBuyPanel product={product} />
+          {!isProductPurchasable(product) && <ProductInterestButton slug={product.slug} />}
+        </>
       ) : (
         // Generic coming-soon fallback (no product) — unchanged static block.
         <>
