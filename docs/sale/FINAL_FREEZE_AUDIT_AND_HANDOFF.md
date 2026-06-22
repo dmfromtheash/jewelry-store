@@ -1,4 +1,4 @@
-# Final Freeze Audit & Project Handoff — AURELIA (Stage 57A; refreshed at 59A, 60A)
+# Final Freeze Audit & Project Handoff — AURELIA (Stage 57A; refreshed at 59A, 60A, 62A)
 
 > **Freeze point + handoff snapshot** after the 49A–56A sale/demo/security/readiness/
 > architecture cycle, **refreshed after Stage 59A** (trust & operations foundation:
@@ -67,6 +67,13 @@ launched business. **Design is locked.**
   `/account/recover` + `/account/reset`) and **email verification** (`Customer.emailVerifiedAt`,
   account-page status). **Nothing is sent** — no provider; reset/verification links are **not
   delivered**. Admin email-outbox shows attempts + safe token **counts** (no values).
+- **Catalog UX / SEO / account wishlist** (62A): **honest approved-only ratings** on the PDP
+  (no fake 5-star when there are 0 approved reviews); **product/category SEO metadata** +
+  **Product JSON-LD** (UAH offers; `aggregateRating` only when approved reviews exist —
+  never faked); **URL-param catalog filters/sorting** (price ↑/↓, newest-by-`createdAt`,
+  availability; invalid params fall back safely); and a **server-side account wishlist**
+  (`CustomerWishlistItem`, `customerId`-scoped, published-only, idempotent) with a `/account`
+  «Обране» section — **guest localStorage favourites preserved unchanged**. No design/CSS change.
 - **Admin** (local-only by design — 404s in production): catalog CRUD, publish/hide, gallery +
   variants + stock, inventory/restock, orders inbox + detail, order lifecycle
   (`submitted→processing→completed/cancelled` with restock-on-cancel), site settings + info-page
@@ -88,6 +95,7 @@ Run via `npm run demo:rehearsal` (offline) + the live sequence. At this freeze, 
 | `db:verify:orders` · `order-confirmation` · `checkout-options` · `product-variants` · `inventory-lifecycle` | pass |
 | `db:verify:reviews` · `delivery-details` · `email-outbox` (59A) | pass (rolled-back; nothing committed) |
 | `db:verify:email-ops` (60A) | 33/33 (provider facade, outbox processing, hashed reset + verification tokens, session revocation; nothing committed) |
+| `db:verify:catalog-ux` · `db:verify:wishlist` (62A) | pass (rating honesty, JSON-LD, sort/filter; wishlist add/idempotent/remove + isolation + hidden handling, rolled back) |
 | `smoke:routes` | 23/23 routes render / gated |
 | `smoke:admin` | 16/16 (8 admin surfaces incl. reviews + email-outbox) render authed + gated unauthed |
 | `build` | production build green (needs DB 6700 up) |
@@ -117,6 +125,8 @@ Ranges, not promises. Bumped from the older 40A buyer/MVP audit where 49A–56A 
 | **Ukrainian storefront/catalog** | **~95%** | uk-UA storefront + catalog; admin chrome stays Russian by design |
 | **Checkout / manual order flow** | **~90%** | end-to-end, server-authoritative; manual payment/delivery model + manual branch/comment fields |
 | **Reviews / social proof (59A)** | **~80%** | moderated reviews end-to-end (submit→moderate→public); no purchase verification / photos |
+| **Catalog UX / SEO (62A)** | **~80%** | honest approved-only ratings, product/category meta + Product JSON-LD, URL filters/sorting; no promo/discount engine |
+| **Account wishlist (62A)** | **~85%** | DB-backed, customerId-scoped, published-only, guest preserved; no card-level state, no notifications |
 | **Customer auth / account** | **~90%** | login/profile/password/history/audit/durable rate-limit; reset/verification = hashed-token foundation (60A), no email delivery |
 | **Admin CMS / site management** | **~85–90%** | catalog/orders/lifecycle/settings/CMS/audit; local-only |
 | **Security / readiness tooling** | **~90%** | durable rate-limit, audit, preflight/rehearsal/smokes, sale-docs guard |

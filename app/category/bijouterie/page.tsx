@@ -10,9 +10,19 @@ import TrackView from '../../../src/components/analytics/TrackView'
 import { ANALYTICS_EVENTS } from '../../../src/lib/analytics/events'
 import { getProductsByCategorySlugFromDb } from '../../../src/lib/catalog/server'
 
+const DESCRIPTION =
+  'Сережки, каблучки, браслети, ланцюжки та кулони AURELIA — біжутерія без меж.'
+
 export const metadata: Metadata = {
   title: 'Біжутерія — AURELIA',
-  description: 'Сережки, каблучки, браслети, ланцюжки та кулони AURELIA — біжутерія без меж.',
+  description: DESCRIPTION,
+  alternates: { canonical: '/category/bijouterie' },
+  openGraph: {
+    type: 'website',
+    title: 'Біжутерія — AURELIA',
+    description: DESCRIPTION,
+    url: '/category/bijouterie',
+  },
 }
 
 const CHIPS = [

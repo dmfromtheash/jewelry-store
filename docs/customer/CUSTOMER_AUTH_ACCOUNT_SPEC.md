@@ -486,3 +486,47 @@ token model" gap without claiming delivery. Additive migration only
   the verify script drives the confirm step directly. All owner/provider-gated.
 - **No email change**, **no per-device session journal**, **no guest-order linking by
   email**, **single-instance** rate-limit only.
+
+---
+
+# AURELIA — Server-side account wishlist (Этап 62A)
+
+Status: **implemented**. Additive, guest-first. No payment/delivery APIs, no design/CSS
+changes.
+
+## 62A.1 What was added
+
+- **`CustomerWishlistItem` model** (additive migration `add_customer_wishlist`): `id`,
+  `customerId` → `Customer` (cascade), `productId` → `Product` (cascade), `createdAt`,
+  `@@unique([customerId, productId])`. The unique key makes "add" idempotent.
+- **Server data layer** (`src/lib/customer/wishlist-repo.ts`, `server-only`) +
+  **server actions** (`src/lib/customer/wishlist-actions.ts`): add/remove/clear by **slug**
+  (resolved to a published product server-side), load + sync, and an account-section remove
+  form action.
+- **Storefront integration:** `FavoritesProvider` is now session-aware. **Guests stay
+  localStorage-only (unchanged).** A logged-in customer's favourites are mirrored to the DB
+  (best-effort), with a **one-time merge** of any favourites saved while logged out. The
+  heart UI is unchanged (no visual/CSS change).
+- **Account:** a new **«Обране»** section on `/account` lists the saved (published) products
+  with a server-action remove. No new route.
+
+## 62A.2 Security / privacy
+
+- The owner is **always re-derived from the verified session** in every action — a
+  client-supplied customer id is never trusted, so a customer can only touch their **own**
+  wishlist (`customerId`-scoped reads/writes).
+- Storefront reads return **published products only**; hidden products are excluded and
+  deleted products are removed by the FK cascade — nothing dangling or non-purchasable leaks.
+- Slugs are validated (latin slug guard) and resolved to a real published product before any
+  write. **No audit events** are emitted (low-risk, high-frequency personalization — kept out
+  of the security audit trail by design).
+
+## 62A.3 Verification
+
+- `npm run db:verify:wishlist` — slug guard, add/idempotent/remove, customer isolation,
+  hidden-product exclusion, all inside an always-rolled-back transaction (nothing committed).
+
+## 62A.4 Remaining gaps (carried forward)
+
+- No wishlist state shown on storefront cards (optional; avoided to respect the card design
+  lock). No price-drop/back-in-stock notifications. No promo/discount engine.

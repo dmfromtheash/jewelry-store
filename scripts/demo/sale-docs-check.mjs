@@ -21,6 +21,10 @@
  *     (SendGrid/Mailgun/SMTP), and NO DNS auth (SPF/DKIM/DMARC). So "verified customer
  *     reviews" / "TTN generated" / "emails are sent" / "password reset works via email" /
  *     "email verification delivered" / "SMTP configured" are all FALSE.
+ *   - Catalog UX / SEO / server-side account wishlist exist (Этап 62A: honest approved-only
+ *     ratings, product/category metadata + Product JSON-LD, URL filters/sorting, DB-backed
+ *     wishlist). But there is STILL no promo/discount engine — so "discount engine
+ *     implemented" / "coupon system live" are FALSE.
  *
  * Lines that are clearly NEGATIONS / honest disclaimers (contain ❌, "no ", "not",
  * "without", "must not", "never", "instead of", "isn't") are SKIPPED for the
@@ -86,6 +90,10 @@ const FALSE_FEATURES = [
   { re: /\b(sendgrid|mailgun|postmark|amazon\s*ses|smtp)\s+(is\s+)?(configured|integrated|connected|wired|live|enabled|set\s*up)\b/i, why: 'no email provider (SendGrid/Mailgun/SMTP/…) is configured — owner-gated' },
   { re: /\b(spf|dkim|dmarc)\b.{0,30}\b(configured|set\s*up|done|complete|passing|in\s+place)\b/i, why: 'no email DNS auth (SPF/DKIM/DMARC) is set up — owner-gated' },
   { re: /\bemail\s+provider\s+(integration\s+)?(is\s+)?(live|implemented|integrated|connected|wired)\b/i, why: 'no email provider integration is live — foundation only' },
+  // Promo/discount engine is explicitly NOT built (Этап 62A is catalog-UX/SEO/wishlist, not promo).
+  // Affirmative + negation-guarded so honest "no discount engine" wording stays fine. Deliberately
+  // scoped to a promo/discount/coupon ENGINE/SYSTEM/campaign so it can't trip catalog-UX prose.
+  { re: /\b(promo|discount|coupon|sale)\s+(engine|system|campaign|module)\s+(is\s+)?(implemented|built|live|available|enabled|integrated|done)\b/i, why: 'no promo/discount engine is implemented (not part of 62A)' },
 ]
 
 const NEGATION = /❌|\bno\b|\bnot\b|\bnever\b|\bwithout\b|\bmust not\b|\binstead of\b|\bisn'?t\b|\baren'?t\b|\bplaceholder\b|\bdeferred\b|\bnot yet\b|\bnothing\b|\bplanning only\b|\bdemo only\b|\bno real\b/i

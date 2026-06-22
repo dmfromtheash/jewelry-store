@@ -8,7 +8,20 @@ import FavoritesProvider from '../src/components/favorites/FavoritesProvider'
 import CatalogProvider from '../src/lib/catalog/CatalogProvider'
 import { getCatalogSnapshotForClient } from '../src/lib/catalog/server'
 
+// Base URL used to resolve relative canonical/Open Graph URLs (Этап 62A SEO). Reads
+// the public site URL when configured (not a secret), else a local-demo default. Guarded
+// so a malformed value can never break the build.
+function resolveMetadataBase(): URL | undefined {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:5000'
+  try {
+    return new URL(raw)
+  } catch {
+    return undefined
+  }
+}
+
 export const metadata: Metadata = {
+  metadataBase: resolveMetadataBase(),
   title: 'AURELIA — Bijouterie Without Limits',
   description: 'Інтернет-магазин біжутерії, прикрас та аксесуарів AURELIA',
   keywords: ['біжутерія', 'прикраси', 'каблучки', 'сережки', 'браслети', 'aurelia'],

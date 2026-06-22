@@ -76,4 +76,7 @@ export interface Product {
   tagGold?: boolean
   rating?: number
   reviewsCount?: number
+  /** ISO creation timestamp (Этап 62A). Drives the honest "Спочатку новинки" sort.
+   *  Optional/serializable — absent for mock fixtures that predate it. */
+  createdAt?: string
 }

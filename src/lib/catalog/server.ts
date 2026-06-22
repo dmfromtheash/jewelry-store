@@ -20,7 +20,7 @@ import type { CategorySlug, Product } from './types'
 // Relations the mapper needs. `include` also returns all Product scalar fields
 // (price, status, specs, …). Ordered by SKU so the catalog order matches the
 // original mock array (AU-1001, AU-1002, …).
-const productInclude = {
+export const productInclude = {
   category: { select: { slug: true } },
   variants: {
     // name/value/sortOrder feed the legacy `coatings` flattening; the rest drive

@@ -1,8 +1,9 @@
 /**
- * AURELIA — Favorites page (Этап 11A)
+ * AURELIA — Favorites page (Этап 11A; server persistence Этап 62A)
  *
- * Frontend-only wishlist page. The interactive part (reads the favorites store,
- * renders the grid / empty state) lives in FavoritesPageClient. No backend.
+ * The interactive part (reads the favorites store, renders the grid / empty state)
+ * lives in FavoritesPageClient. Guests are localStorage-only; a logged-in customer's
+ * favourites are additionally persisted server-side via FavoritesProvider.
  */
 
 import type { Metadata } from 'next'

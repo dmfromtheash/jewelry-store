@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import type { Product } from '../../lib/catalog'
+import type { ReviewSummary } from '../../lib/reviews/types'
 import ProductBuyPanel from './ProductBuyPanel'
 
 /**
@@ -13,7 +14,34 @@ import ProductBuyPanel from './ProductBuyPanel'
  *
  * With a `product` it renders the panel; without one it keeps the generic
  * coming-soon fallback (used by /product/coming-soon) as a static block.
+ *
+ * Rating meta (Этап 62A, AUR-61A-01): the stars/count are driven by the APPROVED
+ * review summary — NEVER a hardcoded 5-star. With no approved reviews we show an
+ * honest "Ще немає відгуків" state (no filled stars); with ≥1 we fill stars from the
+ * rounded average. Uses only existing star classes (no new design).
  */
+
+/** Honest rating meta: filled stars from the rounded average + an "N відгук(ів)"
+ *  label, or a plain "Ще немає відгуків" when there are no approved reviews. */
+function RatingMeta({ summary }: { summary: ReviewSummary }) {
+  if (summary.count === 0) {
+    return <span className="au-prod-no-rating">Ще немає відгуків</span>
+  }
+  const filled = Math.max(0, Math.min(5, Math.round(summary.average)))
+  const word =
+    summary.count % 10 === 1 && summary.count % 100 !== 11 ? 'відгук' : 'відгуків'
+  return (
+    <>
+      <span className="au-stars" role="img" aria-label={`Оцінка ${filled} з 5`}>
+        {'★★★★★'.slice(0, filled)}
+        <span className="au-review-stars-empty">{'★★★★★'.slice(filled)}</span>
+      </span>
+      <span>
+        {summary.average.toFixed(1)} · {summary.count} {word}
+      </span>
+    </>
+  )
+}
 
 const PERKS: { icon: ReactNode; text: string }[] = [
   {
@@ -48,11 +76,19 @@ const PERKS: { icon: ReactNode; text: string }[] = [
 
 const DEFAULT_COATINGS = ['Позолота', 'Родіювання', 'Сталь']
 
-export default function ProductInfo({ product }: { product?: Product }) {
+export default function ProductInfo({
+  product,
+  reviewSummary,
+}: {
+  product?: Product
+  reviewSummary?: ReviewSummary
+}) {
   const brand = product?.brand ?? 'AURELIA'
   const title = product?.name ?? 'Незабаром буде додано прикрасу'
   const sku = product?.sku ?? 'AU-0000'
-  const reviewsCount = product?.reviewsCount ?? 0
+  // Honest rating from approved reviews only (AUR-61A-01). Absent summary (e.g. the
+  // generic coming-soon fallback) → no reviews yet.
+  const summary: ReviewSummary = reviewSummary ?? { average: 0, count: 0 }
 
   return (
     <div>
@@ -60,8 +96,7 @@ export default function ProductInfo({ product }: { product?: Product }) {
       <h1 className="au-prod-title">{title}</h1>
 
       <div className="au-prod-meta">
-        <span className="au-stars" aria-hidden="true">★★★★★</span>
-        <span>{reviewsCount} відгуків</span>
+        <RatingMeta summary={summary} />
         <span>·</span>
         <span>Артикул: {sku}</span>
       </div>

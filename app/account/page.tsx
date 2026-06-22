@@ -13,7 +13,9 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getCurrentCustomer } from '../../src/lib/customer/session'
 import { getCustomerOrders } from '../../src/lib/customer/repo'
+import { getWishlistProducts } from '../../src/lib/customer/wishlist-repo'
 import { logoutCustomerAction } from '../../src/lib/customer/actions'
+import { removeAccountFavoriteAction } from '../../src/lib/customer/wishlist-actions'
 import { customerOrderStatusLabel } from '../../src/lib/customer/order-display'
 import { deliveryMethodLabel, paymentMethodLabel } from '../../src/lib/orders/methods'
 import { formatPrice } from '../../src/lib/catalog'
@@ -61,7 +63,10 @@ export default async function AccountPage() {
     )
   }
 
-  const orders = await getCustomerOrders(customer.id)
+  const [orders, wishlist] = await Promise.all([
+    getCustomerOrders(customer.id),
+    getWishlistProducts(customer.id),
+  ])
 
   return (
     <div className="au-container au-checkout">
@@ -96,6 +101,49 @@ export default async function AccountPage() {
           <section className="au-co-section">
             <h2 className="au-co-section-title">Зміна пароля</h2>
             <PasswordForm />
+          </section>
+
+          {/* Server-side wishlist (Этап 62A): the customer's saved products, persisted in
+              the DB and resolved to PUBLISHED products only. Remove is a server action. */}
+          <section className="au-co-section">
+            <h2 className="au-co-section-title">
+              Обране
+              {wishlist.length > 0 && <span className="au-co-summary-count">{wishlist.length}</span>}
+            </h2>
+
+            {wishlist.length === 0 ? (
+              <p className="au-co-empty-sub">
+                Поки порожньо. Позначайте прикраси сердечком — вони збережуться тут.
+              </p>
+            ) : (
+              <ul className="au-co-list">
+                {wishlist.map((product) => (
+                  <li className="au-co-line" key={product.slug}>
+                    <div className="au-co-line-main">
+                      <p className="au-co-line-name">
+                        <Link href={`/product/${encodeURIComponent(product.slug)}`}>
+                          <strong>{product.name}</strong>
+                        </Link>
+                      </p>
+                      <p className="au-co-line-meta">{product.category}</p>
+                    </div>
+                    <span className="au-co-line-price">
+                      {typeof product.price === 'number' ? formatPrice(product.price) : '— ₴'}
+                    </span>
+                    <form action={removeAccountFavoriteAction}>
+                      <input type="hidden" name="slug" value={product.slug} />
+                      <button className="au-btn au-btn--ghost" type="submit" aria-label={`Прибрати ${product.name} з обраного`}>
+                        Прибрати
+                      </button>
+                    </form>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <p className="au-co-info-link">
+              <Link href="/favorites">Уся сторінка «Обране»</Link>
+            </p>
           </section>
         </div>
 

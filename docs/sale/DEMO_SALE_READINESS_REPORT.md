@@ -44,6 +44,8 @@ self-cleaning DB verifies; nothing committed).
 | Delivery details (59A) | `npm run db:verify:delivery-details` | branch/comment validation + persistence; guest preserved; no carrier API |
 | Email outbox (59A) | `npm run db:verify:email-outbox` | honest templates (no working send/reset), lifecycle, privacy; no sending |
 | Email ops + recovery (60A) | `npm run db:verify:email-ops` | no-send provider facade, outbox processing, hashed single-use reset + verification tokens, session revocation (33 checks); nothing sent |
+| Catalog UX / SEO (62A) | `npm run db:verify:catalog-ux` | honest rating (no fake stars), Product JSON-LD (no faked aggregateRating, UAH offers), metadata builder, sort/filter validation |
+| Account wishlist (62A) | `npm run db:verify:wishlist` | add/idempotent/remove, customer isolation, hidden-product exclusion; rolled back (nothing committed) |
 | Route render | `npm run smoke:routes` | 23 routes render; admin routes **gated** when unauthenticated |
 | Authenticated admin | `npm run smoke:admin` | 8 admin surfaces (incl. reviews + email-outbox) render **with** a local session, **gated** without |
 | Build | `npm run build` | production build green |
@@ -68,12 +70,17 @@ no integration) · 🚫 not implemented / owner-gated.
 | Password reset + email verification (60A) | 🟡 | `db:verify:email-ops`; `/account/recover`, `/account/reset` | **Token foundation only** | hashed single-use tokens + session revocation; **no email delivery** (no provider) |
 | Auth audit log (`customer.*`) | ✅ | `db:verify:customer-auth`; `/admin/audit-log` | **Yes** | no PII/secrets stored |
 | Durable auth rate limiting | ✅ | `db:verify:customer-auth` (durable section) | **Yes, single-instance** | multi-instance atomic limiting deferred |
+| Catalog SEO / meta + Product JSON-LD (62A) | ✅ | `db:verify:catalog-ux` | **Yes** | `aggregateRating` only with approved reviews; UAH offers; metadata only (no acquirer implied) |
+| Honest approved-only product rating (62A) | ✅ | `db:verify:catalog-ux`; `/product/[slug]` | **Yes** | no fake 5-star when 0 approved reviews |
+| Catalog filters / sorting (62A) | ✅ | `db:verify:catalog-ux` | **Yes** | URL params; invalid params fall back safely |
+| Server-side account wishlist (62A) | ✅ | `db:verify:wishlist`; `/account` | **Yes** | `customerId`-scoped; published-only; guest localStorage preserved |
 | Sale docs / screenshots package | ✅ | `demo:sale-docs-check`; `docs/sale/` | **Yes** | screenshots predate `/account` shot (see §10) |
 | Preflight / rehearsal / smoke checks | ✅ | `demo:preflight`, `demo:rehearsal`, `smoke:*` | **Yes** | local, read-only; not a deploy |
 | Real payment provider API | 🚫 | — (manual model only) | **No** | LiqPay/WayForPay etc. not integrated |
 | Carrier API / TTN / tracking | 🚫 | — (manual branch/comment fields only) | **No** | Nova Poshta/Ukrposhta not integrated |
 | Real email sending / delivered reset / verification | 🚫 | — (token foundation only, no provider) | **No** | nothing sent; reset/verify links are **not delivered** (owner/provider-gated) |
 | Verified-purchase reviews / photos | 🚫 | — (moderated reviews only) | **No** | no purchase verification; photos not supported |
+| Promo / discount / coupon engine | 🚫 | — (not built) | **No** | catalog UX/SEO/wishlist (62A) shipped, but no discount engine |
 | Public deploy / live demo | 🚫 | — (local only) | **No** | nothing hosted/tunneled |
 | Legal / fiscalization (РРО/ПРРО) | 🚫 | — (owner/lawyer-gated) | **No** | not addressed in code |
 | Real product imagery | 🚫 | placeholder (gem empty-state) | **No** | owner supplies licensed images |

@@ -77,6 +77,7 @@ model Product {
   variants    ProductVariant[]
   images      ProductImage[]
   reviews     ProductReview[]
+  wishlistedBy CustomerWishlistItem[]
 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -239,8 +240,32 @@ model Customer {
   orders        Order[]
   reviews       ProductReview[]
   accountTokens CustomerAccountToken[]
+  wishlist      CustomerWishlistItem[]
 
   @@index([email])
+}
+
+/// Server-side account wishlist / favourites (Этап 62A). Persists a logged-in
+/// customer's saved products so the wishlist survives across devices/sessions —
+/// alongside (not replacing) the guest localStorage favourites. Additive + privacy-safe:
+///   - one row per (customerId, productId); the unique constraint makes "add" idempotent.
+///   - HARD-SCOPED by customerId everywhere it is read/written (server actions re-derive
+///     the owner from the verified session), so one customer can never see/alter another's
+///     wishlist.
+///   - both sides cascade on delete: removing a customer or a product cleans up its rows,
+///     so the wishlist never dangles or leaks a deleted/hidden product as purchasable
+///     (the storefront read additionally filters to published products only).
+model CustomerWishlistItem {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([customerId, productId])
+  @@index([customerId])
+  @@index([productId])
 }
 
 /// Purpose of a short-lived, single-use customer account token (Этап 60A).

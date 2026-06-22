@@ -125,6 +125,16 @@ export function sortProducts(list: Product[], sort: SortKey): Product[] {
           (typeof a.price === 'number' ? a.price : Number.NEGATIVE_INFINITY),
       )
     case 'new':
+      // Honest "newest first" (Этап 62A): order by real createdAt when present.
+      // Products without a timestamp (legacy fixtures) keep the prior tag-based
+      // heuristic so the sort still degrades gracefully and is never empty.
+      if (arr.some((p) => typeof p.createdAt === 'string')) {
+        return arr.sort((a, b) => {
+          const ta = a.createdAt ? Date.parse(a.createdAt) : 0
+          const tb = b.createdAt ? Date.parse(b.createdAt) : 0
+          return tb - ta
+        })
+      }
       return arr.sort((a, b) => (a.tag === 'New' ? 0 : 1) - (b.tag === 'New' ? 0 : 1))
     case 'available-first':
       return arr.sort(

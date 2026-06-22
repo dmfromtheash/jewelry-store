@@ -10,9 +10,19 @@ import TrackView from '../../../src/components/analytics/TrackView'
 import { ANALYTICS_EVENTS } from '../../../src/lib/analytics/events'
 import { getProductsByCategorySlugFromDb } from '../../../src/lib/catalog/server'
 
+const DESCRIPTION =
+  'Готові подарункові рішення AURELIA: набори прикрас, парні браслети та сертифікати.'
+
 export const metadata: Metadata = {
   title: 'Подарунки — AURELIA',
-  description: 'Готові подарункові рішення AURELIA: набори прикрас, парні браслети та сертифікати.',
+  description: DESCRIPTION,
+  alternates: { canonical: '/category/gifts' },
+  openGraph: {
+    type: 'website',
+    title: 'Подарунки — AURELIA',
+    description: DESCRIPTION,
+    url: '/category/gifts',
+  },
 }
 
 const CHIPS = [

@@ -256,10 +256,11 @@ export async function createOrderDraft(input: OrderDraftInput): Promise<OrderDra
       })
       // Analytics: order CODE + coarse totals only — never customer PII.
       await recordDraftOrderCreated({ orderCode: order.orderCode, itemCount, totalMinor: totalAmount })
-      // Email foundation (Этап 59A): record an order-confirmation outbox row. NO email
-      // is sent (no provider) — it is stored as `skipped`. Best-effort: the email helper
-      // swallows its own errors, so this can never break a successful checkout. The
-      // recipient is stored only if the customer supplied an email.
+      // Email foundation (Этап 59A; processing 60A): record an order-confirmation outbox
+      // row. NO email is sent (no provider) — the no-send processor settles it to a terminal
+      // state such as `skipped_no_provider`. Best-effort: the email helper swallows its own
+      // errors, so this can never break a successful checkout. The recipient is stored only
+      // if the customer supplied an email.
       await enqueueOrderConfirmationEmail(
         order.orderCode,
         input.customerEmail?.trim() ? input.customerEmail.trim() : null,
@@ -278,5 +279,5 @@ export async function createOrderDraft(input: OrderDraftInput): Promise<OrderDra
     }
   }
   await recordCheckoutError({ errorType: 'server', itemCount })
-  return { ok: false, error: 'Не удалось создать заказ. Попробуйте ещё раз.' }
+  return { ok: false, error: 'Не вдалося створити замовлення. Спробуйте ще раз.' }
 }

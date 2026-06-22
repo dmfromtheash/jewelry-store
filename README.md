@@ -35,6 +35,9 @@ provider decisions + imagery — not core engineering.
 - Admin: catalog / orders / variants / stock, order lifecycle, audit log
 - Customer accounts: registration / login / logout, profile editing, password change
   with stale-session invalidation, order history + own order detail (guest checkout preserved)
+- Catalog UX & SEO (62A): honest approved-only product ratings, product/category metadata +
+  Product JSON-LD, URL-param filters/sorting, and a **server-side account wishlist**
+  (`customerId`-scoped; guest localStorage favourites preserved)
 - Screenshots and sale/handoff docs
 
 ## What is not implemented yet
@@ -52,6 +55,8 @@ provider decisions + imagery — not core engineering.
 - **Further account hardening** — guest-order linking, per-device session management, and
   **multi-instance** rate limiting (deferred). *(Durable single-instance rate limiting and
   customer-auth audit logging are already done — 49A/51A.)*
+- **Promo / discount / coupon engine** (deferred). *(Catalog UX, SEO/meta and the server-side
+  account wishlist are already done — 62A.)*
 
 These are deliberate, separately-scoped next steps — not hidden defects.
 

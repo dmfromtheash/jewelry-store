@@ -49,7 +49,7 @@ export default function ProductPageLayout({
 
         <div className="au-product">
           <ProductGallery images={product?.images} />
-          <ProductInfo product={product} />
+          <ProductInfo product={product} reviewSummary={reviewSummary} />
         </div>
 
         <ProductTabs description={product?.description} specs={product?.specs} />

@@ -46,6 +46,9 @@ export interface DbProductForMapping {
   tagGold: boolean
   rating: number
   reviewsCount: number
+  /** Optional in fixtures; real catalog rows always include it. Drives the
+   *  "newest" sort (Этап 62A). */
+  createdAt?: Date | string | null
   specs: unknown
   category: { slug: string }
   /** Variant rows. The legacy `coating` flattening only needs name/value/sortOrder;
@@ -120,6 +123,8 @@ export function mapDbProductToProduct(row: DbProductForMapping): Product {
     tagGold: row.tagGold,
     rating: row.rating,
     reviewsCount: row.reviewsCount,
+    // Normalise to a serializable ISO string (safe to pass into client components).
+    createdAt: row.createdAt ? new Date(row.createdAt).toISOString() : undefined,
     imageUrl,
     images: images.length > 0 ? images : undefined,
   }

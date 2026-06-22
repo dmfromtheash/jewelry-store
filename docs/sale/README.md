@@ -99,6 +99,11 @@ owner must decide before a real launch.
   reset** (session-revoking; `/account/recover` + `/account/reset`) and **email verification**
   (`emailVerifiedAt`; account-page status). **Nothing is sent** — no provider; reset/verification
   links are **not delivered** (owner-gated).
+- **Catalog UX, SEO & account wishlist (62A)** — **honest approved-only product ratings**
+  (no fake stars), **product/category SEO metadata + Product JSON-LD** (UAH offers;
+  `aggregateRating` only with approved reviews), **URL-param filters/sorting**, and a
+  **server-side account wishlist** (`/account` «Обране»; `customerId`-scoped; **guest
+  localStorage favourites preserved**). No promo/discount engine.
 - **Demo/sale readiness tooling** — `demo:preflight`, `demo:rehearsal`, `smoke:routes`,
   `smoke:admin`, `demo:sale-docs-check` (all local, read-only, no deploy; see
   [`DEMO_SALE_READINESS_REPORT.md`](./DEMO_SALE_READINESS_REPORT.md)).
@@ -122,6 +127,8 @@ owner must decide before a real launch.
   foundation** exist (59A/60A) but **nothing is sent** — no provider; no link is delivered.
 - **Verified-purchase reviews / photos in reviews** (reviews are **moderated**, no proof of
   purchase) — the moderated review mechanism itself **is** done (59A).
+- **Promo / discount / coupon engine** — catalog UX, SEO/meta and the server-side account
+  wishlist **are** done (62A), but no discount/promo engine is built.
 - **Production deploy** (no live hosted shop).
 - **Fiscalization (РРО/ПРРО)** / legal-compliance guarantees.
 - Full **uk-UA / EN localization** and secondary currencies (storefront copy is

@@ -26,6 +26,7 @@ import {
   getReviewSummaryBySlug,
 } from '../../../src/lib/reviews/server'
 import { getCurrentCustomer } from '../../../src/lib/customer/session'
+import { buildProductMetaParts, buildProductJsonLd } from '../../../src/lib/seo/product-seo'
 import type { CategorySlug } from '../../../src/lib/catalog'
 
 export const dynamicParams = true
@@ -48,9 +49,20 @@ export async function generateMetadata({
   const { slug } = await params
   const product = await getProductBySlugFromDb(slug)
   if (!product) return {}
+  // SEO/meta (Этап 62A): title + description + canonical + Open Graph basics. Images
+  // are added only when a real asset exists (most demo products are placeholder).
+  const { title, description, canonical, image } = buildProductMetaParts(product)
   return {
-    title: `${product.name} — AURELIA`,
-    description: product.description ?? 'Прикраса AURELIA — біжутерія без меж.',
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      type: 'website',
+      title,
+      description,
+      url: canonical,
+      ...(image ? { images: [{ url: image }] } : {}),
+    },
   }
 }
 
@@ -77,8 +89,17 @@ export default async function ProductPage({
     getCurrentCustomer().catch(() => null),
   ])
 
+  // Product structured data (Этап 62A). aggregateRating is included only when there is
+  // ≥1 approved review (see buildProductJsonLd) — never a fabricated rating.
+  const jsonLd = buildProductJsonLd(product, reviewSummary)
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        // JSON.stringify output is safe ld+json (no user HTML — review text never enters here).
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <TrackView event={ANALYTICS_EVENTS.productView} payload={{ productSlug: product.slug }} />
       <ProductPageLayout
         breadcrumbs={[
