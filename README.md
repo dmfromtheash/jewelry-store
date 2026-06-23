@@ -59,7 +59,13 @@ provider decisions + imagery — not core engineering.
   + **`/robots.txt`** (admin/account/cart/checkout/api disallowed), centralized canonical/site-URL
   policy (query-stripped; search `noindex`), Open Graph/Twitter cards (real product photo only — **no**
   fake/placeholder OG image), honest **Organization/WebSite/Breadcrumb/Product** JSON-LD, and an
-  **`/admin/seo`** readiness view. **No** analytics/pixels/ads/CRM, **no** public deploy — owner-gated
+  **`/admin/seo`** readiness view. **No** pixels/ads/CRM, **no** public deploy — owner-gated
+- **First-party analytics insights** (73A): own **no-PII** event stream (strict allowlist + payload
+  sanitizer) — storefront view/cart/checkout + engagement events (review/promo/wishlist/saved-search/
+  product-interest) reusing existing columns (**no migration**), a DB-backed **`/admin/analytics`**
+  (counts/funnel/top-products/engagement/devices/recent) + dashboard summary, and client **Do-Not-Track**
+  respect. **No** Google Analytics/Meta Pixel/external BI, **no** unique-visitor/profiling/fingerprinting,
+  **no** analytics cookies, **no** IP/UA/token storage — owner-gated production privacy review
 - Screenshots and sale/handoff docs
 
 ## What is not implemented yet
@@ -90,11 +96,13 @@ provider decisions + imagery — not core engineering.
 - **External analytics/BI** and **running commands from the web admin** (not built / not
   allowed). *(An admin operations dashboard with safe local aggregates is already done — 65A;
   readiness commands are text-only documentation.)*
-- **External analytics/events, ad pixels (Meta/Google/TikTok), retargeting, paid ads, affiliate
+- **Google Analytics / Meta Pixel / external analytics-BI, unique-visitor or user profiling,
+  fingerprinting, analytics cookies, ad pixels (Meta/Google/TikTok), retargeting, paid ads, affiliate
   programme, marketing automation/CRM, auto-generated SEO copy, a live public domain / Search Console
-  submission** (deferred). *(The SEO foundation — sitemap/robots, canonical/meta, OG/Twitter, honest
-  structured data, and `/admin/seo` — is already done — 72A; canonical/sitemap use a local/demo URL
-  until the owner deploys.)*
+  submission** (deferred). *(First-party **no-PII** analytics events + a DB-backed `/admin/analytics`
+  with Do-Not-Track respect are already done — 73A; production analytics still needs a privacy/legal
+  review. The SEO foundation — sitemap/robots, canonical/meta, OG/Twitter, honest structured data, and
+  `/admin/seo` — is already done — 72A; canonical/sitemap use a local/demo URL until the owner deploys.)*
 
 These are deliberate, separately-scoped next steps — not hidden defects.
 

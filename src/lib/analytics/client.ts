@@ -15,11 +15,31 @@
 
 const ENDPOINT = '/api/analytics'
 
+/**
+ * Honours the browser's "Do Not Track" signal (Этап 73A). When the visitor has
+ * DNT enabled we send NOTHING from the client — no beacon, no fetch. This is a
+ * client-side courtesy on top of the foundation's no-PII guarantees; server-side
+ * events (orders, etc.) are unaffected because they are not behavioural tracking
+ * of a browsing visitor. Checks the standard `navigator.doNotTrack` plus the
+ * legacy `window.doNotTrack` / `navigator.msDoNotTrack` spellings.
+ */
+function doNotTrackEnabled(): boolean {
+  try {
+    const nav = navigator as Navigator & { msDoNotTrack?: string }
+    const win = window as Window & { doNotTrack?: string }
+    const signal = nav.doNotTrack ?? win.doNotTrack ?? nav.msDoNotTrack
+    return signal === '1' || signal === 'yes'
+  } catch {
+    return false
+  }
+}
+
 export function sendAnalyticsEvent(
   event: string,
   payload?: Record<string, string | number | boolean | null>,
 ): void {
   if (typeof window === 'undefined') return
+  if (doNotTrackEnabled()) return // respect DNT — send nothing from the client
   try {
     const body = JSON.stringify({
       event,

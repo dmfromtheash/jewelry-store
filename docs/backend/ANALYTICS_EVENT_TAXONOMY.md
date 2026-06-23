@@ -14,9 +14,23 @@
 >
 > **Implementation status:** Stage 23A built the capture foundation (model,
 > validated `recordEvent()`, anonymous session, and the server-side
-> `draft_order_created` / `checkout_error` events). Client-originated events
-> (`product_view`, `category_view`, `begin_checkout`, `add_to_cart`) are deferred
-> — see [ANALYTICS_EVENT_CAPTURE.md](./ANALYTICS_EVENT_CAPTURE.md).
+> `draft_order_created` / `checkout_error` events). Stage 23B wired the
+> client-originated view/cart/checkout events (`product_view`, `category_view`,
+> `begin_checkout`, `add_to_cart`, `cart_view`) via `/api/analytics` —
+> see [ANALYTICS_EVENT_CAPTURE.md](./ANALYTICS_EVENT_CAPTURE.md).
+>
+> **Stage 73A (Analytics & Event Insights)** added: (a) server-side engagement
+> events that reuse the existing columns with NO migration — `review_submitted`,
+> `promo_applied`, `wishlist_added` / `wishlist_removed`, `saved_search_created`,
+> `product_interest_added` (anonymous COUNTS only, never a `userId`/customer id);
+> (b) a real DB-backed admin insights view at `/admin/analytics` (counts by
+> period, the purchase funnel, top products/categories, search/promo/engagement
+> signals, coarse device split, a safe recent-event feed) plus a dashboard
+> summary; (c) client-side **Do-Not-Track** respect (the beacon sends nothing
+> when `navigator.doNotTrack === '1'`). Still first-party + no-PII: NO Google
+> Analytics / Meta Pixel / external analytics-BI, NO unique-visitor or user
+> profiling, NO fingerprinting, NO analytics cookies, NO ad pixels/retargeting.
+> Production analytics still requires a privacy/legal review (owner decision).
 
 ## 1. Purpose
 

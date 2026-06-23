@@ -143,8 +143,15 @@ owner must decide before a real launch.
   search `noindex`), **Open Graph/Twitter** cards (a real product photo only — **no** fake/placeholder
   OG image), honest **Organization / WebSite (SearchAction) / Breadcrumb / Product** JSON-LD, and an
   **`/admin/seo`** readiness view (sitemap/robots/domain/OG/structured-data coverage + public-launch
-  blockers + marketing notes). **No** analytics/events, ad pixels, retargeting, paid ads, affiliate,
+  blockers + marketing notes). **No** ad pixels, retargeting, paid ads, affiliate,
   marketing automation/CRM, auto-generated SEO copy, or public deploy — owner-gated.
+- **First-party analytics insights (73A)** — own **no-PII** event stream (strict allowlist + payload
+  sanitizer; storefront view/cart/checkout + engagement events reusing existing columns, **no
+  migration**), a DB-backed **`/admin/analytics`** (counts by period, purchase funnel, top
+  products/categories, search/promo/engagement, coarse device split, safe recent-event feed) +
+  dashboard summary, and client **Do-Not-Track** respect. **No** Google Analytics / Meta Pixel /
+  external analytics-BI, **no** unique-visitor or user profiling, **no** fingerprinting, **no**
+  analytics cookies; production analytics needs a privacy/legal review — owner-gated.
 - **Demo/sale readiness tooling** — `demo:preflight`, `demo:rehearsal`, `smoke:routes`,
   `smoke:admin`, `demo:sale-docs-check` (all local, read-only, no deploy; see
   [`DEMO_SALE_READINESS_REPORT.md`](./DEMO_SALE_READINESS_REPORT.md)).

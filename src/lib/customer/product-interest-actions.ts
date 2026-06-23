@@ -14,6 +14,7 @@
  */
 
 import { revalidatePath } from 'next/cache'
+import { recordProductInterestAdded } from '../analytics/record'
 import { getCurrentCustomer } from './session'
 import { isThrottled, registerAttempt, type ThrottleRule } from './rate-limit'
 import { addProductInterestBySlug, cancelProductInterest } from './product-interest-repo'
@@ -45,6 +46,8 @@ export async function addProductInterestAction(slug: string): Promise<ProductInt
     const ok = await addProductInterestBySlug(customer.id, slug)
     await registerAttempt(key, INTEREST_THROTTLE)
     if (!ok) return { ok: false, error: PRODUCT_ERROR }
+    // Anonymous analytics count (best-effort) — public slug only, never the customer id.
+    await recordProductInterestAdded({ productSlug: slug })
     revalidatePath('/account')
     return { ok: true }
   } catch (e) {

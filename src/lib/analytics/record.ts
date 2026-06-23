@@ -208,6 +208,79 @@ export async function recordDraftOrderCreated(opts: {
   }
 }
 
+/**
+ * Engagement events (Этап 73A) — server-side, anonymous COUNTS only.
+ *
+ * These run inside existing server actions (review/promo/wishlist/saved-search/
+ * product-interest). They deliberately do NOT derive or store any identity:
+ *   - NO userId/customerId (even when the action is performed by a logged-in
+ *     customer) — analytics stays an aggregate signal, never a per-user profile;
+ *   - NO cookies/headers are read here, so they are cheap and safe to call from a
+ *     plain Server Action without a request scope;
+ *   - they reuse the EXISTING AnalyticsEvent columns (productId / categoryId /
+ *     payload), so no schema change was required.
+ * Every helper is best-effort: a failure is swallowed and never breaks the action
+ * that triggered it.
+ */
+
+/** review_submitted — productId + integer rating only. NO author/body/PII. */
+export async function recordReviewSubmitted(opts: {
+  productId: string
+  rating: number
+}): Promise<void> {
+  await recordEvent({
+    eventName: ANALYTICS_EVENTS.reviewSubmitted,
+    productId: opts.productId,
+    payload: { rating: opts.rating },
+  })
+}
+
+/**
+ * promo_applied — outcome of a promo preview/apply. Stores only the result enum
+ * and (on success) the NORMALIZED promo code. Promo codes are not secret in this
+ * build (they are typed into the public checkout box and shown on confirmations,
+ * Этап 63A), so the code itself is a safe, useful aggregation key. On failure the
+ * raw attempt is NOT stored — only `result: 'rejected'`.
+ */
+export async function recordPromoApplied(opts: {
+  result: 'applied' | 'rejected'
+  code?: string | null
+}): Promise<void> {
+  await recordEvent({
+    eventName: ANALYTICS_EVENTS.promoApplied,
+    payload: {
+      result: opts.result,
+      ...(opts.result === 'applied' && opts.code ? { code: opts.code } : {}),
+    },
+  })
+}
+
+/** wishlist_added / wishlist_removed — public productSlug only; anonymous count. */
+export async function recordWishlistChanged(opts: {
+  added: boolean
+  productSlug: string
+}): Promise<void> {
+  await recordEvent({
+    eventName: opts.added ? ANALYTICS_EVENTS.wishlistAdded : ANALYTICS_EVENTS.wishlistRemoved,
+    payload: { productSlug: opts.productSlug },
+  })
+}
+
+/** saved_search_created — bare engagement count; NO query text/fields stored. */
+export async function recordSavedSearchCreated(): Promise<void> {
+  await recordEvent({ eventName: ANALYTICS_EVENTS.savedSearchCreated })
+}
+
+/** product_interest_added — public productSlug only; anonymous count. */
+export async function recordProductInterestAdded(opts: {
+  productSlug: string
+}): Promise<void> {
+  await recordEvent({
+    eventName: ANALYTICS_EVENTS.productInterestAdded,
+    payload: { productSlug: opts.productSlug },
+  })
+}
+
 /** checkout_error — stable error CATEGORY only; never field values or PII. */
 export async function recordCheckoutError(opts: {
   errorType: string

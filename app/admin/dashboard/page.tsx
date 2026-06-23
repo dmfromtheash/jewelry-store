@@ -54,7 +54,7 @@ export default async function AdminDashboardPage() {
   await ensureLocalAdmin()
   await requireAdminSession()
 
-  const { orders, reviews, promos, email, catalog, customers, engagement, contentReadiness, attention, readiness } =
+  const { orders, reviews, promos, email, catalog, customers, engagement, contentReadiness, analytics, attention, readiness } =
     await getOperationsDashboard()
 
   return (
@@ -243,6 +243,29 @@ export default async function AdminDashboardPage() {
         редактирования и без секретов/токенов).
       </p>
       <p className="au-adm-cta"><Link className="au-adm-link" href="/admin/customers">Покупатели →</Link></p>
+
+      {/* ---- Analytics (Этап 73A) ---- */}
+      <h2 className="au-adm-section-title">Аналитика</h2>
+      <div className="au-adm-kpis">
+        <KpiCard label="Событий всего" value={String(analytics.totalAllTime)} />
+        <KpiCard label="Событий за 7 дней" value={String(analytics.last7Days)} />
+        <KpiCard label="Просмотры → заказ" value={`${analytics.funnel[0]?.count ?? 0} → ${analytics.funnel[3]?.count ?? 0}`} hint="воронка" />
+        <KpiCard label="Топ-товар (7 дн.)" value={analytics.topProduct ? String(analytics.topProduct.count) : '—'} hint={analytics.topProduct?.name ?? 'нет данных'} />
+      </div>
+      <div className="au-adm-card">
+        {analytics.hasEvents ? (
+          <p className="au-adm-note">
+            Первичная обезличенная аналитика (без PII / IP / cookies-трекеров). Внешняя аналитика/BI
+            не подключена.
+          </p>
+        ) : (
+          <p className="au-adm-note">
+            Событий пока нет — счётчики появятся после действий в витрине. Аналитика обезличенная,
+            без сторонних трекеров.
+          </p>
+        )}
+        <p className="au-adm-cta"><Link className="au-adm-link" href="/admin/analytics">Аналитика →</Link></p>
+      </div>
 
       {/* ---- Readiness / owner-gated ---- */}
       <h2 className="au-adm-section-title">Готовность (под решение владельца)</h2>

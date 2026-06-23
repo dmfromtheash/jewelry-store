@@ -13,6 +13,7 @@
  */
 
 import { revalidatePath } from 'next/cache'
+import { recordSavedSearchCreated } from '../analytics/record'
 import { getCurrentCustomer } from './session'
 import { isThrottled, registerAttempt, type ThrottleRule } from './rate-limit'
 import { validateSavedSearchInput, type SavedSearchInputRaw } from './saved-search'
@@ -51,6 +52,8 @@ export async function createSavedSearchAction(
     const result = await createSavedSearch(customer.id, value)
     await registerAttempt(key, SAVE_THROTTLE)
     if (result === 'limit_reached') return { ok: false, error: LIMIT_REACHED }
+    // Anonymous analytics count (best-effort) — bare engagement signal, no query text/customer id.
+    await recordSavedSearchCreated()
     revalidatePath('/account')
     return { ok: true }
   } catch (e) {

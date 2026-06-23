@@ -12,6 +12,7 @@
 
 import { priceOrderItems } from '../orders/pricing'
 import type { OrderDraftItemInput } from '../orders/types'
+import { recordPromoApplied } from '../analytics/record'
 import { validateAndPricePromo } from './server'
 import { PROMO_GENERIC_ERROR } from './calc'
 
@@ -37,9 +38,15 @@ export async function previewPromoAction(
   }
 
   const result = await validateAndPricePromo(rawCode, priced.subtotalMinor)
-  if (!result.ok) return { ok: false, error: result.error }
+  if (!result.ok) {
+    // Anonymous analytics count (best-effort) — outcome only; the failed attempt is NOT stored.
+    await recordPromoApplied({ result: 'rejected' })
+    return { ok: false, error: result.error }
+  }
 
   const discountMinor = result.promo.discountMinor
+  // Anonymous analytics count (best-effort) — normalized code (codes aren't secret here).
+  await recordPromoApplied({ result: 'applied', code: result.promo.code })
   return {
     ok: true,
     code: result.promo.code,

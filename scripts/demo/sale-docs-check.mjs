@@ -44,6 +44,11 @@
  *     sends NOTHING, and a NON-financial engagement label). So those are HONEST. But real loyalty
  *     POINTS, cashback, store credit/wallet, automatic personalized discounts, real back-in-stock
  *     EMAILS, and any external marketing-automation/CRM are NOT built — claiming those is FALSE.
+ *   - FIRST-PARTY analytics insights exist (Этап 73A: own no-PII event allowlist + sanitizer,
+ *     a DB-backed /admin/analytics, and client Do-Not-Track respect). So those are HONEST. But
+ *     Google Analytics, Meta/TikTok pixels, any external analytics-BI, unique-visitor analytics /
+ *     user profiling, fingerprinting, analytics cookies, real email campaigns, and production
+ *     privacy/legal compliance are NOT built — claiming those is FALSE.
  *
  * Lines that are clearly NEGATIONS / honest disclaimers (contain ❌, "no ", "not",
  * "without", "must not", "never", "instead of", "isn't") are SKIPPED for the
@@ -201,6 +206,19 @@ const FALSE_FEATURES = [
   { re: /\baffiliate\s+(program\w*|system|network)\s+(is\s+)?(implemented|live|integrated|enabled|available|running)\b/i, why: 'no affiliate programme is implemented' },
   { re: /\bsitemap\s+(is\s+)?(submitted|registered|verified)\s+(to\s+|with\s+)?(google|bing|search\s+console|webmaster)\b/i, why: 'the sitemap is generated but NOT submitted/registered with any search engine (owner-gated)' },
   { re: /\b(google\s+)?search\s+console\s+(is\s+)?(configured|connected|verified|set\s*up|integrated)\b/i, why: 'Search Console is not configured (no public domain / owner-gated)' },
+  // First-party analytics insights (Этап 73A): own NO-PII analytics events + admin insights ARE
+  // implemented (allowlist + sanitizer, /admin/analytics, DNT respect). So "first-party no-PII
+  // analytics foundation / admin analytics insights / local analytics events" is HONEST and must
+  // NOT be flagged. What is NOT built — and must NOT be claimed: Google Analytics / Meta-Google-
+  // TikTok pixels (also above), any external analytics-BI provider (also above), unique-visitor
+  // analytics / user profiling, fingerprinting, real email campaigns, production privacy/legal
+  // compliance, and a public analytics deployment. Affirmative + negation-guarded.
+  { re: /\bgoogle\s+analytics\b\s*(\(?ga4?\)?\s*)?(is\s+|are\s+)?(implemented|integrated|installed|configured|connected|live|enabled|added|set\s*up|tracking)\b/i, why: 'no Google Analytics — first-party no-PII local counts only' },
+  { re: /\b(unique\s+visitors?|visitor\s+tracking|user\s+profiling|customer\s+profiling|user\s+profiles?|visitor\s+profiles?)\s+(tracking\s+|analytics\s+)?(is\s+|are\s+)?(implemented|tracked|built|enabled|available|supported|live)\b/i, why: 'no unique-visitor analytics / user profiling — anonymous event counts only' },
+  { re: /\b(device\s+|browser\s+|canvas\s+)?fingerprint\w*\s+(is\s+|are\s+)?(implemented|used|enabled|supported|available|live|added)\b/i, why: 'no fingerprinting — events are anonymous, no device/browser fingerprint' },
+  { re: /\b(real\s+)?(e?-?mail)\s+campaigns?\s+(are\s+|is\s+)?(sent|running|implemented|live|enabled|delivered|launched)\b/i, why: 'no real email campaigns are sent (no provider; analytics is not marketing)' },
+  { re: /\b(privacy|legal|gdpr|data[-\s]?protection)\s+(compliance|review|certification)\s+(is\s+|are\s+)?(complete|done|finished|passed|certified|ready)\b/i, why: 'production privacy/legal compliance review is NOT complete — owner-gated' },
+  { re: /\banalytics\s+(is\s+|are\s+)?(deployed|in\s+production|production[-\s]?ready|publicly\s+(deployed|available|live))\b/i, why: 'analytics is local/demo only — not deployed/production-ready (owner-gated)' },
 ]
 
 const NEGATION = /❌|\bno\b|\bnot\b|\bnever\b|\bwithout\b|\bmust not\b|\binstead of\b|\bisn'?t\b|\baren'?t\b|\bplaceholder\b|\bdeferred\b|\bnot yet\b|\bnothing\b|\bplanning only\b|\bdemo only\b|\bno real\b/i

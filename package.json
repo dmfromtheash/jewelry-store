@@ -39,6 +39,7 @@
     "db:verify:admin-orders": "tsx prisma/verify-admin-orders.ts",
     "db:verify:audit-log": "tsx prisma/verify-audit-log.ts",
     "db:verify:analytics": "tsx prisma/verify-analytics.ts",
+    "db:verify:analytics-events": "tsx prisma/verify-analytics-events.ts",
     "db:verify:lifecycle": "tsx prisma/verify-lifecycle.ts",
     "db:verify:customer-auth": "tsx prisma/verify-customer-auth.ts",
     "db:verify:reviews": "tsx prisma/verify-reviews.ts",

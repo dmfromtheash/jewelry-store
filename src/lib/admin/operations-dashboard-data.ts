@@ -25,6 +25,7 @@ import { prisma } from '../db/prisma'
 import { PROVIDER_CONFIGURED } from '../email/outbox'
 import { LOW_STOCK_THRESHOLD } from '../inventory/stock-health'
 import { getReadinessDashboardCounts } from '../product-readiness/readiness-data'
+import { getAnalyticsDashboardSummary, type AnalyticsDashboardSummary } from '../analytics/insights-data'
 import {
   buildAttentionQueue,
   buildReadinessWarnings,
@@ -105,6 +106,8 @@ export interface OperationsDashboard {
     withWarnings: number
     withPhotoGap: number
   }
+  /** First-party analytics summary (Этап 73A) — safe counts + funnel; no PII. */
+  analytics: AnalyticsDashboardSummary
   attention: AttentionItem[]
   readiness: ReadinessItem[]
 }
@@ -137,6 +140,7 @@ export async function getOperationsDashboard(now: Date = new Date()): Promise<Op
     savedSearchesTotal,
     activeInterestsTotal,
     contentReadiness,
+    analytics,
   ] = await Promise.all([
     prisma.order.groupBy({ by: ['status'], _count: { _all: true } }),
     prisma.order.findMany({
@@ -183,6 +187,7 @@ export async function getOperationsDashboard(now: Date = new Date()): Promise<Op
     prisma.customerSavedSearch.count(),
     prisma.customerProductInterest.count({ where: { status: CustomerInterestStatus.active } }),
     getReadinessDashboardCounts(),
+    getAnalyticsDashboardSummary(now),
   ])
 
   // --- Orders ---
@@ -304,6 +309,7 @@ export async function getOperationsDashboard(now: Date = new Date()): Promise<Op
     customers,
     engagement,
     contentReadiness,
+    analytics,
     attention,
     readiness: buildReadinessWarnings(PROVIDER_CONFIGURED),
   }

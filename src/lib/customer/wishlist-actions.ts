@@ -19,9 +19,13 @@
  * No audit events are emitted here: a wishlist toggle is a low-risk, high-frequency
  * personalization action (not a security/account-state change), so logging it would only
  * add noise to the admin audit trail — consistent with the "do not overdo it" guidance.
+ * It DOES emit an anonymous analytics count (Этап 73A): wishlist_added / wishlist_removed
+ * carry only the public product slug — never the customer id — so it is an aggregate
+ * engagement signal, not a per-user trail (distinct from the admin audit log above).
  */
 
 import { revalidatePath } from 'next/cache'
+import { recordWishlistChanged } from '../analytics/record'
 import { getCurrentCustomer } from './session'
 import {
   addManyWishlistBySlug,
@@ -51,7 +55,10 @@ export async function addFavoriteAction(slug: string): Promise<{ ok: boolean }> 
   const customer = await getCurrentCustomer().catch(() => null)
   if (!customer) return { ok: false }
   try {
-    return { ok: await addWishlistBySlug(customer.id, slug) }
+    const ok = await addWishlistBySlug(customer.id, slug)
+    // Anonymous analytics count (best-effort) — public slug only, never the customer id.
+    if (ok) await recordWishlistChanged({ added: true, productSlug: slug })
+    return { ok }
   } catch {
     return { ok: false }
   }
@@ -62,7 +69,10 @@ export async function removeFavoriteAction(slug: string): Promise<{ ok: boolean 
   const customer = await getCurrentCustomer().catch(() => null)
   if (!customer) return { ok: false }
   try {
-    return { ok: await removeWishlistBySlug(customer.id, slug) }
+    const ok = await removeWishlistBySlug(customer.id, slug)
+    // Anonymous analytics count (best-effort) — public slug only, never the customer id.
+    if (ok) await recordWishlistChanged({ added: false, productSlug: slug })
+    return { ok }
   } catch {
     return { ok: false }
   }

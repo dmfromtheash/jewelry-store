@@ -31,6 +31,15 @@ export const ANALYTICS_EVENTS = {
   searchNoResults: 'search_no_results',
   filterApplied: 'filter_applied',
   sortChanged: 'sort_changed',
+  // Engagement (server-side; Этап 73A). Anonymous COUNTS only — never an
+  // identity. These reuse the existing AnalyticsEvent columns (productId /
+  // payload), so no schema/migration was needed to add them.
+  reviewSubmitted: 'review_submitted',
+  promoApplied: 'promo_applied',
+  wishlistAdded: 'wishlist_added',
+  wishlistRemoved: 'wishlist_removed',
+  savedSearchCreated: 'saved_search_created',
+  productInterestAdded: 'product_interest_added',
   // Marketing / source
   landingPageView: 'landing_page_view',
   utmCaptured: 'utm_captured',

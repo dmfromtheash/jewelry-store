@@ -153,6 +153,7 @@ async function main() {
     '/admin/inventory',
     '/admin/readiness',
     '/admin/seo',
+    '/admin/analytics',
     '/admin/reviews',
     '/admin/customers',
     '/admin/promotions',

@@ -46,6 +46,34 @@ All client payloads carry only slugs / counts / coarse totals — never customer
 data. The anonymous session, device bucket and referrer domain are derived
 **server-side** in the route, not sent by the client.
 
+**Server-side engagement (73A)** — emitted from existing server actions as
+anonymous COUNTS (never a `userId`/customer id), reusing existing columns (NO
+migration):
+
+| Event | Where | Data captured (no PII) |
+|---|---|---|
+| `review_submitted` | `submitProductReview` success | `productId`, payload `{ rating }` |
+| `promo_applied` | `previewPromoAction` | payload `{ result: 'applied'\|'rejected', code? }` (code only on success; codes are not secret — 63A) |
+| `wishlist_added` / `wishlist_removed` | `addFavoriteAction` / `removeFavoriteAction` | payload `{ productSlug }` |
+| `saved_search_created` | `createSavedSearchAction` success | no payload |
+| `product_interest_added` | `addProductInterestAction` success | payload `{ productSlug }` |
+
+These call `recordEvent()` directly (no cookies/headers needed) via the typed
+wrappers `recordReviewSubmitted()` / `recordPromoApplied()` /
+`recordWishlistChanged()` / `recordSavedSearchCreated()` /
+`recordProductInterestAdded()`. Best-effort — a failure never breaks the action.
+
+**Do Not Track (73A):** `sendAnalyticsEvent()` now sends NOTHING from the client
+when the browser has DNT enabled (`navigator.doNotTrack === '1'`, plus the legacy
+`window.doNotTrack` / `navigator.msDoNotTrack` spellings).
+
+**Admin insights (73A):** `src/lib/analytics/insights.ts` (pure shaping) +
+`insights-data.ts` (server-only `getAnalyticsInsights()`) power a real DB-backed
+`/admin/analytics` (counts by period, purchase funnel, top products/categories,
+search/promo/engagement signals, coarse device split, a safe recent-event feed)
+and a compact operations-dashboard summary. The recent-event projection omits
+`anonymousSessionId` / `userId`; the model holds no IP / raw UA / cookie / token.
+
 ## Events intentionally deferred (and why)
 
 | Event | Reason deferred |

@@ -20,6 +20,7 @@ import { headers } from 'next/headers'
 import { prisma } from '../db/prisma'
 import { getCurrentCustomer } from '../customer/session'
 import { isThrottled, registerAttempt, type ThrottleRule } from '../customer/rate-limit'
+import { recordReviewSubmitted } from '../analytics/record'
 import { validateReviewInput, hasReviewErrors } from './validate'
 import type { ReviewSubmitInput, ReviewSubmitResult } from './types'
 
@@ -82,6 +83,9 @@ export async function submitProductReview(input: ReviewSubmitInput): Promise<Rev
         status: 'pending', // ALWAYS pending — invisible until an admin approves it.
       },
     })
+
+    // Anonymous analytics count (best-effort) — productId + rating only, no author/body.
+    await recordReviewSubmitted({ productId: product.id, rating: value.rating })
 
     await registerAttempt(key, REVIEW_THROTTLE)
     return { ok: true }
