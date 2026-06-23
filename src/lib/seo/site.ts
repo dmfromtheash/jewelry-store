@@ -176,6 +176,35 @@ export function buildWebSiteJsonLd(): Record<string, unknown> {
   }
 }
 
+/**
+ * Map of HTML/script-significant characters → their JSON unicode escape. `<` is the one that
+ * matters most (a value containing `</script>` could otherwise break out of an inline
+ * `<script type="application/ld+json">`); `>` and `&` are escaped for completeness, and the
+ * U+2028 / U+2029 line separators (legal in JSON strings but able to terminate an inline script
+ * in some engines) are neutralised too. Every replacement is still valid JSON / JSON-LD.
+ */
+const JSON_LD_ESCAPES: Record<string, string> = {
+  '<': '\\u003c',
+  '>': '\\u003e',
+  '&': '\\u0026',
+  '\u2028': '\\u2028',
+  '\u2029': '\\u2029',
+}
+
+/**
+ * Serialises a JSON-LD object for safe injection into an inline
+ * `<script type="application/ld+json">` (Этап 76A — closes 75A finding F6).
+ *
+ * Plain `JSON.stringify` leaves a literal `<` in the output, so admin-authored data containing
+ * `</script>` (or `<!--`) could break out of the script element. Our inputs are admin-controlled
+ * and customer free-text already rejects markup, so this is defence in depth — but it is small,
+ * design-safe, and removes the break-out risk entirely. The rendered structured data is unchanged;
+ * only the byte encoding of a handful of characters is made safer.
+ */
+export function serializeJsonLd(node: unknown): string {
+  return JSON.stringify(node).replace(/[<>&\u2028\u2029]/g, (ch) => JSON_LD_ESCAPES[ch] ?? ch)
+}
+
 /** A single breadcrumb step. `href` is optional for the current (last) item. */
 export interface BreadcrumbStep {
   label: string

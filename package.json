@@ -58,6 +58,7 @@
     "email:process:stub": "tsx prisma/email-process.ts",
     "smoke:routes": "node scripts/smoke/route-smoke.mjs",
     "smoke:admin": "node scripts/smoke/admin-smoke.mjs",
+    "security:public-demo": "node scripts/security/public-demo-check.mjs",
     "demo:preflight": "node scripts/demo/preflight.mjs",
     "demo:preflight:full": "node scripts/demo/preflight.mjs --full",
     "demo:sale-docs-check": "node scripts/demo/sale-docs-check.mjs",

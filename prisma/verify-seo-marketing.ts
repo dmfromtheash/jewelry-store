@@ -36,6 +36,7 @@ import {
   buildBreadcrumbJsonLd,
   buildOrganizationJsonLd,
   buildWebSiteJsonLd,
+  serializeJsonLd,
   STATIC_SITEMAP_ROUTES,
   ROBOTS_DISALLOW,
   SITE_URL,
@@ -144,6 +145,22 @@ async function main() {
   check('Breadcrumb positions are 1-based & ordered', items.length === 3 && items[0].position === 1 && items[2].position === 3)
   check('Breadcrumb last item has no URL (current page)', !('item' in items[2]) && items[0].item === `${SITE_URL}/`)
   check('Breadcrumb empty trail → null', buildBreadcrumbJsonLd([]) === null)
+
+  // ── 6b) JSON-LD serialization escaping (Этап 76A — 75A finding F6) ──
+  console.log('JSON-LD escaping (safe inline ld+json):')
+  const LS = String.fromCharCode(0x2028) // line separator
+  const PS = String.fromCharCode(0x2029) // paragraph separator
+  const hostile = serializeJsonLd({ name: `</script><x>& done${LS}${PS}`, ok: 'plain spaces kept' })
+  check('serializeJsonLd escapes "<" (no break-out)', !hostile.includes('<'))
+  check('serializeJsonLd escapes ">"', !hostile.includes('>'))
+  check('serializeJsonLd escapes "&"', !hostile.includes('&'))
+  check('serializeJsonLd escapes U+2028/U+2029 line separators', !hostile.includes(LS) && !hostile.includes(PS))
+  check('serializeJsonLd emits the \\u003c escape for "<"', hostile.includes('\\u003c'))
+  check('serializeJsonLd round-trips to identical data', (() => {
+    const parsed = JSON.parse(hostile) as Record<string, string>
+    return parsed.name === `</script><x>& done${LS}${PS}` && parsed.ok === 'plain spaces kept'
+  })())
+  check('serializeJsonLd preserves ordinary whitespace (only separators escaped)', serializeJsonLd({ a: 'a b  c' }).includes('a b  c'))
 
   // ── 7) SEO coverage + blockers (pure) ──
   console.log('SEO coverage & blockers:')

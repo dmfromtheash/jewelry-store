@@ -11,6 +11,7 @@ import {
   buildOrganizationJsonLd,
   buildWebSiteJsonLd,
   metadataBaseUrl,
+  serializeJsonLd,
 } from '../src/lib/seo/site'
 
 // Base URL used to resolve relative canonical/Open Graph URLs. Reads the public site URL when
@@ -24,8 +25,8 @@ export const metadata: Metadata = {
 }
 
 // Site-wide structured data (Этап 72A): Organization + WebSite (with on-site SearchAction).
-// Honest, generic fields only — no fabricated address/phone/payment/rating. JSON.stringify
-// output is safe ld+json (no user-supplied HTML enters here).
+// Honest, generic fields only — no fabricated address/phone/payment/rating. Serialised via
+// serializeJsonLd (Этап 76A) so `<` is escaped — safe inline ld+json (defence in depth).
 const SITE_JSON_LD = [buildOrganizationJsonLd(), buildWebSiteJsonLd()]
 
 export default async function RootLayout({
@@ -51,7 +52,7 @@ export default async function RootLayout({
           <script
             key={i}
             type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(node) }}
+            dangerouslySetInnerHTML={{ __html: serializeJsonLd(node) }}
           />
         ))}
       </head>

@@ -8,6 +8,12 @@ configuration was changed. This document is the sole deliverable.
 **HEAD at audit:** `2978961` (docs: refresh 74A buyer handoff audit) — unchanged by this stage
 **Reviewer:** Claude (Opus 4.8), manual structured review.
 
+> **Follow-up (Этап 76A):** the public-demo hardening items below — **F1** (security headers)
+> and **F6** (JSON-LD escaping) — were implemented, with **F3** (production-serving) and **F7**
+> (Server-Actions origins) documented, in
+> [`PUBLIC_DEMO_HARDENING_76A.md`](./PUBLIC_DEMO_HARDENING_76A.md). The owner/provider-gated
+> launch layer (F2/F4/F5/F9) remains deferred.
+
 > `/security-review` slash command: a `security-review` skill IS available in this
 > environment. It is scoped to "the pending changes on the current branch" (a diff
 > reviewer). This stage has **no pending diff** (working tree clean, docs-only output),

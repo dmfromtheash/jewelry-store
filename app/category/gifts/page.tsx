@@ -9,7 +9,7 @@ import CategoryLayout from '../../../src/components/category/CategoryLayout'
 import TrackView from '../../../src/components/analytics/TrackView'
 import { ANALYTICS_EVENTS } from '../../../src/lib/analytics/events'
 import { getProductsByCategorySlugFromDb } from '../../../src/lib/catalog/server'
-import { buildBreadcrumbJsonLd } from '../../../src/lib/seo/site'
+import { buildBreadcrumbJsonLd, serializeJsonLd } from '../../../src/lib/seo/site'
 
 const DESCRIPTION =
   'Готові подарункові рішення AURELIA: набори прикрас, парні браслети та сертифікати.'
@@ -55,7 +55,7 @@ export default async function GiftsCategoryPage() {
       {BREADCRUMB_JSON_LD && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(BREADCRUMB_JSON_LD) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(BREADCRUMB_JSON_LD) }}
         />
       )}
       <TrackView event={ANALYTICS_EVENTS.categoryView} payload={{ categorySlug: 'gifts' }} />

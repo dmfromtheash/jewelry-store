@@ -27,7 +27,7 @@ import {
 } from '../../../src/lib/reviews/server'
 import { getCurrentCustomer } from '../../../src/lib/customer/session'
 import { buildProductMetaParts, buildProductJsonLd } from '../../../src/lib/seo/product-seo'
-import { buildBreadcrumbJsonLd, productOgImages } from '../../../src/lib/seo/site'
+import { buildBreadcrumbJsonLd, productOgImages, serializeJsonLd } from '../../../src/lib/seo/site'
 import type { CategorySlug } from '../../../src/lib/catalog'
 
 export const dynamicParams = true
@@ -115,13 +115,14 @@ export default async function ProductPage({
     <>
       <script
         type="application/ld+json"
-        // JSON.stringify output is safe ld+json (no user HTML — review text never enters here).
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        // serializeJsonLd escapes `<` (Этап 76A) — safe inline ld+json even though review text
+        // never enters here and product fields are admin-controlled (defence in depth).
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
       {breadcrumbJsonLd && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }}
         />
       )}
       <TrackView event={ANALYTICS_EVENTS.productView} payload={{ productSlug: product.slug }} />

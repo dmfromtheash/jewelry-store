@@ -120,6 +120,7 @@ function checkScripts() {
     'typecheck',
     'build',
     'smoke:routes',
+    'security:public-demo',
     'db:verify:customer-auth',
     'db:start',
     'db:stop',
@@ -134,6 +135,26 @@ function checkFiles() {
   assertFile('docs/sale/PRE_PUBLIC_DEMO_READINESS.md')
   assertFile('docs/sale/LIVE_DEMO_DEPLOY_READINESS.md')
   assertFile('docs/sale/LOCAL_TUNNEL_DEMO_RUNBOOK.md')
+  // Public-demo hardening (Этап 76A): browser-security headers + JSON-LD escaping.
+  assertFile('next.config.ts')
+  assertFile('docs/security/PUBLIC_DEMO_HARDENING_76A.md')
+  assertFile('scripts/security/public-demo-check.mjs')
+}
+
+function checkSecurityHeaders() {
+  section('Public-demo browser security headers (hard — Этап 76A, 75A F1/F6):')
+  // The conservative public-demo header baseline + a same-origin CSP with anti-clickjacking.
+  assertContains('next.config.ts', [
+    /async\s+headers\s*\(/,
+    'Content-Security-Policy',
+    "frame-ancestors 'none'",
+    'X-Frame-Options',
+    'X-Content-Type-Options',
+    'Referrer-Policy',
+    'Permissions-Policy',
+  ])
+  // JSON-LD is serialized through the escaping helper (no bare JSON.stringify break-out).
+  assertContains('src/lib/seo/site.ts', ['serializeJsonLd', '\\u003c'])
 }
 
 function checkSecurityPosture() {
@@ -219,6 +240,7 @@ function runFullChildren() {
   }
   run('npm run typecheck', 'npm run typecheck')
   run('npx prisma validate', 'npx prisma validate')
+  run('npm run security:public-demo', 'npm run security:public-demo')
 
   section('Run these WITH the AURELIA DB (6700) + dev server up — NOT auto-run here:')
   console.log('  •  npm run db:start && npm run db:verify:customer-auth   # then npm run db:stop')
@@ -244,6 +266,7 @@ function main() {
   checkScripts()
   checkFiles()
   checkSecurityPosture()
+  checkSecurityHeaders()
   checkDbTarget()
   checkHonestClaims()
   if (FULL) runFullChildren()
