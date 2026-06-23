@@ -463,6 +463,67 @@ model CustomerAccountToken {
   @@index([expiresAt])
 }
 
+/// Why a stock level changed (Этап 70A — inventory operations). All four are AUDIT reasons for
+/// the append-only stock-movement ledger; none of them is a warehouse/supplier/ERP concept.
+///   - `order_created`           → stock decremented when a checkout order was created (28B/30B).
+///   - `order_cancelled_restock` → stock re-incremented when an order was cancelled (28C).
+///   - `manual_adjustment`       → an admin set/changed a stock level from /admin/inventory.
+///   - `admin_correction`        → reserved for a future corrective action slot (not wired in UI).
+enum StockMovementReason {
+  order_created
+  order_cancelled_restock
+  manual_adjustment
+  admin_correction
+}
+
+/// Append-only inventory stock-movement ledger (Этап 70A — inventory operations foundation).
+/// Records WHY a product/variant stock level changed, for owner visibility + audit. This is NOT
+/// a warehouse-management / supplier / procurement / barcode / multi-location system: it is a
+/// single-store history of changes to the EXISTING `stockQuantity` fields only.
+///
+/// Privacy + integrity by construction:
+///   - references the catalog by LOOSE ids (`productId` / `variantId`) with NO FK and NO cascade
+///     — exactly like AnalyticsEvent — so the history is append-only and SURVIVES a product /
+///     variant deletion (it is never silently cascade-deleted).
+///   - stores ONLY safe inventory facts: the signed `delta`, optional before/after quantities, a
+///     machine `reason`, an optional `orderCode` (never customer PII), an optional admin
+///     `actorLabel` (the admin session subject — never a secret/cookie/token), and a short,
+///     validated `note`. It NEVER stores a password, token, cookie, request body, or raw payload.
+///   - `delta` is the authoritative signed change in whole units; `quantityBefore`/`After` are
+///     filled for manual adjustments (read in the same tx) and left null for the high-throughput
+///     order-create path (only the signed delta is recorded there).
+model InventoryStockMovement {
+  id             String              @id @default(cuid())
+  /// Loose product id (no FK). Set for product-level movements; may also be set alongside
+  /// `variantId` to record which product a variant belongs to. Null if the product was deleted.
+  productId      String?
+  /// Loose variant id (no FK). Set only for variant-level movements; null for product-level ones.
+  variantId      String?
+  /// Which level changed: "product" | "variant". Mirrors OrderItem.stockSource semantics.
+  level          String
+  /// Signed change in whole units: negative = decrement, positive = increment. Never zero.
+  delta          Int
+  /// Stock value immediately before the change. Null when not captured (order-create path).
+  quantityBefore Int?
+  /// Stock value immediately after the change. Null when not captured (order-create path).
+  quantityAfter  Int?
+  reason         StockMovementReason
+  /// Loose order code for order-driven movements (never raw PII). Null for manual adjustments.
+  orderCode      String?
+  /// Admin session subject for manual adjustments (e.g. the username). Null for system/order
+  /// events. NEVER a secret, cookie, or token.
+  actorLabel     String?
+  /// Optional short, validated admin note (plain text, length-capped, markup-stripped).
+  note           String?
+  createdAt      DateTime            @default(now())
+
+  @@index([productId])
+  @@index([variantId])
+  @@index([reason])
+  @@index([createdAt])
+  @@index([orderCode])
+}
+
 /// Privacy-safe storefront analytics event (Этап 23A). Append-only behavioral
 /// signal — NOT business truth (that stays in Order). Follows the contract in
 /// docs/backend/ANALYTICS_EVENT_TAXONOMY.md: no raw PII, no secrets, no full IP.

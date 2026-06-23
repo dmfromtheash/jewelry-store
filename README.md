@@ -49,6 +49,9 @@ provider decisions + imagery — not core engineering.
 - Customer **account polish + loyalty foundation** (69A): upgraded `/account` overview, **saved catalog
   searches**, **back-in-stock product-interest** tracking (records interest, **sends nothing**), and a
   **non-financial** engagement label (no points/money; never affects price/total)
+- **Inventory & stock operations** (70A): `/admin/inventory` — stock health (out/low/healthy/negative),
+  **safe manual stock adjustments** (validated, race-safe, audited) + an append-only **movement ledger**
+  (order/cancel/manual); single-store stock only — **no** WMS/supplier/barcode/multi-location/ERP
 - Screenshots and sale/handoff docs
 
 ## What is not implemented yet

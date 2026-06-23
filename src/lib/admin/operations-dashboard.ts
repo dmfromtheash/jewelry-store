@@ -69,7 +69,7 @@ export interface AttentionInput {
   reviews: { pending: number }
   email: { queued: number; failed: number }
   promos: { exhausted: number; expiringSoon: number }
-  catalog: { withoutPrice: number; withoutImage: number; zeroStockPurchasable: number }
+  catalog: { withoutPrice: number; withoutImage: number; zeroStockPurchasable: number; lowStockPurchasable: number }
   customers: { unverified: number }
   /** Active product interests ("back-in-stock") waiting on the owner (Этап 69A). */
   interests: { active: number }
@@ -92,7 +92,8 @@ export function buildAttentionQueue(input: AttentionInput): AttentionItem[] {
   add(input.email.queued > 0, { key: 'email-queued', label: 'Письма в очереди (не отправляются — нет провайдера)', count: input.email.queued, severity: 'warn', href: '/admin/email-outbox' })
   add(input.email.failed > 0, { key: 'email-failed', label: 'Письма с ошибкой валидации', count: input.email.failed, severity: 'warn', href: '/admin/email-outbox' })
   add(input.catalog.withoutPrice > 0, { key: 'catalog-noprice', label: 'Опубликованные товары без цены', count: input.catalog.withoutPrice, severity: 'warn', href: '/admin/catalog' })
-  add(input.catalog.zeroStockPurchasable > 0, { key: 'catalog-zerostock', label: 'Доступные товары с нулевым остатком', count: input.catalog.zeroStockPurchasable, severity: 'warn', href: '/admin/catalog' })
+  add(input.catalog.zeroStockPurchasable > 0, { key: 'catalog-zerostock', label: 'Доступные товары с нулевым остатком', count: input.catalog.zeroStockPurchasable, severity: 'warn', href: '/admin/inventory' })
+  add(input.catalog.lowStockPurchasable > 0, { key: 'catalog-lowstock', label: 'Доступные товары с низким остатком', count: input.catalog.lowStockPurchasable, severity: 'warn', href: '/admin/inventory' })
   add(input.promos.exhausted > 0, { key: 'promo-exhausted', label: 'Промокоды исчерпали лимит', count: input.promos.exhausted, severity: 'info', href: '/admin/promotions' })
   add(input.promos.expiringSoon > 0, { key: 'promo-expiring', label: 'Промокоды скоро истекают', count: input.promos.expiringSoon, severity: 'info', href: '/admin/promotions' })
   add(input.catalog.withoutImage > 0, { key: 'catalog-noimage', label: 'Товары без изображения (демо-плейсхолдер)', count: input.catalog.withoutImage, severity: 'info', href: '/admin/catalog' })

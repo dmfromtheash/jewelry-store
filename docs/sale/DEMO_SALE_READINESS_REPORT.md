@@ -51,8 +51,9 @@ self-cleaning DB verifies; nothing committed).
 | Admin operations dashboard (65A) | `npm run db:verify:admin-dashboard` | promo classification, attention queue + severity, readiness warnings, SAFE email projection (no recipient/subject/note/lastError), customer verified/unverified counts; rolled back |
 | Admin customers + support (68A) | `npm run db:verify:admin-customers` | support indicators, list aggregates + last-order, SAFE customer projection (no passwordHash), SAFE outbox projection, token COUNTS only (no value/hash), support signals; rolled back |
 | Customer loyalty foundation (69A) | `npm run db:verify:customer-loyalty` | non-financial engagement label (no money/points field), saved-search validation + safe URL, saved-search & product-interest CRUD/isolation, hidden-product rejection, **no email/outbox row created**; rolled back |
-| Route render | `npm run smoke:routes` | 25 routes render; admin routes **gated** when unauthenticated |
-| Authenticated admin | `npm run smoke:admin` | 11 admin surfaces (incl. dashboard + reviews + customers + promotions + email-outbox) render **with** a local session, **gated** without |
+| Inventory & stock operations (70A) | `npm run db:verify:inventory-operations` | stock-health classification + threshold, manual-adjustment validation (integer/no-NaN/no-negative-final/no-delta-vs-untracked/safe note), race-safe adjust + movement record + product/variant isolation, order-create/cancel movements, tx rollback (no orphan movement), dashboard attention → `/admin/inventory`; self-cleaning |
+| Route render | `npm run smoke:routes` | 26 routes render; admin routes **gated** when unauthenticated |
+| Authenticated admin | `npm run smoke:admin` | 12 admin surfaces (incl. dashboard + inventory + reviews + customers + promotions + email-outbox) render **with** a local session, **gated** without |
 | Build | `npm run build` | production build green |
 
 ## 2a. Sale claims matrix
@@ -90,6 +91,7 @@ no integration) · 🚫 not implemented / owner-gated.
 | Full CRM / support-desk / customer impersonation | 🚫 | — (read-only support view only) | **No** | not a CRM; no Zendesk/Intercom; no "log in as customer"; token values never shown |
 | Account polish + saved searches + product-interest foundation (69A) | ✅ | `db:verify:customer-loyalty`; `/account` | **Yes** | `customerId`-scoped; saved searches store validated fields (no raw URL); interest is login-gated record-keeping |
 | Non-financial engagement label (69A) | ✅ | `db:verify:customer-loyalty` | **Yes, as informational** | new/active/loyal from counts; **no** points/money; never affects price/total/discount |
+| Inventory & stock operations (70A) | ✅ | `db:verify:inventory-operations`; `smoke:admin` (`/admin/inventory`) | **Yes, local only** | stock health + manual (validated, audited) adjustments + append-only movement ledger; single-store stock only — **no** WMS/supplier/barcode/multi-location/ERP |
 | Loyalty points / cashback / store credit / real back-in-stock emails | 🚫 | — (not built) | **No** | no points/cashback/wallet; no auto/personalized discounts; interest sends **nothing** (no provider); no marketing automation/CRM |
 | Sale docs / screenshots package | ✅ | `demo:sale-docs-check`; `docs/sale/` | **Yes** | screenshots predate `/account` shot (see §10) |
 | Preflight / rehearsal / smoke checks | ✅ | `demo:preflight`, `demo:rehearsal`, `smoke:*` | **Yes** | local, read-only; not a deploy |

@@ -23,6 +23,7 @@ import {
 } from '@prisma/client'
 import { prisma } from '../db/prisma'
 import { PROVIDER_CONFIGURED } from '../email/outbox'
+import { LOW_STOCK_THRESHOLD } from '../inventory/stock-health'
 import {
   buildAttentionQueue,
   buildReadinessWarnings,
@@ -79,6 +80,7 @@ export interface OperationsDashboard {
     withoutPrice: number
     withoutImage: number
     zeroStockPurchasable: number
+    lowStockPurchasable: number
     categories: number
   }
   customers: {
@@ -116,6 +118,7 @@ export async function getOperationsDashboard(now: Date = new Date()): Promise<Op
     withoutPrice,
     withoutImage,
     zeroStockPurchasable,
+    lowStockPurchasable,
     categories,
     customersTotal,
     customersVerified,
@@ -158,6 +161,9 @@ export async function getOperationsDashboard(now: Date = new Date()): Promise<Op
     prisma.product.count({ where: { isPublished: true, price: null } }),
     prisma.product.count({ where: { isPublished: true, images: { none: { url: { not: null } } } } }),
     prisma.product.count({ where: { isPublished: true, status: ProductStatus.available, stockQuantity: 0 } }),
+    prisma.product.count({
+      where: { isPublished: true, status: ProductStatus.available, stockQuantity: { gt: 0, lte: LOW_STOCK_THRESHOLD } },
+    }),
     prisma.category.count(),
     prisma.customer.count(),
     prisma.customer.count({ where: { emailVerifiedAt: { not: null } } }),
@@ -249,6 +255,7 @@ export async function getOperationsDashboard(now: Date = new Date()): Promise<Op
     withoutPrice,
     withoutImage,
     zeroStockPurchasable,
+    lowStockPurchasable,
     categories,
   }
 
@@ -270,7 +277,7 @@ export async function getOperationsDashboard(now: Date = new Date()): Promise<Op
     reviews: { pending: reviews.pending },
     email: { queued, failed: failedValidation + failedStub },
     promos: { exhausted, expiringSoon },
-    catalog: { withoutPrice, withoutImage, zeroStockPurchasable },
+    catalog: { withoutPrice, withoutImage, zeroStockPurchasable, lowStockPurchasable },
     customers: { unverified: customers.unverified },
     interests: { active: activeInterestsTotal },
   })

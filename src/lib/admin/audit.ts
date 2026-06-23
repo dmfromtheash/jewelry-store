@@ -45,6 +45,7 @@ export const AUDIT_ACTIONS = {
   promoActivated: 'admin.promo.activated',
   promoDeactivated: 'admin.promo.deactivated',
   promoArchived: 'admin.promo.archived',
+  stockAdjusted: 'admin.inventory.stock_adjusted',
 } as const
 
 /** Human-readable labels for the audit-log UI (fallback: the raw action). */
@@ -71,6 +72,7 @@ export const AUDIT_ACTION_LABELS: Record<string, string> = {
   [AUDIT_ACTIONS.promoActivated]: 'Промокод активирован',
   [AUDIT_ACTIONS.promoDeactivated]: 'Промокод деактивирован',
   [AUDIT_ACTIONS.promoArchived]: 'Промокод архивирован',
+  [AUDIT_ACTIONS.stockAdjusted]: 'Остаток скорректирован',
 }
 
 export interface AuditEventInput {

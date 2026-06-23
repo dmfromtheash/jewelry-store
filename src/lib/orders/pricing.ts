@@ -24,7 +24,10 @@ import { QTY_MAX, QTY_MIN, type OrderDraftItemInput } from './types'
 /** A stock level that must be decremented atomically at order commit. */
 export interface StockDecrement {
   source: 'variant' | 'product'
+  /** The id of the level to decrement (variant id when source==='variant', else product id). */
   id: string
+  /** The owning product id — carried so the inventory ledger (70A) can resolve the product. */
+  productId: string
   name: string
   qty: number
 }
@@ -142,9 +145,9 @@ export async function priceOrderItems(items: OrderDraftItemInput[]): Promise<Pri
       }
     }
     if (stockSource === 'variant' && variant) {
-      stockDecrements.push({ source: 'variant', id: variant.id, name: product.name, qty })
+      stockDecrements.push({ source: 'variant', id: variant.id, productId: product.id, name: product.name, qty })
     } else if (stockSource === 'product') {
-      stockDecrements.push({ source: 'product', id: product.id, name: product.name, qty })
+      stockDecrements.push({ source: 'product', id: product.id, productId: product.id, name: product.name, qty })
     }
 
     const lineTotal = unitPrice * qty

@@ -201,8 +201,13 @@ export default async function AdminDashboardPage() {
         <KpiCard label="Без цены" value={String(catalog.withoutPrice)} hint="опубликованные" />
         <KpiCard label="Без изображения" value={String(catalog.withoutImage)} hint="плейсхолдер" />
         <KpiCard label="Нулевой остаток" value={String(catalog.zeroStockPurchasable)} hint="доступные" />
+        <KpiCard label="Низкий остаток" value={String(catalog.lowStockPurchasable)} hint="доступные" />
       </div>
-      <p className="au-adm-cta"><Link className="au-adm-link" href="/admin/catalog">Каталог →</Link></p>
+      <p className="au-adm-cta">
+        <Link className="au-adm-link" href="/admin/catalog">Каталог →</Link>
+        {' · '}
+        <Link className="au-adm-link" href="/admin/inventory">Склад · остатки →</Link>
+      </p>
 
       {/* ---- Customers ---- */}
       <h2 className="au-adm-section-title">Покупатели</h2>
@@ -247,6 +252,7 @@ export default async function AdminDashboardPage() {
         <p className="au-adm-cta au-adm-quicklinks">
           <Link className="au-btn au-btn--primary" href="/admin/orders">Заказы</Link>
           <Link className="au-btn au-btn--ghost" href="/admin/catalog">Каталог</Link>
+          <Link className="au-btn au-btn--ghost" href="/admin/inventory">Склад</Link>
           <Link className="au-btn au-btn--ghost" href="/admin/reviews">Отзывы</Link>
           <Link className="au-btn au-btn--ghost" href="/admin/customers">Покупатели</Link>
           <Link className="au-btn au-btn--ghost" href="/admin/promotions">Промокоды</Link>

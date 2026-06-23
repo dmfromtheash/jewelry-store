@@ -158,6 +158,18 @@ const FALSE_FEATURES = [
   { re: /\b(automatic|personalized|personalised|targeted)\s+(discounts?|coupons?|offers?|pricing)\s+(are\s+|is\s+)?(implemented|applied|live|enabled|automated)\b/i, why: 'no automatic/personalized discounts (manual checkout promo codes only)' },
   { re: /\bback[-\s]?in[-\s]?stock\s+(e?-?mails?|notifications?|alerts?)\s+(are\s+|is\s+)?(sent|delivered|dispatched|enabled|active|automated|implemented)\b/i, why: 'back-in-stock is a record-only foundation — NO emails/notifications are sent (no provider)' },
   { re: /\b(product\s+)?(interest|wishlist|restock)\s+(e?-?mail\s+)?(notifications?|alerts?)\s+(are\s+|is\s+)?(sent|delivered|enabled|active|automated)\b/i, why: 'no interest/restock notifications are sent — interest is recorded only (no provider)' },
+  // Inventory & stock operations (Этап 70A): an inventory operations FOUNDATION IS implemented —
+  // stock health, manual (validated, audited) stock adjustments, and an append-only stock-movement
+  // history. So those are HONEST and must NOT be flagged. What is NOT built — and must not be
+  // claimed: a full warehouse-management system (WMS), supplier/procurement/purchasing, barcode/
+  // scanner integration, multi-location/multi-warehouse inventory, and any external ERP/WMS.
+  // Affirmative + negation-guarded (honest "no warehouse system" / "manual stock adjustment" pass).
+  { re: /\b(warehouse\s+management(\s+system)?|wms)\s+(is\s+|are\s+)?(implemented|integrated|built|live|available|ready|enabled|connected)\b/i, why: 'no warehouse-management system (WMS) — inventory is a single-store stock foundation only' },
+  { re: /\b(full|complete)\s+(inventory|stock|warehouse)\s+management\s+(system|platform)\b.{0,40}\b(implemented|integrated|built|live|available|ready)\b/i, why: 'no full inventory/warehouse management platform — only stock health + manual adjustments + movement history' },
+  { re: /\b(supplier|procurement|purchasing|purchase\s+order)\s+(management|system|module|integration)?\s*(is\s+|are\s+)?(implemented|integrated|built|live|available|enabled|connected)\b/i, why: 'no supplier/procurement/purchasing system is implemented' },
+  { re: /\b(barcode|barcodes|qr\s*code|scanner|scanning)\s+(integration|support|system)?\s*(is\s+|are\s+)?(implemented|integrated|supported|built|live|available|enabled)\b/i, why: 'no barcode/scanner integration is implemented' },
+  { re: /\b(multi[-\s]?(location|warehouse|store)|multiple\s+warehouses?)\s+(inventory\s+)?(is\s+|are\s+)?(implemented|supported|integrated|built|live|available|enabled)\b/i, why: 'no multi-location/multi-warehouse inventory (single-store stock only)' },
+  { re: /\b(erp|wms)\s+(integration\s+)?(is\s+)?(implemented|integrated|connected|live|enabled|configured)\b/i, why: 'no external ERP/WMS integration is implemented' },
 ]
 
 const NEGATION = /❌|\bno\b|\bnot\b|\bnever\b|\bwithout\b|\bmust not\b|\binstead of\b|\bisn'?t\b|\baren'?t\b|\bplaceholder\b|\bdeferred\b|\bnot yet\b|\bnothing\b|\bplanning only\b|\bdemo only\b|\bno real\b/i

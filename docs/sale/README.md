@@ -126,6 +126,11 @@ owner must decide before a real launch.
 - **Admin customers + support view (68A)** — read-only `/admin/customers` (list + per-customer
   support summary: orders / reviews / wishlist / email status + honest support indicators). Safe
   aggregates only; **not a CRM**, no impersonation, no token values shown.
+- **Inventory & stock operations (70A)** — `/admin/inventory`: stock health (out / low ≤5 /
+  healthy / negative) across products + variants, **safe manual stock adjustments** (validated,
+  race-safe, audited), and an append-only **stock-movement ledger** (order / cancel / manual).
+  Single-store stock only — **not** a WMS; no supplier/procurement, barcode/scanner,
+  multi-location, or external ERP/WMS.
 - **Demo/sale readiness tooling** — `demo:preflight`, `demo:rehearsal`, `smoke:routes`,
   `smoke:admin`, `demo:sale-docs-check` (all local, read-only, no deploy; see
   [`DEMO_SALE_READINESS_REPORT.md`](./DEMO_SALE_READINESS_REPORT.md)).

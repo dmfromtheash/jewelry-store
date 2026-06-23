@@ -61,7 +61,7 @@ async function main() {
     reviews: { pending: 0 },
     email: { queued: 0, failed: 0 },
     promos: { exhausted: 0, expiringSoon: 0 },
-    catalog: { withoutPrice: 0, withoutImage: 0, zeroStockPurchasable: 0 },
+    catalog: { withoutPrice: 0, withoutImage: 0, zeroStockPurchasable: 0, lowStockPurchasable: 0 },
     customers: { unverified: 0 },
     interests: { active: 0 },
   }
@@ -73,8 +73,11 @@ async function main() {
     reviews: { pending: 3 },
     email: { queued: 5, failed: 0 },
     promos: { exhausted: 1, expiringSoon: 0 },
+    catalog: { withoutPrice: 0, withoutImage: 0, zeroStockPurchasable: 2, lowStockPurchasable: 3 },
     interests: { active: 4 },
   })
+  check('queue surfaces zero-stock as warn → /admin/inventory', some.some((i) => i.key === 'catalog-zerostock' && i.severity === 'warn' && i.href === '/admin/inventory' && i.count === 2))
+  check('queue surfaces low-stock as warn → /admin/inventory', some.some((i) => i.key === 'catalog-lowstock' && i.severity === 'warn' && i.href === '/admin/inventory' && i.count === 3))
   check('queue surfaces submitted orders as action', some.some((i) => i.key === 'orders-submitted' && i.severity === 'action' && i.count === 2))
   check('queue surfaces pending reviews as action', some.some((i) => i.key === 'reviews-pending' && i.severity === 'action'))
   check('queue surfaces queued email as warn', some.some((i) => i.key === 'email-queued' && i.severity === 'warn'))

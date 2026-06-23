@@ -30,6 +30,7 @@
     "db:verify:product-availability": "tsx prisma/verify-product-availability.ts",
     "db:verify:inventory": "tsx prisma/verify-inventory.ts",
     "db:verify:inventory-lifecycle": "tsx prisma/verify-inventory-lifecycle.ts",
+    "db:verify:inventory-operations": "tsx prisma/verify-inventory-operations.ts",
     "db:verify:product-variants": "tsx prisma/verify-product-variants.ts",
     "db:verify:admin-product-variants": "tsx prisma/verify-admin-product-variants.ts",
     "db:verify:product-variant-storefront": "tsx prisma/verify-product-variant-storefront.ts",

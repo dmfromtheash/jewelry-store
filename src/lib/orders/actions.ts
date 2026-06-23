@@ -16,6 +16,7 @@ import { validateOrderDraftFields, hasErrors } from './validate'
 import { type OrderDraftInput, type OrderDraftResult } from './types'
 import { priceOrderItems } from './pricing'
 import { recordCheckoutError, recordDraftOrderCreated } from '../analytics/record'
+import { buildMovementInput } from '../inventory/movements'
 import { getCurrentCustomer } from '../customer/session'
 import { enqueueOrderConfirmationEmail } from '../email/outbox'
 import { validateAndPricePromo } from '../promo/server'
@@ -133,6 +134,20 @@ export async function createOrderDraft(input: OrderDraftInput): Promise<OrderDra
                   data: { stockQuantity: { decrement: d.qty } },
                 })
           if (res.count !== 1) throw new OutOfStockError(d.name)
+
+          // Inventory ledger (Этап 70A): record the decrement in the SAME tx, so the movement
+          // commits/rolls back atomically with the stock change + order. Only the signed delta is
+          // captured here (before/after are left null to keep this hot path read-free).
+          await tx.inventoryStockMovement.create({
+            data: buildMovementInput({
+              level: d.source,
+              delta: -d.qty,
+              reason: 'order_created',
+              productId: d.productId,
+              variantId: d.source === 'variant' ? d.id : null,
+              orderCode,
+            }),
+          })
         }
 
         // Promo redemption (Этап 63A): increment usedCount ONLY when the code still has

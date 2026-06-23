@@ -11,6 +11,7 @@ import 'server-only'
 
 import { OrderStatus, Prisma } from '@prisma/client'
 import { prisma } from '../db/prisma'
+import { buildMovementInput } from '../inventory/movements'
 
 export const ORDER_STATUSES = Object.values(OrderStatus) as OrderStatus[]
 
@@ -180,10 +181,24 @@ export async function updateAdminOrderStatus(orderCode: string, status: OrderSta
           // Variant-tracked line (Этап 30B): restock the variant row. A deleted
           // variant matches 0 rows → safe no-op. `not: null` leaves an untracked
           // variant untouched.
-          await tx.productVariant.updateMany({
+          const res = await tx.productVariant.updateMany({
             where: { id: item.variantId, stockQuantity: { not: null } },
             data: { stockQuantity: { increment: item.quantity } },
           })
+          // Inventory ledger (Этап 70A): record the restock ONLY when it actually
+          // applied (a tracked variant survived) — same tx, so it rolls back together.
+          if (res.count === 1) {
+            await tx.inventoryStockMovement.create({
+              data: buildMovementInput({
+                level: 'variant',
+                delta: item.quantity,
+                reason: 'order_cancelled_restock',
+                productId: item.productId,
+                variantId: item.variantId,
+                orderCode,
+              }),
+            })
+          }
           continue
         }
         // Product-level path: `stockSource === 'product'` AND legacy null lines
@@ -192,10 +207,21 @@ export async function updateAdminOrderStatus(orderCode: string, status: OrderSta
         if (!item.productId) continue
         // Restock ONLY tracked products. The `stockQuantity: { not: null }`
         // guard leaves untracked (null) stock null — never resurrected to 0.
-        await tx.product.updateMany({
+        const res = await tx.product.updateMany({
           where: { id: item.productId, stockQuantity: { not: null } },
           data: { stockQuantity: { increment: item.quantity } },
         })
+        if (res.count === 1) {
+          await tx.inventoryStockMovement.create({
+            data: buildMovementInput({
+              level: 'product',
+              delta: item.quantity,
+              reason: 'order_cancelled_restock',
+              productId: item.productId,
+              orderCode,
+            }),
+          })
+        }
       }
     }
 
