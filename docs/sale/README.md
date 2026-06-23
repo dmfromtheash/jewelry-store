@@ -131,6 +131,12 @@ owner must decide before a real launch.
   race-safe, audited), and an append-only **stock-movement ledger** (order / cancel / manual).
   Single-store stock only — **not** a WMS; no supplier/procurement, barcode/scanner,
   multi-location, or external ERP/WMS.
+- **Product content readiness (71A)** — `/admin/readiness`: a read-only per-product content
+  checker that scores each card against four honest levels (local demo → buyer demo → public demo
+  → real sale) and detects placeholder/photo gaps. A placeholder is honest for a local/buyer demo
+  but a **gap** for public demo / real sale; real licensed/owned photos + final content are
+  **owner-provided**. No photo generation/download/scraping, no auto SEO/copy generation, never
+  mutates products or gates checkout.
 - **Demo/sale readiness tooling** — `demo:preflight`, `demo:rehearsal`, `smoke:routes`,
   `smoke:admin`, `demo:sale-docs-check` (all local, read-only, no deploy; see
   [`DEMO_SALE_READINESS_REPORT.md`](./DEMO_SALE_READINESS_REPORT.md)).

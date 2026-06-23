@@ -54,7 +54,7 @@ export default async function AdminDashboardPage() {
   await ensureLocalAdmin()
   await requireAdminSession()
 
-  const { orders, reviews, promos, email, catalog, customers, engagement, attention, readiness } =
+  const { orders, reviews, promos, email, catalog, customers, engagement, contentReadiness, attention, readiness } =
     await getOperationsDashboard()
 
   return (
@@ -209,6 +209,23 @@ export default async function AdminDashboardPage() {
         <Link className="au-adm-link" href="/admin/inventory">Склад · остатки →</Link>
       </p>
 
+      {/* ---- Content readiness ---- */}
+      <h2 className="au-adm-section-title">Готовность карточек</h2>
+      <div className="au-adm-kpis">
+        <KpiCard label="Товаров" value={String(contentReadiness.total)} />
+        <KpiCard label="Готовы к продаже" value={String(contentReadiness.realSaleReady)} hint="реальное фото + контент" />
+        <KpiCard label="Готовы к публ. демо" value={String(contentReadiness.publicDemoReady)} />
+        <KpiCard label="С блокерами" value={String(contentReadiness.withBlockers)} />
+        <KpiCard label="С предупреждениями" value={String(contentReadiness.withWarnings)} />
+        <KpiCard label="Без реального фото" value={String(contentReadiness.withPhotoGap)} hint="демо-плейсхолдер" />
+      </div>
+      <p className="au-adm-note">
+        Плейсхолдер-фото допустим для локального/демо-показа, но это пробел для публичного демо и
+        реальной продажи. Реальные лицензированные/собственные фото и финальный контент предоставляет
+        владелец (генерации/парсинга нет).
+      </p>
+      <p className="au-adm-cta"><Link className="au-adm-link" href="/admin/readiness">Готовность товаров →</Link></p>
+
       {/* ---- Customers ---- */}
       <h2 className="au-adm-section-title">Покупатели</h2>
       <div className="au-adm-kpis">
@@ -253,6 +270,7 @@ export default async function AdminDashboardPage() {
           <Link className="au-btn au-btn--primary" href="/admin/orders">Заказы</Link>
           <Link className="au-btn au-btn--ghost" href="/admin/catalog">Каталог</Link>
           <Link className="au-btn au-btn--ghost" href="/admin/inventory">Склад</Link>
+          <Link className="au-btn au-btn--ghost" href="/admin/readiness">Готовность</Link>
           <Link className="au-btn au-btn--ghost" href="/admin/reviews">Отзывы</Link>
           <Link className="au-btn au-btn--ghost" href="/admin/customers">Покупатели</Link>
           <Link className="au-btn au-btn--ghost" href="/admin/promotions">Промокоды</Link>

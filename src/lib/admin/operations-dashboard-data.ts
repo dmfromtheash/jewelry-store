@@ -24,6 +24,7 @@ import {
 import { prisma } from '../db/prisma'
 import { PROVIDER_CONFIGURED } from '../email/outbox'
 import { LOW_STOCK_THRESHOLD } from '../inventory/stock-health'
+import { getReadinessDashboardCounts } from '../product-readiness/readiness-data'
 import {
   buildAttentionQueue,
   buildReadinessWarnings,
@@ -95,6 +96,15 @@ export interface OperationsDashboard {
     savedSearches: number
     activeInterests: number
   }
+  /** Product content readiness (Этап 71A) — read-only card-readiness counts (no mutation). */
+  contentReadiness: {
+    total: number
+    realSaleReady: number
+    publicDemoReady: number
+    withBlockers: number
+    withWarnings: number
+    withPhotoGap: number
+  }
   attention: AttentionItem[]
   readiness: ReadinessItem[]
 }
@@ -126,6 +136,7 @@ export async function getOperationsDashboard(now: Date = new Date()): Promise<Op
     wishlistItems,
     savedSearchesTotal,
     activeInterestsTotal,
+    contentReadiness,
   ] = await Promise.all([
     prisma.order.groupBy({ by: ['status'], _count: { _all: true } }),
     prisma.order.findMany({
@@ -171,6 +182,7 @@ export async function getOperationsDashboard(now: Date = new Date()): Promise<Op
     prisma.customerWishlistItem.count(),
     prisma.customerSavedSearch.count(),
     prisma.customerProductInterest.count({ where: { status: CustomerInterestStatus.active } }),
+    getReadinessDashboardCounts(),
   ])
 
   // --- Orders ---
@@ -280,6 +292,7 @@ export async function getOperationsDashboard(now: Date = new Date()): Promise<Op
     catalog: { withoutPrice, withoutImage, zeroStockPurchasable, lowStockPurchasable },
     customers: { unverified: customers.unverified },
     interests: { active: activeInterestsTotal },
+    readiness: { realSaleBlockers: contentReadiness.withBlockers },
   })
 
   return {
@@ -290,6 +303,7 @@ export async function getOperationsDashboard(now: Date = new Date()): Promise<Op
     catalog,
     customers,
     engagement,
+    contentReadiness,
     attention,
     readiness: buildReadinessWarnings(PROVIDER_CONFIGURED),
   }

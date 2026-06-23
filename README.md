@@ -52,6 +52,9 @@ provider decisions + imagery — not core engineering.
 - **Inventory & stock operations** (70A): `/admin/inventory` — stock health (out/low/healthy/negative),
   **safe manual stock adjustments** (validated, race-safe, audited) + an append-only **movement ledger**
   (order/cancel/manual); single-store stock only — **no** WMS/supplier/barcode/multi-location/ERP
+- **Product content readiness** (71A): `/admin/readiness` — a read-only per-product content checker
+  (levels: local/buyer/public demo → real sale) with placeholder/photo-gap detection. Real product
+  photos are owner-provided; **no** photo generation/download/scraping, **no** auto SEO/copy generation
 - Screenshots and sale/handoff docs
 
 ## What is not implemented yet

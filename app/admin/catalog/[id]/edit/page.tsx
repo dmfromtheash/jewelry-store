@@ -17,6 +17,11 @@ import {
   getAdminProductGalleryImages,
   getAdminProductVariants,
 } from '../../../../../src/lib/admin/catalog'
+import { getProductReadiness } from '../../../../../src/lib/product-readiness/readiness-data'
+import {
+  ISSUE_SEVERITY_LABELS,
+  READINESS_LEVEL_LABELS,
+} from '../../../../../src/lib/product-readiness/rules'
 import {
   addGalleryImageAction,
   deleteGalleryImageAction,
@@ -74,6 +79,10 @@ export default async function AdminCatalogEditPage({
   const variants = await getAdminProductVariants(id)
   const variantNotice = resolveVariantNotice(sp)
 
+  // Content readiness (Этап 71A): read-only summary of what content is still missing on this
+  // card. Never changes the product; the full picture is on /admin/readiness.
+  const readiness = await getProductReadiness(id)
+
   return (
     <div className="au-container au-adm">
       <div className="au-adm-head">
@@ -87,6 +96,39 @@ export default async function AdminCatalogEditPage({
           </span>
         </div>
       </div>
+
+      {readiness && (
+        <div className="au-adm-card" style={{ marginBottom: 20 }}>
+          <h2 className="au-adm-title">Готовность карточки</h2>
+          <p className="au-adm-sub">
+            Уровень:{' '}
+            <b>{readiness.reachedLevel ? READINESS_LEVEL_LABELS[readiness.reachedLevel] : 'Ниже демо'}</b>
+            {' · '}очки {readiness.score}/100
+            {' · '}блокеров {readiness.blockerCount}, предупреждений {readiness.warningCount}, инфо{' '}
+            {readiness.infoCount}. Плейсхолдер-фото допустим для демо, но это пробел для публичного
+            показа и продажи (реальные фото предоставляет владелец).
+          </p>
+          {readiness.issues.length === 0 ? (
+            <p className="au-adm-note">✓ Замечаний по контенту нет — карточка готова к продаже.</p>
+          ) : (
+            <ul className="au-adm-feed">
+              {readiness.issues.map((i) => (
+                <li key={i.code} className="au-adm-feed-row">
+                  <span className="au-adm-feed-main">{i.label}</span>
+                  <span className="au-adm-feed-aside">
+                    <span className="au-adm-feed-actor">{ISSUE_SEVERITY_LABELS[i.severity]}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <p className="au-adm-cta">
+            <Link className="au-adm-link" href="/admin/readiness">
+              Все товары: готовность контента →
+            </Link>
+          </p>
+        </div>
+      )}
 
       <ProductForm
         action={updateProductAction}

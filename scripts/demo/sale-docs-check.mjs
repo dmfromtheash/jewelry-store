@@ -170,6 +170,22 @@ const FALSE_FEATURES = [
   { re: /\b(barcode|barcodes|qr\s*code|scanner|scanning)\s+(integration|support|system)?\s*(is\s+|are\s+)?(implemented|integrated|supported|built|live|available|enabled)\b/i, why: 'no barcode/scanner integration is implemented' },
   { re: /\b(multi[-\s]?(location|warehouse|store)|multiple\s+warehouses?)\s+(inventory\s+)?(is\s+|are\s+)?(implemented|supported|integrated|built|live|available|enabled)\b/i, why: 'no multi-location/multi-warehouse inventory (single-store stock only)' },
   { re: /\b(erp|wms)\s+(integration\s+)?(is\s+)?(implemented|integrated|connected|live|enabled|configured)\b/i, why: 'no external ERP/WMS integration is implemented' },
+  // Product content readiness (Этап 71A): a READ-ONLY content-readiness checker + admin dashboard
+  // IS implemented (per-product issues, levels local/buyer/public demo + real sale, placeholder/
+  // photo-gap detection). So "content readiness checks / dashboard / placeholder gap detection" is
+  // HONEST. What is NOT built — and must NOT be claimed: that real product PHOTOGRAPHY exists, that
+  // images are AI-generated/imported, that SEO copy/descriptions are auto-generated, that supplier/
+  // catalog content is scraped/imported, that ALL cards are real-sale ready, or that the public
+  // launch is fully ready while content gaps remain. Affirmative + negation-guarded (honest
+  // "placeholder photos" / "no real photos yet" / "owner-provided" lines pass).
+  { re: /\breal\s+(product\s+)?(photography|photoshoot)\s+(is\s+)?(complete|done|finished|ready|in\s+place|delivered)\b/i, why: 'real product photography does NOT exist yet (placeholders only — owner-provided future requirement)' },
+  { re: /\b(ai|ml|auto|generated|gan|diffusion|midjourney|dall[-\s]?e|stable\s+diffusion)[-\s]?(generated\s+)?(product\s+)?(photos?|images?|imagery)\s+(are\s+|is\s+)?(implemented|generated|created|added|used|live|enabled)\b/i, why: 'no AI-generated/auto-generated product images (placeholders only; no image generation)' },
+  { re: /\b(product\s+)?(images?|photos?|imagery)\s+(are\s+)?(imported|downloaded|scraped|sourced)\s+(from\s+)?(suppliers?|catalog\w*|web|internet)\b/i, why: 'no product images are imported/downloaded/scraped — none are added automatically' },
+  { re: /\b(automatic|auto|ai|ml|generated)\s+(seo\s+)?(copy|content|description|text)\s+generation\s+(is\s+)?(implemented|live|enabled|available|integrated)\b/i, why: 'no automatic SEO/copy/content generation is implemented' },
+  { re: /\b(ai|auto)[-\s]?(generated|written)\s+(product\s+)?(descriptions?|copy|seo\s+(?:copy|text))\s+(are\s+|is\s+)?(implemented|generated|live|enabled|available)\b/i, why: 'no AI/auto-generated product descriptions or SEO copy (manual content only)' },
+  { re: /\b(supplier|catalog|content|product)\s+(scraping|scraper|crawl\w*|content\s+import\w*|catalog\s+import\w*)\s+(is\s+)?(implemented|integrated|live|enabled|available|done)\b/i, why: 'no supplier/catalog/content scraping or import is implemented' },
+  { re: /\ball\s+(product\s+)?(cards?|products?)\s+(are\s+)?(real[-\s]?sale|sale|production)[-\s]?ready\b/i, why: 'not all product cards are real-sale ready — content/photo gaps remain (see /admin/readiness)' },
+  { re: /\bpublic\s+launch\s+(is\s+)?(fully\s+)?(ready|complete|done)\b/i, why: 'the public launch is NOT fully ready while real photos/content gaps remain' },
 ]
 
 const NEGATION = /❌|\bno\b|\bnot\b|\bnever\b|\bwithout\b|\bmust not\b|\binstead of\b|\bisn'?t\b|\baren'?t\b|\bplaceholder\b|\bdeferred\b|\bnot yet\b|\bnothing\b|\bplanning only\b|\bdemo only\b|\bno real\b/i

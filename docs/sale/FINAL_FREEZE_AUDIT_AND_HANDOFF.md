@@ -123,6 +123,17 @@ launched business. **Design is locked.**
   Dashboard gained zero/low-stock counts + attention items linking to `/admin/inventory`. **Not** a
   WMS — no supplier/procurement, barcode/scanner, multi-location, or external ERP/WMS. Reuses
   existing admin classes — no storefront design/CSS change.
+- **Product content readiness** (71A): `/admin/readiness` — a READ-ONLY per-product content
+  checker that scores each card against four honest levels (**local demo → buyer demo → public
+  demo → real sale**) with blocker/warning/info issues + a 0–100 score + filters. Pure rules in
+  `src/lib/product-readiness/rules.ts` (name/slug/category/price/UAH, description/specs,
+  **placeholder photo-gap**, variants/SKU/stock, SEO/meta fallback, legacy-rating honesty). The
+  photo truth is explicit: a placeholder is honest for a local/buyer demo but a **gap** for public
+  demo / real sale, and a real licensed/owned photo is an **owner-provided** future requirement —
+  nothing is generated, downloaded, scraped, or claimed. A small readiness panel is added to the
+  product-edit page and a readiness KPI + attention item to `/admin/dashboard`. Never mutates a
+  product, never gates checkout, never touches availability. No schema/migration; reuses existing
+  admin classes — no storefront design/CSS change.
 - **Demo/sale/readiness tooling** (50A/52A/53A/55A): preflight gate, rehearsal, route + admin
   smokes, sale-docs checker, screenshot-capture helper.
 
@@ -147,8 +158,9 @@ Run via `npm run demo:rehearsal` (offline) + the live sequence. At this freeze, 
 | `db:verify:admin-customers` (68A) | pass (support indicators, list aggregates, SAFE customer/outbox projections, token counts only, support signals; rolled back) |
 | `db:verify:customer-loyalty` (69A) | pass (non-financial engagement label, saved-search validation + safe URL, saved-search & product-interest CRUD/isolation, hidden-product rejection, no email/outbox row; rolled back) |
 | `db:verify:inventory-operations` (70A) | pass (stock-health + threshold, manual-adjustment validation, race-safe adjust + movement record + product/variant isolation, order-create/cancel movements, tx rollback no orphan, dashboard attention → `/admin/inventory`; self-cleaning) |
+| `db:verify:product-readiness` (71A) | pass (readiness rules + level-blocking, placeholder photo-gap honest for demo / gap for sale, untracked-stock allowed, no fake review/rating required, pure detectors, SEO honesty, real-product aggregation **read-only/no mutation**, dashboard attention → `/admin/readiness`; self-cleaning) |
 | `smoke:routes` | 26/26 routes render / gated |
-| `smoke:admin` | 24/24 (12 admin surfaces incl. dashboard + inventory + reviews + customers + promotions + email-outbox) render authed + gated unauthed |
+| `smoke:admin` | 26/26 (13 admin surfaces incl. dashboard + inventory + readiness + reviews + customers + promotions + email-outbox) render authed + gated unauthed |
 | `build` | production build green (needs DB 6700 up) |
 
 ## 5. Key commands
@@ -184,6 +196,7 @@ Ranges, not promises. Bumped from the older 40A buyer/MVP audit where 49A–56A 
 | **Admin customers + support (68A)** | **~80%** | read-only customer list/detail + support indicators; safe aggregates, no secrets/tokens; not a CRM, no impersonation, no support-desk integration |
 | **Customer account polish + loyalty foundation (69A)** | **~80%** | account overview + saved searches + back-in-stock interest foundation + non-financial engagement label; customerId-scoped; **no points/money**, no real interest emails, no marketing automation/CRM |
 | **Inventory & stock operations (70A)** | **~80%** | stock health + safe manual adjustments (validated, race-safe, audited) + append-only movement ledger + dashboard integration; single-store stock only — **no** WMS/supplier/barcode/multi-location/ERP |
+| **Product content readiness (71A)** | **~80%** | read-only per-product content scoring + levels (local/buyer/public demo, real sale) + placeholder/photo-gap detection + admin dashboard/edit-panel integration; **does not** create real photos/content — real photos are owner-provided, no generation/scraping |
 | **Customer auth / account** | **~90%** | login/profile/password/history/audit/durable rate-limit; reset/verification = hashed-token foundation (60A), no email delivery |
 | **Admin CMS / site management** | **~85–90%** | catalog/orders/lifecycle/settings/CMS/audit; local-only |
 | **Security / readiness tooling** | **~90%** | durable rate-limit, audit, preflight/rehearsal/smokes, sale-docs guard |

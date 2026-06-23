@@ -71,6 +71,10 @@ export default async function AdminCatalogPage({
           <h1 className="au-adm-title">Каталог · изображения</h1>
           <span className="au-adm-sub">
             Загрузка, замена и удаление основного фото товара. JPG / PNG / WEBP, до 5 МБ.
+            {' '}
+            <Link className="au-adm-link" href="/admin/readiness">
+              Готовность карточек →
+            </Link>
           </span>
         </div>
         <Link className="au-btn au-btn--primary" href="/admin/catalog/new">
