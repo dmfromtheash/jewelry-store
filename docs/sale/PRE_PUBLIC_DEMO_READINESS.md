@@ -41,7 +41,7 @@ npm run db:verify:audit-log            # AdminAuditLog write path (rolled back)
 
 # Route render smoke (needs the app running; admin pages exist in dev only):
 npm run dev                            # http://127.0.0.1:5000  (separate terminal)
-npm run smoke:routes                   # 21 routes render / gate as expected
+npm run smoke:routes                   # 30 routes render / gate as expected
 
 npm run db:stop                        # when finished
 ```
@@ -80,7 +80,7 @@ npm run smoke:admin            # authenticated admin surfaces (needs the dev ser
   build (e.g. "guest-checkout-only", "payment API implemented", "deployed to production",
   "public admin ready", "imagery complete") and fails on them.
 - **`smoke:admin`** mints a **local** admin session (never printing the secret/token) and
-  asserts the 8 admin surfaces render when authenticated **and** stay gated when not. It
+  asserts the 15 admin surfaces render when authenticated **and** stay gated when not. It
   **SKIPs cleanly** if `ADMIN_*` is not configured. The full picture lives in
   [`DEMO_SALE_READINESS_REPORT.md`](./DEMO_SALE_READINESS_REPORT.md).
 
@@ -88,7 +88,7 @@ npm run smoke:admin            # authenticated admin surfaces (needs the dev ser
 
 ## 3. What automated checks cover (verified)
 
-### A. Storefront → product → checkout render (`npm run smoke:routes`, 21 routes)
+### A. Storefront → product → checkout render (`npm run smoke:routes`, 30 routes)
 
 HTTP GET render smoke using Node's built-in `fetch` — **no browser engine, no new
 dependency**, GET-only (no writes, no order submission). All pass:

@@ -108,7 +108,7 @@ no integration) · 🚫 not implemented / owner-gated.
 | Carrier API / TTN / tracking | 🚫 | — (manual branch/comment fields only) | **No** | Nova Poshta/Ukrposhta not integrated |
 | Real email sending / delivered reset / verification | 🚫 | — (token foundation only, no provider) | **No** | nothing sent; reset/verify links are **not delivered** (owner/provider-gated) |
 | Verified-purchase reviews / photos | 🚫 | — (moderated reviews only) | **No** | no purchase verification; photos not supported |
-| Promo / discount / coupon engine | 🚫 | — (not built) | **No** | catalog UX/SEO/wishlist (62A) shipped, but no discount engine |
+| Automatic / marketing discount engine | 🚫 | — (manual codes only) | **No** | manual-checkout promo codes shipped (63A — see above); **no** automatic/marketing campaigns, gift cards, or stackable promos |
 | Public deploy / live demo | 🚫 | — (local only) | **No** | nothing hosted/tunneled |
 | Legal / fiscalization (РРО/ПРРО) | 🚫 | — (owner/lawyer-gated) | **No** | not addressed in code |
 | Real product imagery | 🚫 | placeholder (gem empty-state) | **No** | owner supplies licensed images |

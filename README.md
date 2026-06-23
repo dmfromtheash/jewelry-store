@@ -140,4 +140,11 @@ These are deliberate, separately-scoped next steps — not hidden defects.
   pre-public demo smoke (50A), durable DB-backed rate limiting (51A), the public-demo
   preflight gate (52A), and the complete demo/sale readiness checks (53A) — honest summary in
   [`docs/sale/DEMO_SALE_READINESS_REPORT.md`](docs/sale/DEMO_SALE_READINESS_REPORT.md).
+- **And, additively since 53A (current HEAD `144d6f6`):** trust & ops foundation (59A), email
+  ops + account-recovery token foundation (60A), catalog UX/SEO/wishlist (62A), manual promo/
+  discount (63A), advanced catalog discovery (64A), admin operations dashboard (65A), cleanup
+  hygiene (67A), admin customers/support (68A), account loyalty foundation (69A), inventory
+  operations (70A), product content readiness (71A), SEO/marketing foundation (72A), and
+  first-party analytics insights (73A) — all re-audited at 74A (docs/checks only, no behaviour
+  change). See [`docs/sale/FINAL_FREEZE_AUDIT_AND_HANDOFF.md`](docs/sale/FINAL_FREEZE_AUDIT_AND_HANDOFF.md).
 - *This tracks formally-audited milestones, not every commit — refresh it at handoff milestones.*

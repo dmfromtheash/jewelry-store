@@ -1,4 +1,4 @@
-# Final Freeze Audit & Project Handoff — AURELIA (Stage 57A; refreshed at 59A, 60A, 62A, 63A, 64A, 65A, 68A, 69A, 70A, 71A, 72A, 73A)
+# Final Freeze Audit & Project Handoff — AURELIA (Stage 57A; refreshed at 59A, 60A, 62A, 63A, 64A, 65A, 68A, 69A, 70A, 71A, 72A, 73A; re-audited 74A)
 
 > **Freeze point + handoff snapshot** after the 49A–56A sale/demo/security/readiness/
 > architecture cycle, **refreshed after Stage 59A** (trust & operations foundation:
@@ -294,7 +294,7 @@ PROJECT: AURELIA — Ukraine-first, sale-ready demo MVP online jewelry/accessori
 GOAL: maintain/extend an honest, sale-ready local demo. NOT a live shop taking money.
 ASSISTANT: Claude Code (last worked: Opus 4.8 / claude-code 2.1.x).
 
-REPO: C:\Projects\Jewelry Store  · branch main · HEAD = Stage 59A commit (prior baseline fb9a2a6).
+REPO: C:\Projects\Jewelry Store  · branch main · HEAD = Stage 73A commit 144d6f6 (analytics insights); freeze baseline fb9a2a6.
 STACK: Next.js 15 / React 19 / TypeScript / Prisma / PostgreSQL. Currency ₴ (UAH).
 DESIGN IS LOCKED — do not change CSS/layout/spacing/typography/colors/cards/placeholders/gallery.
 
@@ -309,22 +309,36 @@ fields, NO carrier API); inline order confirmation; customer accounts (register/
 password+session-revocation/order history) with guest preserved; customer-auth AUDIT log + DURABLE
 DB rate limiting (single-instance); MODERATED reviews (1–5, pending→approved, approved-only public,
 admin moderation) — 59A; EMAIL OUTBOX FOUNDATION (EmailOutbox + templates + /admin/email-outbox)
-that SENDS NOTHING (records skipped) — 59A; local-only admin (catalog/orders/lifecycle+restock/
-settings+CMS/audit/reviews/email-outbox); demo readiness tooling.
+that SENDS NOTHING (records skipped) — 59A; EMAIL OPS + hashed single-use reset/verification TOKEN
+foundation (still NO send) — 60A; catalog UX/SEO + Product JSON-LD + server-side account wishlist —
+62A; MANUAL-checkout promo codes/discounts (server-authoritative, no provider) — 63A; advanced
+catalog discovery (price/material filters + honest approved-review rating sort) — 64A; admin
+operations dashboard — 65A; cleanup hygiene — 67A; read-only admin customers/support view — 68A;
+account loyalty foundation (saved searches + back-in-stock interest + NON-FINANCIAL engagement
+label) — 69A; inventory stock operations (health + safe manual adjust + movement ledger) — 70A;
+product content readiness checks — 71A; SEO/marketing foundation (sitemap/robots + JSON-LD +
+/admin/seo) — 72A; first-party NO-PII analytics insights (/admin/analytics + DNT respect) — 73A;
+local-only admin (catalog/orders/lifecycle+restock/settings+CMS/audit/reviews/email-outbox/
+promotions/customers/inventory/readiness/seo/analytics/dashboard); demo readiness tooling.
 
 VERIFY (all green; local + safe, nothing committed):
   npm run typecheck && npx prisma validate && npm run demo:sale-docs-check
   npm run demo:preflight && npm run demo:rehearsal
   npm run db:start && npm run db:verify:customer-auth   # 51/51
   npm run db:verify:reviews && npm run db:verify:delivery-details && npm run db:verify:email-outbox  # 59A
-  npm run dev   # then: npm run smoke:routes (21/21) and npm run smoke:admin (16/16)
+  npm run dev   # then: npm run smoke:routes (30/30) and npm run smoke:admin (15 surfaces)
   npm run build && npm run db:stop
 
 MILESTONES (major blocks, not every commit): 47A–47C customer auth/account/session security ·
 49A auth audit + abuse protection · 50A route smoke · 51A durable rate limiting · 52A preflight
 gate · 53A admin smoke + sale-docs checker + rehearsal · 54A final buyer handoff · 55A visual
 evidence · 56A owner-gated commercial launch architecture · 57A freeze/handoff · 59A trust & ops
-foundation (moderated reviews + manual delivery branch/comment + email outbox foundation).
+foundation (moderated reviews + manual delivery branch/comment + email outbox foundation) · 60A
+email ops + account-recovery token foundation · 62A catalog UX/SEO/wishlist · 63A manual promo/
+discount · 64A advanced catalog discovery · 65A admin operations dashboard · 67A cleanup hygiene ·
+68A admin customers/support · 69A account loyalty foundation · 70A inventory stock operations ·
+71A product content readiness · 72A SEO/marketing foundation · 73A first-party analytics insights ·
+74A re-audit/handoff refresh (docs only).
 
 OPEN RISKS: multi-instance rate limiting not done; authed account/audit/reviews screenshots manual;
 sale-docs checker is heuristic; build depends on DB 6700; email outbox is a foundation (sends nothing).
@@ -333,11 +347,12 @@ OWNER-GATED (blocks real launch — NOT engineering): payment provider + ФОП/
 carrier API key + shipping/COD policy; email provider + SPF/DKIM/DMARC; hosting/secrets/access;
 fiscalization (РРО/ПРРО) + legal texts; real licensed imagery.
 
-NEXT EXACT STEP: 59A shipped — re-FREEZE and wait for owner inputs. Do NOT start a new feature
-loop without a brief. When unblocked, the first owner-gated block is the payment SPEC →
-Payment/WebhookEvent model (additive migration + security review) per
-docs/sale/COMMERCIAL_LAUNCH_ARCHITECTURE.md §F. Real email sending (provider + SPF/DKIM/DMARC +
-hashed reset-token model) is the natural follow-on to the 59A email foundation — also owner-gated.
+NEXT EXACT STEP: 73A shipped and the 67A–73A feature cycle is re-audited (74A) — stay FROZEN and
+wait for owner inputs. Do NOT start a new feature loop without a brief. When unblocked, the first
+owner-gated block is the payment SPEC → Payment/WebhookEvent model (additive migration + security
+review) per docs/sale/COMMERCIAL_LAUNCH_ARCHITECTURE.md §F. Real email sending (provider +
+SPF/DKIM/DMARC, building on the 59A/60A email + hashed-token foundation) is the natural follow-on —
+also owner-gated.
 
 HARD PROHIBITIONS: no deploy/tunnel/cloud without explicit permission; no payment/delivery API
 without owner decisions + security review; never print/edit .env/.env.local or secrets; no DB
