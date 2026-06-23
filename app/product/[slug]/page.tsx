@@ -27,6 +27,7 @@ import {
 } from '../../../src/lib/reviews/server'
 import { getCurrentCustomer } from '../../../src/lib/customer/session'
 import { buildProductMetaParts, buildProductJsonLd } from '../../../src/lib/seo/product-seo'
+import { buildBreadcrumbJsonLd, productOgImages } from '../../../src/lib/seo/site'
 import type { CategorySlug } from '../../../src/lib/catalog'
 
 export const dynamicParams = true
@@ -49,9 +50,11 @@ export async function generateMetadata({
   const { slug } = await params
   const product = await getProductBySlugFromDb(slug)
   if (!product) return {}
-  // SEO/meta (Этап 62A): title + description + canonical + Open Graph basics. Images
-  // are added only when a real asset exists (most demo products are placeholder).
-  const { title, description, canonical, image } = buildProductMetaParts(product)
+  // SEO/meta (Этап 62A; OG/Twitter foundation Этап 72A): title + description + canonical +
+  // Open Graph + Twitter card. Open Graph images use a REAL product asset only — when a product
+  // has only a placeholder we emit NO image (productOgImages returns []), never a fake photo.
+  const { title, description, canonical } = buildProductMetaParts(product)
+  const ogImages = productOgImages(product)
   return {
     title,
     description,
@@ -61,7 +64,14 @@ export async function generateMetadata({
       title,
       description,
       url: canonical,
-      ...(image ? { images: [{ url: image }] } : {}),
+      siteName: 'AURELIA',
+      ...(ogImages.length ? { images: ogImages.map((url) => ({ url })) } : {}),
+    },
+    twitter: {
+      card: ogImages.length ? 'summary_large_image' : 'summary',
+      title,
+      description,
+      ...(ogImages.length ? { images: ogImages } : {}),
     },
   }
 }
@@ -93,6 +103,14 @@ export default async function ProductPage({
   // ≥1 approved review (see buildProductJsonLd) — never a fabricated rating.
   const jsonLd = buildProductJsonLd(product, reviewSummary)
 
+  // Breadcrumb trail shared by the visible breadcrumbs AND BreadcrumbList JSON-LD (Этап 72A).
+  const breadcrumbs = [
+    { label: 'Головна', href: '/' },
+    { label: category.label, href: category.href },
+    { label: product.name },
+  ]
+  const breadcrumbJsonLd = buildBreadcrumbJsonLd(breadcrumbs)
+
   return (
     <>
       <script
@@ -100,13 +118,15 @@ export default async function ProductPage({
         // JSON.stringify output is safe ld+json (no user HTML — review text never enters here).
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      {breadcrumbJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        />
+      )}
       <TrackView event={ANALYTICS_EVENTS.productView} payload={{ productSlug: product.slug }} />
       <ProductPageLayout
-        breadcrumbs={[
-          { label: 'Головна', href: '/' },
-          { label: category.label, href: category.href },
-          { label: product.name },
-        ]}
+        breadcrumbs={breadcrumbs}
         similar={similar}
         product={product}
         reviews={reviews}

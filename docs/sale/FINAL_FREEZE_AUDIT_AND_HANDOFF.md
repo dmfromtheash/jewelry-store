@@ -1,4 +1,4 @@
-# Final Freeze Audit & Project Handoff — AURELIA (Stage 57A; refreshed at 59A, 60A, 62A, 63A, 64A, 65A, 68A, 69A, 70A)
+# Final Freeze Audit & Project Handoff — AURELIA (Stage 57A; refreshed at 59A, 60A, 62A, 63A, 64A, 65A, 68A, 69A, 70A, 71A, 72A)
 
 > **Freeze point + handoff snapshot** after the 49A–56A sale/demo/security/readiness/
 > architecture cycle, **refreshed after Stage 59A** (trust & operations foundation:
@@ -134,6 +134,17 @@ launched business. **Design is locked.**
   product-edit page and a readiness KPI + attention item to `/admin/dashboard`. Never mutates a
   product, never gates checkout, never touches availability. No schema/migration; reuses existing
   admin classes — no storefront design/CSS change.
+- **SEO & marketing foundation** (72A): dynamic `/sitemap.xml` (home + info + categories +
+  **published-and-available** products only) + `/robots.txt` (admin/account/cart/checkout/api
+  disallowed; sitemap referenced). Centralized canonical/site-URL policy in `src/lib/seo/site.ts`
+  (`NEXT_PUBLIC_SITE_URL` or local/demo fallback; canonical = query-stripped path; search `noindex`).
+  Open Graph/Twitter cards using a **real product photo only** (placeholder ⇒ no OG image — never a
+  fake). Honest **Organization / WebSite (SearchAction) / Breadcrumb** JSON-LD added; existing
+  **Product** JSON-LD unchanged + regression-guarded. New READ-ONLY `/admin/seo` readiness view
+  (sitemap/robots/domain/OG/structured-data coverage + public-launch blockers + marketing notes).
+  **No** analytics/events, ad pixels, retargeting, paid ads, affiliate, marketing automation/CRM,
+  auto-generated SEO copy, or public deploy — owner-gated. No schema/migration; no storefront
+  design/CSS change.
 - **Demo/sale/readiness tooling** (50A/52A/53A/55A): preflight gate, rehearsal, route + admin
   smokes, sale-docs checker, screenshot-capture helper.
 
@@ -159,8 +170,9 @@ Run via `npm run demo:rehearsal` (offline) + the live sequence. At this freeze, 
 | `db:verify:customer-loyalty` (69A) | pass (non-financial engagement label, saved-search validation + safe URL, saved-search & product-interest CRUD/isolation, hidden-product rejection, no email/outbox row; rolled back) |
 | `db:verify:inventory-operations` (70A) | pass (stock-health + threshold, manual-adjustment validation, race-safe adjust + movement record + product/variant isolation, order-create/cancel movements, tx rollback no orphan, dashboard attention → `/admin/inventory`; self-cleaning) |
 | `db:verify:product-readiness` (71A) | pass (readiness rules + level-blocking, placeholder photo-gap honest for demo / gap for sale, untracked-stock allowed, no fake review/rating required, pure detectors, SEO honesty, real-product aggregation **read-only/no mutation**, dashboard attention → `/admin/readiness`; self-cleaning) |
-| `smoke:routes` | 26/26 routes render / gated |
-| `smoke:admin` | 26/26 (13 admin surfaces incl. dashboard + inventory + readiness + reviews + customers + promotions + email-outbox) render authed + gated unauthed |
+| `db:verify:seo-marketing` (72A) | pass (canonical strips query/hash, sitemap eligibility published+available only, robots disallows admin/account/checkout/cart/api, **OG image real-photo-only/no fake**, Product/Organization/WebSite/Breadcrumb JSON-LD honesty, SEO coverage + blockers, real-product aggregation **read-only/no mutation**; self-cleaning) |
+| `smoke:routes` | 30/30 routes render / gated (incl. `/sitemap.xml` + `/robots.txt`) |
+| `smoke:admin` | 14 admin surfaces (incl. dashboard + inventory + readiness + seo + reviews + customers + promotions + email-outbox) render authed + gated unauthed |
 | `build` | production build green (needs DB 6700 up) |
 
 ## 5. Key commands
@@ -197,6 +209,7 @@ Ranges, not promises. Bumped from the older 40A buyer/MVP audit where 49A–56A 
 | **Customer account polish + loyalty foundation (69A)** | **~80%** | account overview + saved searches + back-in-stock interest foundation + non-financial engagement label; customerId-scoped; **no points/money**, no real interest emails, no marketing automation/CRM |
 | **Inventory & stock operations (70A)** | **~80%** | stock health + safe manual adjustments (validated, race-safe, audited) + append-only movement ledger + dashboard integration; single-store stock only — **no** WMS/supplier/barcode/multi-location/ERP |
 | **Product content readiness (71A)** | **~80%** | read-only per-product content scoring + levels (local/buyer/public demo, real sale) + placeholder/photo-gap detection + admin dashboard/edit-panel integration; **does not** create real photos/content — real photos are owner-provided, no generation/scraping |
+| **SEO & marketing foundation (72A)** | **~75%** | sitemap/robots, canonical/site-URL policy, OG/Twitter (real photo only), honest Organization/WebSite/Breadcrumb/Product JSON-LD, `/admin/seo` readiness; **no** analytics/pixels/ads/CRM, **no** public domain/deploy, no brand OG asset yet — owner-gated |
 | **Customer auth / account** | **~90%** | login/profile/password/history/audit/durable rate-limit; reset/verification = hashed-token foundation (60A), no email delivery |
 | **Admin CMS / site management** | **~85–90%** | catalog/orders/lifecycle/settings/CMS/audit; local-only |
 | **Security / readiness tooling** | **~90%** | durable rate-limit, audit, preflight/rehearsal/smokes, sale-docs guard |

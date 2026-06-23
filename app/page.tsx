@@ -11,6 +11,7 @@
  * markup and is revealed later when the admin view is wired up.
  */
 
+import type { Metadata } from 'next'
 import '../src/styles/home.css'
 import Link from 'next/link'
 import Placeholder from '../src/components/ui/Placeholder'
@@ -20,6 +21,26 @@ import PromoBlocks from '../src/components/home/PromoBlocks'
 import Benefits from '../src/components/home/Benefits'
 import SeoTextBlock from '../src/components/home/SeoTextBlock'
 import { getAllProductsFromDb } from '../src/lib/catalog/server'
+
+const HOME_TITLE = 'AURELIA — біжутерія, прикраси та аксесуари'
+const HOME_DESCRIPTION =
+  'Інтернет-магазин біжутерії AURELIA: сережки, каблучки, браслети, ланцюжки та подарунки. Біжутерія без меж.'
+
+// Home metadata (Этап 72A): canonical root + Open Graph / Twitter card. Site-wide Organization
+// and WebSite structured data live in the root layout; no fabricated imagery is referenced.
+export const metadata: Metadata = {
+  title: HOME_TITLE,
+  description: HOME_DESCRIPTION,
+  alternates: { canonical: '/' },
+  openGraph: {
+    type: 'website',
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
+    url: '/',
+    siteName: 'AURELIA',
+  },
+  twitter: { card: 'summary', title: HOME_TITLE, description: HOME_DESCRIPTION },
+}
 
 export default async function HomePage() {
   // Home rows are drawn from the DB-backed catalog so their cards link to the

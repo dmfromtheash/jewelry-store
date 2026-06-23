@@ -57,6 +57,17 @@ async function expectOk(path) {
   }
 }
 
+/** A non-HTML public document (sitemap.xml / robots.txt) must return 200 with a body. */
+async function expectOkText(path, mustInclude) {
+  try {
+    const { status, body } = await get(path)
+    const ok = status === 200 && body.length > 0 && (!mustInclude || body.includes(mustInclude))
+    record(path, ok, `status ${status}${ok ? '' : ', unexpected body'}`)
+  } catch (e) {
+    record(path, false, e instanceof Error ? e.message : 'request failed')
+  }
+}
+
 /** A protected admin page must be GATED (redirect→login in dev, or 404 in prod) —
  *  never a 200 render of admin content, never a 5xx. */
 async function expectGatedAdmin(path) {
@@ -128,9 +139,12 @@ async function main() {
     '/admin/login', // local-only login page renders in dev
   ]
 
-  const adminRoutes = ['/admin/audit-log', '/admin/orders', '/admin/catalog', '/admin/inventory', '/admin/readiness', '/admin/dashboard', '/admin/promotions', '/admin/customers']
+  const adminRoutes = ['/admin/audit-log', '/admin/orders', '/admin/catalog', '/admin/inventory', '/admin/readiness', '/admin/seo', '/admin/dashboard', '/admin/promotions', '/admin/customers']
 
   for (const r of publicRoutes) await expectOk(r)
+  // SEO documents (Этап 72A): public, non-HTML, must render with the expected markers.
+  await expectOkText('/sitemap.xml', '<urlset')
+  await expectOkText('/robots.txt', 'Sitemap:')
   for (const r of adminRoutes) await expectGatedAdmin(r)
 
   for (const { label, ok, detail } of results) {

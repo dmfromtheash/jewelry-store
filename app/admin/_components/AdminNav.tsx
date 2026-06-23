@@ -25,6 +25,7 @@ const NAV_ITEMS: readonly AdminNavItem[] = [
   { href: '/admin/catalog', label: 'Каталог' },
   { href: '/admin/inventory', label: 'Склад' },
   { href: '/admin/readiness', label: 'Готовность' },
+  { href: '/admin/seo', label: 'SEO' },
   { href: '/admin/reviews', label: 'Отзывы' },
   { href: '/admin/customers', label: 'Покупатели' },
   { href: '/admin/promotions', label: 'Промокоды' },

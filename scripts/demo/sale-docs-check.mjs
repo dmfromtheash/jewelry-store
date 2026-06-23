@@ -186,6 +186,21 @@ const FALSE_FEATURES = [
   { re: /\b(supplier|catalog|content|product)\s+(scraping|scraper|crawl\w*|content\s+import\w*|catalog\s+import\w*)\s+(is\s+)?(implemented|integrated|live|enabled|available|done)\b/i, why: 'no supplier/catalog/content scraping or import is implemented' },
   { re: /\ball\s+(product\s+)?(cards?|products?)\s+(are\s+)?(real[-\s]?sale|sale|production)[-\s]?ready\b/i, why: 'not all product cards are real-sale ready — content/photo gaps remain (see /admin/readiness)' },
   { re: /\bpublic\s+launch\s+(is\s+)?(fully\s+)?(ready|complete|done)\b/i, why: 'the public launch is NOT fully ready while real photos/content gaps remain' },
+  // SEO & marketing foundation (Этап 72A): a SEO FOUNDATION IS implemented — sitemap/robots,
+  // canonical/metadata, Open Graph/Twitter, honest Organization/WebSite/Breadcrumb/Product
+  // structured data, and SEO/marketing-readiness checks. So "SEO foundation / sitemap / robots /
+  // canonical / OG / structured data implemented" is HONEST and must NOT be flagged. What is NOT
+  // built — and must NOT be claimed: a live public domain / production deploy, paid ads / ad
+  // pixels, retargeting/remarketing, an affiliate programme, external analytics, marketing
+  // automation / CRM, real email campaigns, auto-generated SEO copy, and "search engine / Search
+  // Console submission". Affirmative + negation-guarded (honest "not deployed" / "owner-gated" pass).
+  { re: /\b(live|production)\s+domain\s+(is\s+)?(configured|connected|ready|live|set\s*up|active)\b/i, why: 'no live/production domain — canonical/sitemap use a local/demo URL until the owner deploys' },
+  { re: /\b(facebook|meta|google|tiktok|conversion|tracking)\s+pixels?\s+(is\s+|are\s+)?(installed|implemented|integrated|added|live|enabled|configured)\b/i, why: 'no ad/tracking pixel is installed (no analytics/pixels in this stage)' },
+  { re: /\b(retargeting|remarketing)\s+(is\s+|are\s+)?(implemented|integrated|live|enabled|configured|running)\b/i, why: 'no retargeting/remarketing is implemented' },
+  { re: /\b(paid\s+ads?|ad\s+campaigns?|google\s+ads|facebook\s+ads|meta\s+ads|tiktok\s+ads)\s+(are\s+|is\s+)?(running|live|integrated|implemented|connected|enabled)\b/i, why: 'no paid ads / ad campaigns are integrated' },
+  { re: /\baffiliate\s+(program\w*|system|network)\s+(is\s+)?(implemented|live|integrated|enabled|available|running)\b/i, why: 'no affiliate programme is implemented' },
+  { re: /\bsitemap\s+(is\s+)?(submitted|registered|verified)\s+(to\s+|with\s+)?(google|bing|search\s+console|webmaster)\b/i, why: 'the sitemap is generated but NOT submitted/registered with any search engine (owner-gated)' },
+  { re: /\b(google\s+)?search\s+console\s+(is\s+)?(configured|connected|verified|set\s*up|integrated)\b/i, why: 'Search Console is not configured (no public domain / owner-gated)' },
 ]
 
 const NEGATION = /❌|\bno\b|\bnot\b|\bnever\b|\bwithout\b|\bmust not\b|\binstead of\b|\bisn'?t\b|\baren'?t\b|\bplaceholder\b|\bdeferred\b|\bnot yet\b|\bnothing\b|\bplanning only\b|\bdemo only\b|\bno real\b/i

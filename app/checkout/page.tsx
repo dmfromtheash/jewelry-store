@@ -11,9 +11,11 @@ import CheckoutPageClient from '../../src/components/checkout/CheckoutPageClient
 import { getCheckoutCopySettings } from '../../src/lib/site-settings/server'
 import { getCurrentCustomer } from '../../src/lib/customer/session'
 
+// Transactional page — not indexable (Этап 72A; also disallowed in robots.txt).
 export const metadata: Metadata = {
   title: 'Оформлення замовлення — AURELIA',
   description: 'Оформлення замовлення AURELIA.',
+  robots: { index: false, follow: false },
 }
 
 export default async function CheckoutPage() {

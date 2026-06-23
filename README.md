@@ -55,6 +55,11 @@ provider decisions + imagery — not core engineering.
 - **Product content readiness** (71A): `/admin/readiness` — a read-only per-product content checker
   (levels: local/buyer/public demo → real sale) with placeholder/photo-gap detection. Real product
   photos are owner-provided; **no** photo generation/download/scraping, **no** auto SEO/copy generation
+- **SEO & marketing foundation** (72A): dynamic **`/sitemap.xml`** (published+available products only)
+  + **`/robots.txt`** (admin/account/cart/checkout/api disallowed), centralized canonical/site-URL
+  policy (query-stripped; search `noindex`), Open Graph/Twitter cards (real product photo only — **no**
+  fake/placeholder OG image), honest **Organization/WebSite/Breadcrumb/Product** JSON-LD, and an
+  **`/admin/seo`** readiness view. **No** analytics/pixels/ads/CRM, **no** public deploy — owner-gated
 - Screenshots and sale/handoff docs
 
 ## What is not implemented yet
@@ -85,6 +90,11 @@ provider decisions + imagery — not core engineering.
 - **External analytics/BI** and **running commands from the web admin** (not built / not
   allowed). *(An admin operations dashboard with safe local aggregates is already done — 65A;
   readiness commands are text-only documentation.)*
+- **External analytics/events, ad pixels (Meta/Google/TikTok), retargeting, paid ads, affiliate
+  programme, marketing automation/CRM, auto-generated SEO copy, a live public domain / Search Console
+  submission** (deferred). *(The SEO foundation — sitemap/robots, canonical/meta, OG/Twitter, honest
+  structured data, and `/admin/seo` — is already done — 72A; canonical/sitemap use a local/demo URL
+  until the owner deploys.)*
 
 These are deliberate, separately-scoped next steps — not hidden defects.
 

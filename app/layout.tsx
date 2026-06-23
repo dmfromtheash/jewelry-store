@@ -7,25 +7,26 @@ import CartProvider from '../src/components/cart/CartProvider'
 import FavoritesProvider from '../src/components/favorites/FavoritesProvider'
 import CatalogProvider from '../src/lib/catalog/CatalogProvider'
 import { getCatalogSnapshotForClient } from '../src/lib/catalog/server'
+import {
+  buildOrganizationJsonLd,
+  buildWebSiteJsonLd,
+  metadataBaseUrl,
+} from '../src/lib/seo/site'
 
-// Base URL used to resolve relative canonical/Open Graph URLs (Этап 62A SEO). Reads
-// the public site URL when configured (not a secret), else a local-demo default. Guarded
-// so a malformed value can never break the build.
-function resolveMetadataBase(): URL | undefined {
-  const raw = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:5000'
-  try {
-    return new URL(raw)
-  } catch {
-    return undefined
-  }
-}
-
+// Base URL used to resolve relative canonical/Open Graph URLs. Reads the public site URL when
+// configured (not a secret), else a local/demo default — centralised in src/lib/seo/site.ts
+// (Этап 72A) so the sitemap/robots/structured-data all agree on one origin.
 export const metadata: Metadata = {
-  metadataBase: resolveMetadataBase(),
+  metadataBase: metadataBaseUrl(),
   title: 'AURELIA — Bijouterie Without Limits',
   description: 'Інтернет-магазин біжутерії, прикрас та аксесуарів AURELIA',
   keywords: ['біжутерія', 'прикраси', 'каблучки', 'сережки', 'браслети', 'aurelia'],
 }
+
+// Site-wide structured data (Этап 72A): Organization + WebSite (with on-site SearchAction).
+// Honest, generic fields only — no fabricated address/phone/payment/rating. JSON.stringify
+// output is safe ld+json (no user-supplied HTML enters here).
+const SITE_JSON_LD = [buildOrganizationJsonLd(), buildWebSiteJsonLd()]
 
 export default async function RootLayout({
   children,
@@ -46,6 +47,13 @@ export default async function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600&display=swap"
           rel="stylesheet"
         />
+        {SITE_JSON_LD.map((node, i) => (
+          <script
+            key={i}
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(node) }}
+          />
+        ))}
       </head>
       <body>
         {/* Client-обёртки контекста: модалки входа/регистрации (AuthModalProvider)

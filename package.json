@@ -53,6 +53,7 @@
     "db:verify:promotions": "tsx prisma/verify-promotions.ts",
     "db:verify:customer-loyalty": "tsx prisma/verify-customer-loyalty.ts",
     "db:verify:product-readiness": "tsx prisma/verify-product-readiness.ts",
+    "db:verify:seo-marketing": "tsx prisma/verify-seo-marketing.ts",
     "email:process:stub": "tsx prisma/email-process.ts",
     "smoke:routes": "node scripts/smoke/route-smoke.mjs",
     "smoke:admin": "node scripts/smoke/admin-smoke.mjs",

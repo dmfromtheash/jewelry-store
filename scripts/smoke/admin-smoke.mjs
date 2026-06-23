@@ -152,6 +152,7 @@ async function main() {
     '/admin/catalog',
     '/admin/inventory',
     '/admin/readiness',
+    '/admin/seo',
     '/admin/reviews',
     '/admin/customers',
     '/admin/promotions',

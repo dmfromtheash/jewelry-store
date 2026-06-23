@@ -9,6 +9,7 @@ import CategoryLayout from '../../../src/components/category/CategoryLayout'
 import TrackView from '../../../src/components/analytics/TrackView'
 import { ANALYTICS_EVENTS } from '../../../src/lib/analytics/events'
 import { getProductsByCategorySlugFromDb } from '../../../src/lib/catalog/server'
+import { buildBreadcrumbJsonLd } from '../../../src/lib/seo/site'
 
 const DESCRIPTION =
   'Сережки, каблучки, браслети, ланцюжки та кулони AURELIA — біжутерія без меж.'
@@ -23,7 +24,14 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     url: '/category/bijouterie',
   },
+  twitter: { card: 'summary', title: 'Біжутерія — AURELIA', description: DESCRIPTION },
 }
+
+// BreadcrumbList structured data (Этап 72A) — mirrors the visible breadcrumbs below.
+const BREADCRUMB_JSON_LD = buildBreadcrumbJsonLd([
+  { label: 'Головна', href: '/' },
+  { label: 'Біжутерія', href: '/category/bijouterie' },
+])
 
 const CHIPS = [
   { label: 'Усі прикраси', active: true },
@@ -44,6 +52,12 @@ export default async function BijouterieCategoryPage() {
 
   return (
     <>
+      {BREADCRUMB_JSON_LD && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(BREADCRUMB_JSON_LD) }}
+        />
+      )}
       <TrackView event={ANALYTICS_EVENTS.categoryView} payload={{ categorySlug: 'bijouterie' }} />
       <CategoryLayout
         breadcrumbs={[{ label: 'Головна', href: '/' }, { label: 'Біжутерія' }]}

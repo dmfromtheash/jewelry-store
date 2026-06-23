@@ -9,9 +9,11 @@
 import type { Metadata } from 'next'
 import FavoritesPageClient from '../../src/components/favorites/FavoritesPageClient'
 
+// Personalised page — not indexable (Этап 72A; also disallowed in robots.txt).
 export const metadata: Metadata = {
   title: 'Обране — AURELIA',
   description: 'Збережені прикраси AURELIA.',
+  robots: { index: false, follow: true },
 }
 
 export default function FavoritesPage() {

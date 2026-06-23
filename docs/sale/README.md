@@ -137,6 +137,14 @@ owner must decide before a real launch.
   but a **gap** for public demo / real sale; real licensed/owned photos + final content are
   **owner-provided**. No photo generation/download/scraping, no auto SEO/copy generation, never
   mutates products or gates checkout.
+- **SEO & marketing foundation (72A)** — dynamic **`/sitemap.xml`** (home + info pages + categories
+  + published-and-available products only) and **`/robots.txt`** (admin/account/cart/checkout/api
+  disallowed; sitemap referenced), a centralized **canonical/site-URL policy** (query-stripped paths;
+  search `noindex`), **Open Graph/Twitter** cards (a real product photo only — **no** fake/placeholder
+  OG image), honest **Organization / WebSite (SearchAction) / Breadcrumb / Product** JSON-LD, and an
+  **`/admin/seo`** readiness view (sitemap/robots/domain/OG/structured-data coverage + public-launch
+  blockers + marketing notes). **No** analytics/events, ad pixels, retargeting, paid ads, affiliate,
+  marketing automation/CRM, auto-generated SEO copy, or public deploy — owner-gated.
 - **Demo/sale readiness tooling** — `demo:preflight`, `demo:rehearsal`, `smoke:routes`,
   `smoke:admin`, `demo:sale-docs-check` (all local, read-only, no deploy; see
   [`DEMO_SALE_READINESS_REPORT.md`](./DEMO_SALE_READINESS_REPORT.md)).
