@@ -248,3 +248,94 @@
     justify-content: flex-start;
   }
 }
+
+/* ============================================================
+   Sticky-header quick actions (Этап 77A)
+   A compact icon group surfaced ONLY while the (already
+   position:sticky) category nav is pinned to the top — i.e. once
+   the main header has scrolled out of view. At the top of the
+   page it is invisible & non-interactive, so the normal header
+   design is unchanged. It is overlaid on the RIGHT of the nav
+   (pointer-events pass through to the category links) so it never
+   shifts or reflows the centred category navigation.
+   ============================================================ */
+.au-quick-actions-bar {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none; /* let clicks fall through to the category links */
+}
+.au-quick-actions-in {
+  position: relative;
+  height: 100%;
+}
+.au-quick-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding-left: 26px;
+  /* soft fade so a horizontally-scrolled category never collides hard */
+  background: linear-gradient(to right, transparent, var(--au-bg) 22px);
+  opacity: 0;
+  visibility: hidden; /* also removes the buttons from the tab order when hidden */
+  transform: translateY(-3px);
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+}
+.au-quick-actions.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  pointer-events: auto;
+}
+/* Reuse .au-icon-btn but a touch smaller so the group stays subordinate
+   to the category nav and does not visually dominate it. */
+.au-quick-actions .au-icon-btn {
+  width: 34px;
+  height: 34px;
+}
+
+/* compact expand/collapse search */
+.au-quick-search {
+  display: flex;
+  align-items: center;
+}
+.au-quick-search-input {
+  width: 0;
+  padding: 0;
+  border: none;
+  border-bottom: 1px solid var(--au-line-strong);
+  outline: none;
+  background: transparent;
+  font: 400 13px/1.4 var(--au-font-ui);
+  color: var(--au-ink);
+  opacity: 0;
+  transition: width 0.2s ease, opacity 0.2s ease, padding 0.2s ease;
+}
+.au-quick-search.is-open .au-quick-search-input {
+  width: 150px;
+  padding: 5px 2px;
+  opacity: 1;
+}
+.au-quick-search-input::placeholder {
+  color: var(--au-faint);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .au-quick-actions,
+  .au-quick-search-input {
+    transition: none;
+  }
+}
+
+/* On narrow screens the category nav scrolls horizontally and fills the row,
+   so the right-pinned overlay would overlap the links — hide it there. The
+   full header (with the same icons) is only a short scroll away on mobile. */
+@media (max-width: 640px) {
+  .au-quick-actions-bar {
+    display: none;
+  }
+}

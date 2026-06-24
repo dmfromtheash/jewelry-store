@@ -3,6 +3,7 @@ import ProfileButton from '../auth/ProfileButton'
 import CartButton from '../cart/CartButton'
 import FavoritesButton from '../favorites/FavoritesButton'
 import HeaderSearch from '../search/HeaderSearch'
+import StickyQuickActions from './StickyQuickActions'
 import { getAdminSession } from '../../lib/admin/auth'
 import { getCurrentCustomer } from '../../lib/customer/session'
 import { getPublicSiteSettings } from '../../lib/site-settings/server'
@@ -104,7 +105,7 @@ export default async function Header() {
         </div>
       </header>
 
-      {/* ---- Category nav ---- */}
+      {/* ---- Category nav (sticky) ---- */}
       <nav className="au-nav" aria-label="Категорії">
         <div className="au-container au-nav-in">
           {NAV_CATEGORIES.map((category) =>
@@ -119,6 +120,11 @@ export default async function Header() {
             ),
           )}
         </div>
+        {/* Этап 77A: quick actions surfaced only while this nav is pinned at the
+            top (scrolled/sticky state). Overlaid on the right of the category
+            nav — invisible & non-interactive at the top of the page, so the
+            normal header design stays unchanged. */}
+        <StickyQuickActions accountName={accountName} />
       </nav>
     </>
   )
