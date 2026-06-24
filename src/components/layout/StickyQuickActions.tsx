@@ -34,6 +34,8 @@ export default function StickyQuickActions({ accountName }: { accountName?: stri
   const [stuck, setStuck] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [query, setQuery] = useState('')
+  const barRef = useRef<HTMLDivElement>(null)
+  const actionsRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   // Sticky/scrolled detection: once the main header has fully scrolled out of
@@ -61,6 +63,68 @@ export default function StickyQuickActions({ accountName }: { accountName?: stri
     if (searchOpen) inputRef.current?.focus()
   }, [searchOpen])
 
+  // Reserve horizontal room for the overlaid quick actions only when they can
+  // collide with the category links. This keeps wide desktop nav centered, while
+  // narrower laptop/tablet widths get a measured safe gap instead of overlap.
+  useEffect(() => {
+    const bar = barRef.current
+    const actions = actionsRef.current
+    const nav = bar?.closest<HTMLElement>('.au-nav')
+    const navInner = nav?.querySelector<HTMLElement>('.au-nav-in')
+
+    if (!bar || !actions || !nav || !navInner) return
+
+    let frame = 0
+
+    const updateNavSpacing = () => {
+      window.cancelAnimationFrame(frame)
+      frame = window.requestAnimationFrame(() => {
+        const actionsRect = actions.getBoundingClientRect()
+        const navStyle = window.getComputedStyle(nav)
+        const safeGap = Number.parseFloat(navStyle.getPropertyValue('--au-quick-actions-gap')) || 24
+        const rootStyle = window.getComputedStyle(document.documentElement)
+        const maxWidth = Number.parseFloat(rootStyle.getPropertyValue('--au-max')) || 1280
+        const viewportWidth = window.innerWidth
+        const naturalWidth = Math.min(maxWidth, viewportWidth)
+        const naturalLeft = Math.max(0, (viewportWidth - naturalWidth) / 2)
+        const safeRight = actionsRect.left - safeGap
+        const safeWidth = stuck ? Math.max(0, Math.min(naturalWidth, safeRight - naturalLeft)) : naturalWidth
+        const needsReserve = stuck && safeWidth < naturalWidth - 1
+
+        nav.style.setProperty('--au-nav-safe-left', `${Math.round(naturalLeft)}px`)
+        nav.style.setProperty('--au-nav-safe-width', `${Math.round(safeWidth)}px`)
+        nav.classList.toggle('has-quick-actions', needsReserve)
+
+        const innerStyle = window.getComputedStyle(navInner)
+        const linkGap = Number.parseFloat(innerStyle.columnGap || innerStyle.gap) || 0
+        const paddingLeft = Number.parseFloat(innerStyle.paddingLeft) || 0
+        const paddingRight = Number.parseFloat(innerStyle.paddingRight) || 0
+        const links = Array.from(navInner.children) as HTMLElement[]
+        const linksWidth = links.reduce((total, link) => total + link.getBoundingClientRect().width, 0)
+        const totalLinksWidth = linksWidth + linkGap * Math.max(0, links.length - 1)
+        const availableWidth = navInner.clientWidth - paddingLeft - paddingRight
+
+        nav.classList.toggle('has-nav-scroll', stuck && totalLinksWidth > availableWidth + 1)
+      })
+    }
+
+    updateNavSpacing()
+
+    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateNavSpacing) : null
+    observer?.observe(actions)
+    observer?.observe(navInner)
+    window.addEventListener('resize', updateNavSpacing)
+
+    return () => {
+      window.cancelAnimationFrame(frame)
+      observer?.disconnect()
+      window.removeEventListener('resize', updateNavSpacing)
+      nav.style.removeProperty('--au-nav-safe-left')
+      nav.style.removeProperty('--au-nav-safe-width')
+      nav.classList.remove('has-quick-actions', 'has-nav-scroll')
+    }
+  }, [stuck, searchOpen])
+
   const submitSearch = () => {
     const trimmed = query.trim()
     if (!trimmed) return // empty query → never navigate / break routing
@@ -69,9 +133,9 @@ export default function StickyQuickActions({ accountName }: { accountName?: stri
   }
 
   return (
-    <div className="au-quick-actions-bar" aria-hidden={!stuck}>
+    <div ref={barRef} className="au-quick-actions-bar" aria-hidden={!stuck}>
       <div className="au-quick-actions-in">
-        <div className={`au-quick-actions${stuck ? ' is-visible' : ''}`}>
+        <div ref={actionsRef} className={`au-quick-actions${stuck ? ' is-visible' : ''}`}>
           <Link className="au-icon-btn" href="/" aria-label="На головну">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
               <path d="M4 11.5 12 5l8 6.5" />
