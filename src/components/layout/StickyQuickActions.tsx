@@ -70,7 +70,7 @@ export default function StickyQuickActions({ accountName }: { accountName?: stri
 
   return (
     <div className="au-quick-actions-bar" aria-hidden={!stuck}>
-      <div className="au-container au-quick-actions-in">
+      <div className="au-quick-actions-in">
         <div className={`au-quick-actions${stuck ? ' is-visible' : ''}`}>
           <Link className="au-icon-btn" href="/" aria-label="На головну">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">

@@ -272,14 +272,19 @@
 .au-quick-actions {
   position: absolute;
   top: 0;
-  right: 0;
+  /* Pinned to the far right edge of the (full-width) nav, OUTSIDE the centred
+     category container, so the group is pushed well clear of the rightmost
+     category ("Бренди") instead of overlapping it. */
+  right: clamp(14px, 3vw, 48px);
   height: 100%;
   display: flex;
   align-items: center;
   gap: 2px;
-  padding-left: 26px;
-  /* soft fade so a horizontally-scrolled category never collides hard */
-  background: linear-gradient(to right, transparent, var(--au-bg) 22px);
+  padding-left: 34px;
+  /* Solid background with a soft left fade so any category that scrolls under
+     the group is masked cleanly (no hard glyph-on-text collision). Uses an
+     rgba-white start so the fade never passes through a grey midpoint. */
+  background: linear-gradient(to right, rgba(255, 255, 255, 0), var(--au-bg) 34px);
   opacity: 0;
   visibility: hidden; /* also removes the buttons from the tab order when hidden */
   transform: translateY(-3px);
@@ -292,10 +297,23 @@
   pointer-events: auto;
 }
 /* Reuse .au-icon-btn but a touch smaller so the group stays subordinate
-   to the category nav and does not visually dominate it. */
+   to the category nav and does not visually dominate it. The explicit resets
+   below override the `.au-nav a { ... }` category-link rules that would
+   otherwise bleed into the Home + Favorites <a> icons (greyed colour, 15px
+   padding, transparent bottom-border) and make the heart look faded/distorted. */
 .au-quick-actions .au-icon-btn {
   width: 34px;
   height: 34px;
+  padding: 0;
+  border: none;
+  border-bottom: none;
+  color: var(--au-ink);
+  letter-spacing: normal;
+  white-space: normal;
+}
+.au-quick-actions .au-icon-btn:hover {
+  color: var(--au-ink);
+  background: var(--au-surface);
 }
 
 /* compact expand/collapse search */
