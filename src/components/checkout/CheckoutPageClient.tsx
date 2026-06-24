@@ -20,6 +20,7 @@ import { methodUsesBranch } from '../../lib/orders/delivery'
 import type { CheckoutCopy } from '../../lib/site-settings/checkout-copy'
 import { sendAnalyticsEvent } from '../../lib/analytics/client'
 import { ANALYTICS_EVENTS } from '../../lib/analytics/events'
+import InfoHint from '../ui/InfoHint'
 
 /**
  * AURELIA — CheckoutPageClient (client) — Этапы 10A → 16A
@@ -413,7 +414,14 @@ export default function CheckoutPageClient({
               {errors.deliveryCity && <p className="au-field-error">{errors.deliveryCity}</p>}
             </div>
             <div className="au-field">
-              <label htmlFor="co-delivery">Спосіб доставки</label>
+              <label htmlFor="co-delivery" className="au-hint-label">
+                Спосіб доставки
+                <InfoHint
+                  text="Доступні ручні варіанти доставки для демо."
+                  label="Про способи доставки"
+                  place="right"
+                />
+              </label>
               <select
                 id="co-delivery"
                 className="au-co-select"
@@ -464,7 +472,14 @@ export default function CheckoutPageClient({
               )}
             </div>
             <div className="au-field">
-              <label htmlFor="co-delivery-comment">Коментар до замовлення</label>
+              <label htmlFor="co-delivery-comment" className="au-hint-label">
+                Коментар до замовлення
+                <InfoHint
+                  text="Побажання щодо доставки — необовʼязково."
+                  label="Про коментар до замовлення"
+                  place="right"
+                />
+              </label>
               <input
                 id="co-delivery-comment"
                 type="text"
@@ -483,7 +498,14 @@ export default function CheckoutPageClient({
           <section className="au-co-section">
             <h2 className="au-co-section-title">Оплата</h2>
             <div className="au-field">
-              <label htmlFor="co-payment">Спосіб оплати</label>
+              <label htmlFor="co-payment" className="au-hint-label">
+                Спосіб оплати
+                <InfoHint
+                  text="У демо оплату підтверджує менеджер."
+                  label="Про способи оплати"
+                  place="right"
+                />
+              </label>
               <select
                 id="co-payment"
                 className="au-co-select"
@@ -559,7 +581,14 @@ export default function CheckoutPageClient({
               layout. The server validates the code and recomputes the discount; the client
               only previews it. */}
           <div className="au-field au-co-promo">
-            <label htmlFor="co-promo">Промокод</label>
+            <label htmlFor="co-promo" className="au-hint-label">
+              Промокод
+              <InfoHint
+                text="Є код знижки — введіть і натисніть «Застосувати»."
+                label="Про промокод"
+                place="left"
+              />
+            </label>
             <div className="au-co-row">
               <input
                 id="co-promo"

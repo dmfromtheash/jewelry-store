@@ -6,6 +6,7 @@ import type { Product } from '../../lib/catalog'
 import { pickDefaultVariantRef, isVariantInStock } from '../../lib/cart/lines'
 import AddToCartButton from '../cart/AddToCartButton'
 import ProductFavoriteButton from './ProductFavoriteButton'
+import InfoHint from '../ui/InfoHint'
 
 /**
  * AURELIA — ProductBuyPanel (client) — Этап 30D
@@ -65,7 +66,14 @@ export default function ProductBuyPanel({ product }: { product: Product }) {
       </div>
 
       <div className="au-variants">
-        <div className="lbl">Покриття</div>
+        <div className="lbl au-hint-label">
+          Покриття
+          <InfoHint
+            text="Оберіть покриття перед додаванням у кошик."
+            label="Про вибір покриття"
+            place="right"
+          />
+        </div>
         <div className="au-variant-row">
           {hasVariants
             ? variants.map((v) => (
@@ -104,6 +112,11 @@ export default function ProductBuyPanel({ product }: { product: Product }) {
           </button>
         )}
         <ProductFavoriteButton slug={product.slug} />
+        <InfoHint
+          text="Збережені товари для швидкого повернення."
+          label="Про «Обране»"
+          place="left"
+        />
       </div>
 
       {!isAvailable && (

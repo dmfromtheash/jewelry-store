@@ -20,7 +20,7 @@ const FOOTER_COLUMNS: { heading: string; links: { label: string; href: string }[
     links: [
       { label: 'Доставка та оплата', href: '/delivery' },
       { label: 'Повернення та обмін', href: '/returns' },
-      { label: 'Допомога', href: '/help' },
+      { label: 'Вопросы / Ответы', href: '/help' },
     ],
   },
   {

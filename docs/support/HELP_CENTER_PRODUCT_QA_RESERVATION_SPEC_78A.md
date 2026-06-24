@@ -8,7 +8,18 @@
 > (stage 79A, additive migration `add_support_help_qa_availability`): static curated Help content
 > + search/filter + ask-a-question (`HelpQuestion`), moderated `ProductQuestion` on the PDP, and
 > guest-capable `ProductAvailabilityInterest` with no-send `EmailOutbox` integration + masked-email
-> admin queues. **DEFERRED (NOT built):** the entire **§E 24-hour reservation / hold** lifecycle —
+> admin queues.
+>
+> **UX update (Этап 84A).** The public-facing section is now named exactly **«Вопросы / Ответы»**
+> (header, footer, the `/help` page heading/breadcrumb and `<title>`); the `/help` route is
+> unchanged. It is made more visible (header link + hint, a highlighted entry block on the page) and
+> a small reusable **`InfoHint`** ("i") tooltip component was added and applied to key customer
+> controls (search, account, cart, favorites, «Вопросы / Ответы», product Q&A, back-in-stock,
+> payment/delivery method, promo code). Hint copy stays honest — **no** reservation/hold, **no**
+> real email sending, **no** payment/delivery-integration claims. This stage added **no** schema /
+> migration / design-system change.
+>
+> **DEFERRED (NOT built):** the entire **§E 24-hour reservation / hold** lifecycle —
 > no `reservedQuantity`, no `ProductReservationHold`/`ProductReservationEvent`, no FIFO hold queue,
 > no `hold_*` states, no inventory hold/release, no reservation-to-order conversion. Real email
 > sending also remains owner/provider-gated. Account-page integration (§G) is deferred. See

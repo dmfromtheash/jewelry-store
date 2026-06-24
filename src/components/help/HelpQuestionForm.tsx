@@ -11,6 +11,7 @@
  */
 
 import { useState } from 'react'
+import InfoHint from '../ui/InfoHint'
 import { submitHelpQuestion } from '../../lib/help/question-actions'
 import { validateHelpQuestion, hasHelpQuestionErrors } from '../../lib/help/question-validate'
 import type { HelpQuestionFieldErrors } from '../../lib/help/question-types'
@@ -75,7 +76,16 @@ export default function HelpQuestionForm({
 
   return (
     <form className="au-co-section au-help-form" onSubmit={handleSubmit} noValidate>
-      <h3 className="au-co-section-title">Поставити запитання</h3>
+      <h3 className="au-co-section-title">
+        <span className="au-hint-label">
+          Поставити запитання
+          <InfoHint
+            text="Відповідаємо вручну. Авто-листи поки не надсилаються."
+            label="Як працює форма запитання"
+            place="right"
+          />
+        </span>
+      </h3>
 
       <div className="au-field">
         <label htmlFor="hq-cat">Категорія</label>

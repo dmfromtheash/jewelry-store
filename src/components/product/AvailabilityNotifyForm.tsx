@@ -11,6 +11,7 @@
  */
 
 import { useState } from 'react'
+import InfoHint from '../ui/InfoHint'
 import { submitAvailabilityInterest } from '../../lib/availability/actions'
 import { validateAvailabilityInterest, hasAvailabilityInterestErrors } from '../../lib/availability/validate'
 import type { AvailabilityInterestFieldErrors } from '../../lib/availability/types'
@@ -67,7 +68,16 @@ export default function AvailabilityNotifyForm({
 
   return (
     <form className="au-co-section au-avail-form" onSubmit={handleSubmit} noValidate>
-      <h3 className="au-co-section-title">Повідомити про наявність</h3>
+      <h3 className="au-co-section-title">
+        <span className="au-hint-label">
+          Повідомити про наявність
+          <InfoHint
+            text="Ми збережемо ваш запит. Це не бронювання та не гарантія наявності."
+            label="Як працює повідомлення про наявність"
+            place="right"
+          />
+        </span>
+      </h3>
       <p className="au-co-note">
         Залиште e-mail — ми збережемо ваш запит. Зараз листи не надсилаються (поштовий сервіс не
         підключено), тож це не бронювання та не гарантія наявності.

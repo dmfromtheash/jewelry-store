@@ -1,0 +1,179 @@
+/* ============================================================
+   AURELIA — InfoHint (Этап 84A)
+   Small, subtle "i" information hints for customer-facing controls.
+   Self-contained block — no global/card/gallery/typography changes.
+   ============================================================ */
+
+.au-hint {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  /* Sits beside a label/button without pushing layout around. */
+  vertical-align: middle;
+  line-height: 0;
+}
+
+/* The visible "i" trigger — quiet by default, gold accent on interaction. */
+.au-hint-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  margin: 0;
+  border: 1px solid var(--au-line-strong);
+  border-radius: 999px;
+  background: var(--au-surface);
+  color: var(--au-muted);
+  font: italic 700 10.5px/1 var(--au-font-display);
+  cursor: help;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.au-hint-btn:hover {
+  border-color: var(--au-gold-soft);
+  color: var(--au-gold);
+}
+.au-hint-btn:focus-visible {
+  outline: 2px solid var(--au-gold-soft);
+  outline-offset: 2px;
+  color: var(--au-gold);
+  border-color: var(--au-gold);
+}
+
+/* The tooltip bubble. Hidden until data-open="true"; never blocks clicks. */
+.au-hint-tip {
+  position: absolute;
+  z-index: 600;
+  width: max-content;
+  max-width: min(220px, 70vw);
+  padding: 7px 10px;
+  border: 1px solid var(--au-line);
+  border-radius: var(--au-radius);
+  background: var(--au-bg);
+  box-shadow: var(--au-shadow-soft);
+  color: var(--au-ink-soft);
+  font: 400 12px/1.45 var(--au-font-ui);
+  text-align: left;
+  white-space: normal;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(2px);
+  transition: opacity 0.14s ease, transform 0.14s ease, visibility 0.14s ease;
+}
+.au-hint-tip[data-open='true'] {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+/* Conservative per-placement positions (no JS measuring required). */
+.au-hint-tip[data-place='top'] {
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translate(-50%, 2px);
+}
+.au-hint-tip[data-place='top'][data-open='true'] {
+  transform: translate(-50%, 0);
+}
+.au-hint-tip[data-place='bottom'] {
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translate(-50%, -2px);
+}
+.au-hint-tip[data-place='bottom'][data-open='true'] {
+  transform: translate(-50%, 0);
+}
+.au-hint-tip[data-place='right'] {
+  left: calc(100% + 8px);
+  top: 50%;
+  transform: translate(-2px, -50%);
+}
+.au-hint-tip[data-place='right'][data-open='true'] {
+  transform: translate(0, -50%);
+}
+.au-hint-tip[data-place='left'] {
+  right: calc(100% + 8px);
+  top: 50%;
+  transform: translate(2px, -50%);
+}
+.au-hint-tip[data-place='left'][data-open='true'] {
+  transform: translate(0, -50%);
+}
+
+/* On narrow screens keep top/bottom tips from spilling off the right edge:
+   anchor them to the trigger's left instead of centering. */
+@media (max-width: 560px) {
+  .au-hint-tip[data-place='top'],
+  .au-hint-tip[data-place='bottom'] {
+    left: auto;
+    right: 0;
+    transform: translateY(2px);
+  }
+  .au-hint-tip[data-place='top'][data-open='true'],
+  .au-hint-tip[data-place='bottom'][data-open='true'] {
+    transform: none;
+  }
+  /* Side placements fall back to bottom where there is rarely room sideways. */
+  .au-hint-tip[data-place='left'],
+  .au-hint-tip[data-place='right'] {
+    top: calc(100% + 8px);
+    bottom: auto;
+    left: auto;
+    right: 0;
+    transform: translateY(2px);
+  }
+  .au-hint-tip[data-place='left'][data-open='true'],
+  .au-hint-tip[data-place='right'][data-open='true'] {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .au-hint-tip {
+    transition: opacity 0.14s ease, visibility 0.14s ease;
+    transform: none !important;
+  }
+}
+
+/* ---- Help/Q&A visibility helpers (Этап 84A) ---- */
+
+/* A label row that carries an inline hint (e.g. checkout field labels). */
+.au-hint-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Compact "Є питання?" CTA used in the topbar to surface Вопросы / Ответы. */
+.au-help-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Highlighted entry block at the top of the Вопросы / Ответы page. */
+.au-help-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 6px 0 18px;
+  padding: 16px 18px;
+  border: 1px solid var(--au-line);
+  border-radius: var(--au-radius-lg);
+  background: var(--au-gold-tint);
+}
+.au-help-hero-text {
+  font: 400 14px/1.5 var(--au-font-ui);
+  color: var(--au-ink-soft);
+  margin: 0;
+  max-width: 64ch;
+}
+.au-help-hero .au-hint {
+  margin-left: 4px;
+}

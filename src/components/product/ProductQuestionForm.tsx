@@ -11,6 +11,7 @@
  */
 
 import { useState } from 'react'
+import InfoHint from '../ui/InfoHint'
 import { submitProductQuestion } from '../../lib/product-qa/actions'
 import { validateProductQuestion, hasProductQuestionErrors } from '../../lib/product-qa/validate'
 import type { ProductQuestionFieldErrors } from '../../lib/product-qa/types'
@@ -72,7 +73,16 @@ export default function ProductQuestionForm({
 
   return (
     <form className="au-co-section au-review-form" onSubmit={handleSubmit} noValidate>
-      <h3 className="au-co-section-title">Поставити запитання про товар</h3>
+      <h3 className="au-co-section-title">
+        <span className="au-hint-label">
+          Поставити запитання про товар
+          <InfoHint
+            text="Запитайте про розмір, матеріал або наявність."
+            label="Про запитання щодо товару"
+            place="right"
+          />
+        </span>
+      </h3>
 
       <div className="au-field">
         <label htmlFor="pq-name">Імʼя</label>

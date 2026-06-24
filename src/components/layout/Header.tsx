@@ -3,6 +3,7 @@ import ProfileButton from '../auth/ProfileButton'
 import CartButton from '../cart/CartButton'
 import FavoritesButton from '../favorites/FavoritesButton'
 import HeaderSearch from '../search/HeaderSearch'
+import InfoHint from '../ui/InfoHint'
 import StickyQuickActions from './StickyQuickActions'
 import { getAdminSession } from '../../lib/admin/auth'
 import { getCurrentCustomer } from '../../lib/customer/session'
@@ -23,11 +24,12 @@ const TOPBAR_PHONE_FALLBACK = '0 800 000 00 00'
  * links to the real home route "/".
  */
 
+// The "Вопросы / Ответы" entry (route stays /help) is the place for questions,
+// answers and buyer support — surfaced with a clear public name + a small hint.
 const TOPBAR_LINKS = [
   { label: 'Доставка та оплата', href: '/delivery' },
   { label: 'Повернення', href: '/returns' },
   { label: 'Магазини', href: '/stores' },
-  { label: 'Допомога', href: '/help' },
 ]
 
 // Only categories with a real route link to a page; the rest stay on "#"
@@ -78,6 +80,14 @@ export default async function Header() {
                 {link.label}
               </Link>
             ))}
+            <span className="au-help-cta">
+              <Link href="/help">Вопросы / Ответы</Link>
+              <InfoHint
+                text="Питання, відповіді та підказки покупцю."
+                label="Про розділ «Вопросы / Ответы»"
+                place="bottom"
+              />
+            </span>
           </nav>
           <div className="au-topbar-right">
             {adminSession && <Link href="/admin/dashboard">Админка</Link>}

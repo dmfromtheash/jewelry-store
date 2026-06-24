@@ -10,9 +10,16 @@ import { getInfoPageForPublic } from '../../src/lib/site-pages/server'
 // SitePage CMS (Этап 46E) with the static info-pages.ts fallback, so it can never hard-fail.
 const SLUG = 'help'
 
+// Этап 84A: the public section name is fixed to exactly «Вопросы / Ответы», so the
+// browser tab title is pinned at the route layer and intentionally does NOT use the
+// CMS `metaTitle`. This keeps the title correct even when a local/legacy SitePage row
+// still carries an older title (e.g. «Допомога — AURELIA») — no DB edit required. The
+// description still comes from the CMS (with the static info-pages.ts fallback).
+const HELP_TITLE = 'Вопросы / Ответы — AURELIA'
+
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getInfoPageForPublic(SLUG)
-  return { title: page?.metaTitle, description: page?.metaDescription }
+  return { title: HELP_TITLE, description: page?.metaDescription }
 }
 
 export default async function HelpPage({

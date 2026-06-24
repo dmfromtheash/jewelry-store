@@ -10,6 +10,7 @@
 
 import Link from 'next/link'
 import Breadcrumbs from '../ui/Breadcrumbs'
+import InfoHint from '../ui/InfoHint'
 import HelpQuestionForm from './HelpQuestionForm'
 import type { HelpSearchResult } from '../../lib/help/search'
 
@@ -33,10 +34,24 @@ export default function HelpCenter({
   return (
     <div className="au-info-page">
       <div className="au-container au-info-inner">
-        <Breadcrumbs items={[{ label: 'Головна', href: '/' }, { label: 'Допомога' }]} />
+        <Breadcrumbs items={[{ label: 'Головна', href: '/' }, { label: 'Вопросы / Ответы' }]} />
 
-        <h1 className="au-info-title">Допомога</h1>
+        <h1 className="au-info-title">Вопросы / Ответы</h1>
         {intro && <p className="au-info-intro">{intro}</p>}
+
+        {/* Highlighted entry block — makes clear this is where to read answers and
+            ask about a purchase. Subtle, single block (no loud banner). */}
+        <div className="au-help-hero">
+          <p className="au-help-hero-text">
+            Тут зібрані питання, відповіді та підказки покупцю: оплата, доставка, розміри,
+            догляд за прикрасами. Не знайшли відповідь — поставте запитання нижче.
+          </p>
+          <InfoHint
+            text="Питання, відповіді та підказки покупцю."
+            label="Про розділ «Вопросы / Ответы»"
+            place="left"
+          />
+        </div>
 
         {/* Search (GET — keeps the page statically cacheable per query). */}
         <form className="au-help-search" action="/help" method="get" role="search">
@@ -48,6 +63,7 @@ export default function HelpCenter({
             placeholder="Пошук у довідці…"
             aria-label="Пошук у довідці"
           />
+          <InfoHint text="Знайдіть відповідь за словом або темою." label="Як шукати у розділі" place="bottom" />
           <button className="au-btn au-btn--primary" type="submit">
             Знайти
           </button>
@@ -55,6 +71,9 @@ export default function HelpCenter({
 
         {/* Category filter chips. */}
         <nav className="au-help-cats" aria-label="Категорії довідки">
+          <span className="au-help-cats-hint">
+            <InfoHint text="Оберіть тему, щоб звузити список питань." label="Про категорії" place="right" />
+          </span>
           <Link
             href={buildHref(null, query)}
             className={`au-help-cat${activeCategory ? '' : ' is-active'}`}
