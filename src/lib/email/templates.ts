@@ -15,6 +15,7 @@ export const EMAIL_TEMPLATES = {
   orderStatusUpdate: 'order_status_update',
   passwordReset: 'password_reset',
   emailVerification: 'email_verification',
+  backInStockNotification: 'back_in_stock_notification',
 } as const
 
 export type EmailTemplateId = (typeof EMAIL_TEMPLATES)[keyof typeof EMAIL_TEMPLATES]
@@ -25,6 +26,7 @@ export const EMAIL_TEMPLATE_LABELS: Record<EmailTemplateId, string> = {
   [EMAIL_TEMPLATES.orderStatusUpdate]: 'Обновление статуса заказа',
   [EMAIL_TEMPLATES.passwordReset]: 'Сброс пароля',
   [EMAIL_TEMPLATES.emailVerification]: 'Подтверждение e-mail',
+  [EMAIL_TEMPLATES.backInStockNotification]: 'Сообщение о наличии товара',
 }
 
 export interface RenderedEmail {
@@ -73,6 +75,20 @@ export function renderEmailVerification(): RenderedEmail {
     subject: 'AURELIA — підтвердження e-mail',
     text:
       'Підтвердження e-mail. ' +
+      'Реальне надсилання листів поки не активне (потрібен поштовий провайдер).',
+  }
+}
+
+/**
+ * Back-in-stock availability notification — FOUNDATION ONLY (Этап 79A). Records the INTENT to
+ * tell a customer a product is available again; with no provider the outbox row terminates at
+ * `skipped_no_provider`, so nothing is delivered. The product name is safe text (no PII).
+ */
+export function renderBackInStockNotification(input: { productName: string }): RenderedEmail {
+  return {
+    subject: `AURELIA — ${input.productName}: товар знову в наявності`,
+    text:
+      `Товар «${input.productName}», за яким ви стежили, знову в наявності.\n\n` +
       'Реальне надсилання листів поки не активне (потрібен поштовий провайдер).',
   }
 }

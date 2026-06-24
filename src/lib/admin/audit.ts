@@ -46,6 +46,12 @@ export const AUDIT_ACTIONS = {
   promoDeactivated: 'admin.promo.deactivated',
   promoArchived: 'admin.promo.archived',
   stockAdjusted: 'admin.inventory.stock_adjusted',
+  helpQuestionAnswered: 'admin.help_question.answered',
+  helpQuestionStatusChanged: 'admin.help_question.status_changed',
+  productQuestionAnswered: 'admin.product_question.answered',
+  productQuestionStatusChanged: 'admin.product_question.status_changed',
+  availabilityStatusChanged: 'admin.availability.status_changed',
+  availabilityNotificationPrepared: 'admin.availability.notification_prepared',
 } as const
 
 /** Human-readable labels for the audit-log UI (fallback: the raw action). */
@@ -73,6 +79,12 @@ export const AUDIT_ACTION_LABELS: Record<string, string> = {
   [AUDIT_ACTIONS.promoDeactivated]: 'Промокод деактивирован',
   [AUDIT_ACTIONS.promoArchived]: 'Промокод архивирован',
   [AUDIT_ACTIONS.stockAdjusted]: 'Остаток скорректирован',
+  [AUDIT_ACTIONS.helpQuestionAnswered]: 'Вопрос помощи: ответ',
+  [AUDIT_ACTIONS.helpQuestionStatusChanged]: 'Вопрос помощи: смена статуса',
+  [AUDIT_ACTIONS.productQuestionAnswered]: 'Вопрос о товаре: ответ',
+  [AUDIT_ACTIONS.productQuestionStatusChanged]: 'Вопрос о товаре: смена статуса',
+  [AUDIT_ACTIONS.availabilityStatusChanged]: 'Ожидание наличия: смена статуса',
+  [AUDIT_ACTIONS.availabilityNotificationPrepared]: 'Ожидание наличия: уведомление подготовлено (без отправки)',
 }
 
 export interface AuditEventInput {

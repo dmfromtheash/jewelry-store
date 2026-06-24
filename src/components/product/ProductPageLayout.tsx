@@ -7,9 +7,11 @@ import ProductInfo from './ProductInfo'
 import ProductTabs from './ProductTabs'
 import ReviewsEmpty from './ReviewsEmpty'
 import ProductReviews from './ProductReviews'
+import ProductQuestions from './ProductQuestions'
 import RecentlyViewed from './RecentlyViewed'
 import type { Product } from '../../lib/catalog'
 import type { PublicReview, ReviewSummary } from '../../lib/reviews/types'
+import type { PublicProductQuestion } from '../../lib/product-qa/types'
 
 /**
  * AURELIA — ProductPageLayout (server component)
@@ -32,6 +34,8 @@ interface ProductPageLayoutProps {
   reviewSummary?: ReviewSummary
   /** Logged-in customer's display name to prefill the review form (Этап 59A). */
   reviewAuthorName?: string | null
+  /** Published, answered product questions (Этап 79A). Absent → empty state. */
+  questions?: PublicProductQuestion[]
 }
 
 export default function ProductPageLayout({
@@ -41,6 +45,7 @@ export default function ProductPageLayout({
   reviews,
   reviewSummary,
   reviewAuthorName = null,
+  questions,
 }: ProductPageLayoutProps) {
   return (
     <div className="au-product-page" data-view="customer">
@@ -70,6 +75,16 @@ export default function ProductPageLayout({
             </div>
             <ReviewsEmpty />
           </section>
+        )}
+
+        {/* Product Q&A (Этап 79A): pre-sale questions, DISTINCT from reviews — published +
+            answered only, plus a submission form. Only for a real product. */}
+        {product && (
+          <ProductQuestions
+            productSlug={product.slug}
+            questions={questions ?? []}
+            initialAuthorName={reviewAuthorName}
+          />
         )}
 
         {/* Similar products */}

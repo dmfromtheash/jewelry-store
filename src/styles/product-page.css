@@ -346,3 +346,34 @@
     grid-template-columns: 120px 1fr;
   }
 }
+
+/* ─── Этап 79A — Product Q&A + back-in-stock form (isolated; reuses review styles) ─── */
+/* Visually-hidden honeypot — off-screen but focusable by bots, never by humans. */
+.au-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.au-qa-item {
+  display: block;
+}
+.au-qa-q-label,
+.au-qa-a-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--au-muted, #8a8a8a);
+  margin-right: 0.4rem;
+}
+.au-qa-answer {
+  margin-top: 0.5rem;
+  padding-left: 0.85rem;
+  border-left: 2px solid var(--au-line, #e7e3dc);
+}
+.au-avail-form .au-field input[type='checkbox'],
+.au-help-consent input[type='checkbox'] {
+  width: auto;
+  margin-right: 0.35rem;
+}

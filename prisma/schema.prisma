@@ -79,6 +79,8 @@ model Product {
   reviews     ProductReview[]
   wishlistedBy CustomerWishlistItem[]
   interestedBy CustomerProductInterest[]
+  questions   ProductQuestion[]
+  availabilityInterests ProductAvailabilityInterest[]
 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -311,6 +313,9 @@ model Customer {
   wishlist      CustomerWishlistItem[]
   savedSearches CustomerSavedSearch[]
   productInterests CustomerProductInterest[]
+  helpQuestions    HelpQuestion[]
+  productQuestions ProductQuestion[]
+  availabilityInterests ProductAvailabilityInterest[]
 
   @@index([email])
 }
@@ -784,6 +789,10 @@ enum EmailTemplate {
   order_status_update
   password_reset
   email_verification
+  /// Этап 79A — back-in-stock availability notification INTENT. Like every other
+  /// template this sends NOTHING: an admin "prepare notification" records a no-send
+  /// outbox row that terminates at `skipped_no_provider`. No provider, no delivery.
+  back_in_stock_notification
 }
 
 /// Honest lifecycle for an outbox row (Этап 59A; processing + provider results 60A).
@@ -844,4 +853,166 @@ model EmailOutbox {
 
   @@index([status])
   @@index([template])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Этап 79A — Customer support pack: Help questions, product Q&A, availability
+// interest. PURELY ADDITIVE. There is NO reservation/hold model here — temporary
+// 24h holds, reservedQuantity, and the FIFO hold queue are DEFERRED (see
+// docs/support/HELP_CENTER_PRODUCT_QA_RESERVATION_SPEC_78A.md). Nothing here ever
+// sends a real email or touches inventory; availability interest only RECORDS a
+// request and (admin action) records a no-send EmailOutbox row.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Moderation lifecycle for a general Help question (Этап 79A). A submission starts
+/// `new` and is NEVER public until an admin both answers it AND moves it to `published`
+/// (and even then it is rendered anonymised). `spam`/`rejected`/`archived` are terminal,
+/// non-public.
+enum HelpQuestionStatus {
+  new
+  triaged
+  answered
+  published
+  archived
+  spam
+  rejected
+}
+
+/// Moderation lifecycle for a product question (Этап 79A). Kept DISTINCT from a review:
+/// a question is a pre-sale/support question, not an opinion+rating. Public PDP shows only
+/// `published` questions that carry an answer; everything else is hidden.
+enum ProductQuestionStatus {
+  pending
+  answered
+  published
+  rejected
+  archived
+  spam
+}
+
+/// Lifecycle of a back-in-stock availability interest (Этап 79A). NO real email is ever
+/// sent: `notification_prepared` means an admin recorded a no-send EmailOutbox row (which
+/// terminates at `skipped_no_provider`). NO reservation/hold is implied at any step.
+enum AvailabilityInterestStatus {
+  requested
+  pending_availability
+  queued_notification
+  notification_prepared
+  cancelled
+  expired
+}
+
+/// General customer "Поставити запитання" Help submission (Этап 79A). A support ticket,
+/// NOT public by default. Privacy + safety by construction:
+///   - the message + names are length-capped + HTML-stripped server-side before write;
+///   - `recipientEmail` is stored ONLY when the customer supplied it for a reply (with an
+///     explicit `consentAt`); it is NEVER rendered on any public surface and is masked in
+///     admin views. `emailHash` = sha256(normalizedEmail) is for dedupe/abuse only.
+///   - `productRef`/`orderRef` are LOOSE strings (triage hints only) — an order code is
+///     NEVER treated as proof of ownership and is never echoed publicly.
+///   - the optional author link uses the VERIFIED session id only (SetNull on delete), so a
+///     question survives an account deletion without dangling.
+model HelpQuestion {
+  id             String             @id @default(cuid())
+  /// Help category slug (loose allowlist value; survives a category rename).
+  categorySlug   String
+  customerId     String?
+  customer       Customer?          @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  /// Optional public display name (validated; may be null/anonymous).
+  authorName     String?
+  /// Reply address — stored only with consent; never shown publicly, masked in admin.
+  recipientEmail String?
+  /// sha256(normalizedEmail) — opaque; for dedupe/abuse only. Null when no email given.
+  emailHash      String?
+  subject        String
+  message        String
+  /// Loose product slug the question references (triage hint only). Not an FK.
+  productRef     String?
+  /// Loose order code (triage hint only; NOT ownership proof). Not an FK.
+  orderRef       String?
+  status         HelpQuestionStatus @default(new)
+  /// Admin answer (plain text, validated). Null until answered.
+  answer         String?
+  /// Admin session subject that answered (never a secret). Null until answered.
+  answeredBy     String?
+  /// When the customer accepted being contacted (only when an email was provided).
+  consentAt      DateTime?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  answeredAt     DateTime?
+  publishedAt    DateTime?
+  @@index([status])
+  @@index([categorySlug])
+  @@index([emailHash])
+}
+
+/// Product-level pre-sale/support question (Этап 79A). Mirrors the ProductReview privacy
+/// posture (no email/phone/IP/token stored beyond a consented reply email; HTML stripped;
+/// default not-public; cascade on product delete; SetNull on customer delete) but is a
+/// DISTINCT model with its own labels — a question is never a rating.
+model ProductQuestion {
+  id             String                @id @default(cuid())
+  productId      String
+  product        Product               @relation(fields: [productId], references: [id], onDelete: Cascade)
+  customerId     String?
+  customer       Customer?             @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  /// Public display name (guests must supply one; logged-in falls back to the profile name).
+  authorName     String
+  /// Reply address — consent-only; never public; masked in admin.
+  recipientEmail String?
+  emailHash      String?
+  /// The question text (plain text, validated, length-capped).
+  body           String
+  /// Admin answer (plain text). Null until answered.
+  answer         String?
+  answeredBy     String?
+  status         ProductQuestionStatus @default(pending)
+  /// True for seeded/sample content — keeps demo Q&A honestly labelled (never faked).
+  isDemo         Boolean               @default(false)
+  consentAt      DateTime?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  answeredAt     DateTime?
+  publishedAt    DateTime?
+  @@index([productId, status])
+  @@index([status])
+}
+
+/// Back-in-stock / availability interest (Этап 79A) — guest-capable, email-based, NO real
+/// sending and NO reservation. Separate from the 69A login-only CustomerProductInterest
+/// (which stores no email): this captures an email (with consent) so a future provider could
+/// notify, while today an admin only records a no-send EmailOutbox row.
+///
+/// Privacy + safety by construction:
+///   - `emailHash` = sha256(normalizedEmail) backs the dedupe unique key, so the same email
+///     can't pile up rows for the same product/variant; the raw `email` is stored only with
+///     consent, never shown publicly, and masked in admin.
+///   - resolves the product by id server-side from a PUBLISHED slug (never an arbitrary id);
+///     `variantId` is a LOOSE optional id (no FK) so it survives variant edits.
+///   - records NO IP / user-agent / token / secret. `source` is a coarse machine label only.
+model ProductAvailabilityInterest {
+  id          String                     @id @default(cuid())
+  productId   String
+  product     Product                    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  /// Optional variant the interest is for (loose id, no FK). Null = product-level.
+  variantId   String?
+  customerId  String?
+  customer    Customer?                  @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  /// Raw reply address — consent-only; never public; masked in admin.
+  email       String?
+  /// sha256(normalizedEmail) — opaque; backs the dedupe unique key. Empty-hash sentinel
+  /// is never written (an interest always has a hashable email in this stage).
+  emailHash   String
+  status      AvailabilityInterestStatus @default(requested)
+  /// Coarse machine label of where the interest came from, e.g. "pdp". Never PII.
+  source      String?
+  consentAt   DateTime?
+  createdAt   DateTime                   @default(now())
+  updatedAt   DateTime                   @updatedAt
+  /// When an admin recorded a NO-SEND notification row for this interest. Null otherwise.
+  notifiedAt  DateTime?
+  // Dedupe: one row per product + variant + email. variantId null collapses to product-level.
+  @@unique([productId, variantId, emailHash])
+  @@index([productId, status])
+  @@index([emailHash])
 }

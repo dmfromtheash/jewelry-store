@@ -25,6 +25,7 @@ import {
   getApprovedReviewsBySlug,
   getReviewSummaryBySlug,
 } from '../../../src/lib/reviews/server'
+import { getPublishedQuestionsBySlug } from '../../../src/lib/product-qa/server'
 import { getCurrentCustomer } from '../../../src/lib/customer/session'
 import { buildProductMetaParts, buildProductJsonLd } from '../../../src/lib/seo/product-seo'
 import { buildBreadcrumbJsonLd, productOgImages, serializeJsonLd } from '../../../src/lib/seo/site'
@@ -93,10 +94,13 @@ export default async function ProductPage({
 
   // Moderated reviews (Этап 59A): approved-only list + aggregate; prefill the review
   // form name for a logged-in customer. A lookup failure must never break the PDP.
-  const [reviews, reviewSummary, customer] = await Promise.all([
+  // Product Q&A (Этап 79A): published+answered questions only. Failure-isolated — a Q&A
+  // lookup error must never break the PDP (falls back to an empty list / empty state).
+  const [reviews, reviewSummary, customer, questions] = await Promise.all([
     getApprovedReviewsBySlug(product.slug),
     getReviewSummaryBySlug(product.slug),
     getCurrentCustomer().catch(() => null),
+    getPublishedQuestionsBySlug(product.slug).catch(() => []),
   ])
 
   // Product structured data (Этап 62A). aggregateRating is included only when there is
@@ -133,6 +137,7 @@ export default async function ProductPage({
         reviews={reviews}
         reviewSummary={reviewSummary}
         reviewAuthorName={customer?.name ?? null}
+        questions={questions}
       />
     </>
   )

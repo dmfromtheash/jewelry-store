@@ -30,6 +30,7 @@ import {
   renderOrderConfirmation,
   renderPasswordReset,
   renderEmailVerification,
+  renderBackInStockNotification,
   type EmailTemplateId,
 } from './templates'
 
@@ -122,6 +123,26 @@ export async function enqueueEmailVerificationEmail(
     recipientEmail,
     relatedType: 'customer',
     relatedId: customerId,
+  })
+}
+
+/**
+ * Records a back-in-stock notification INTENT (Этап 79A). NO email is sent (no provider): the
+ * row settles to `skipped_no_provider`. The recipient email is stored only when supplied; the
+ * loose related ref is the availability-interest id. Best-effort (swallows its own errors).
+ */
+export async function enqueueBackInStockNotification(
+  interestId: string,
+  productName: string,
+  recipientEmail: string | null,
+): Promise<void> {
+  const { subject } = renderBackInStockNotification({ productName })
+  await enqueueEmail({
+    template: EMAIL_TEMPLATES.backInStockNotification,
+    subject,
+    recipientEmail,
+    relatedType: 'availability_interest',
+    relatedId: interestId,
   })
 }
 

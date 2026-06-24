@@ -139,7 +139,7 @@ async function main() {
     '/admin/login', // local-only login page renders in dev
   ]
 
-  const adminRoutes = ['/admin/audit-log', '/admin/orders', '/admin/catalog', '/admin/inventory', '/admin/readiness', '/admin/seo', '/admin/dashboard', '/admin/promotions', '/admin/customers']
+  const adminRoutes = ['/admin/audit-log', '/admin/orders', '/admin/catalog', '/admin/inventory', '/admin/readiness', '/admin/seo', '/admin/dashboard', '/admin/promotions', '/admin/customers', '/admin/help', '/admin/help/questions', '/admin/product-questions', '/admin/availability-interests']
 
   for (const r of publicRoutes) await expectOk(r)
   // SEO documents (Этап 72A): public, non-HTML, must render with the expected markers.

@@ -4,6 +4,7 @@ import { isProductPurchasable } from '../../lib/catalog/availability'
 import type { ReviewSummary } from '../../lib/reviews/types'
 import ProductBuyPanel from './ProductBuyPanel'
 import ProductInterestButton from './ProductInterestButton'
+import AvailabilityNotifyForm from './AvailabilityNotifyForm'
 
 /**
  * AURELIA — ProductInfo (server component)
@@ -109,7 +110,14 @@ export default function ProductInfo({
         // offer a back-in-stock interest action (Этап 69A) — login-gated, NO email is sent.
         <>
           <ProductBuyPanel product={product} />
-          {!isProductPurchasable(product) && <ProductInterestButton slug={product.slug} />}
+          {!isProductPurchasable(product) && (
+            <>
+              {/* Logged-in account watch (Этап 69A — records interest, no email). */}
+              <ProductInterestButton slug={product.slug} />
+              {/* Guest-capable back-in-stock email capture (Этап 79A — no-send, no reservation). */}
+              <AvailabilityNotifyForm productSlug={product.slug} />
+            </>
+          )}
         </>
       ) : (
         // Generic coming-soon fallback (no product) — unchanged static block.

@@ -3,7 +3,18 @@
 **Status:** SPEC / PLAN only. **No code, no schema, no migration, no design change in 78A.**
 **Author stage:** 78A · **Baseline HEAD:** `059b890` · **Branch:** `main`
 
-> This document is a *plan*. Nothing here is implemented yet. It proposes how to upgrade the
+> **Implementation status (updated Этап 79A).** The Help Center, customer Help questions,
+> product Q&A, and back-in-stock availability interest from this SPEC are now **IMPLEMENTED**
+> (stage 79A, additive migration `add_support_help_qa_availability`): static curated Help content
+> + search/filter + ask-a-question (`HelpQuestion`), moderated `ProductQuestion` on the PDP, and
+> guest-capable `ProductAvailabilityInterest` with no-send `EmailOutbox` integration + masked-email
+> admin queues. **DEFERRED (NOT built):** the entire **§E 24-hour reservation / hold** lifecycle —
+> no `reservedQuantity`, no `ProductReservationHold`/`ProductReservationEvent`, no FIFO hold queue,
+> no `hold_*` states, no inventory hold/release, no reservation-to-order conversion. Real email
+> sending also remains owner/provider-gated. Account-page integration (§G) is deferred. See
+> `docs/sale/FEATURES_AND_LIMITS.md` §1/79A.
+>
+> This document is a *plan*. The reservation parts below are not implemented yet. It proposes how to upgrade the
 > current decorative **«Допомога»** page into a real **Help Center**, and to add **product
 > questions (pre-sale Q&A)**, **back-in-stock availability notifications**, and a **short-term
 > 24-hour reservation/hold** flow — all built **additively** on the systems that already exist,

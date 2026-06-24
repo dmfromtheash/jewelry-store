@@ -219,6 +219,20 @@ const FALSE_FEATURES = [
   { re: /\b(real\s+)?(e?-?mail)\s+campaigns?\s+(are\s+|is\s+)?(sent|running|implemented|live|enabled|delivered|launched)\b/i, why: 'no real email campaigns are sent (no provider; analytics is not marketing)' },
   { re: /\b(privacy|legal|gdpr|data[-\s]?protection)\s+(compliance|review|certification)\s+(is\s+|are\s+)?(complete|done|finished|passed|certified|ready)\b/i, why: 'production privacy/legal compliance review is NOT complete — owner-gated' },
   { re: /\banalytics\s+(is\s+|are\s+)?(deployed|in\s+production|production[-\s]?ready|publicly\s+(deployed|available|live))\b/i, why: 'analytics is local/demo only — not deployed/production-ready (owner-gated)' },
+  // Help Center / product Q&A / availability (Этап 79A): a Help Center (curated articles + search
+  // + ask-a-question), moderated product Q&A (distinct from reviews), and a back-in-stock
+  // availability interest (records an email with consent, NO sending) ARE implemented — so those
+  // are HONEST. What is NOT built — and must NOT be claimed: live chat / chatbot, a support CRM /
+  // helpdesk (also above), AI/auto-answered questions, and especially the 24-HOUR RESERVATION /
+  // HOLD (deferred): no temporary holds, no reservedQuantity, no paid/guaranteed reservation, no
+  // stock reservation. Back-in-stock EMAILS are also still not sent (covered above). Affirmative
+  // + negation-guarded (honest "no live chat" / "reservation is deferred" / "no holds" lines pass).
+  { re: /\b(live\s*chat|chat\s*bot|chatbot)\s+(is\s+|are\s+)?(implemented|integrated|available|live|enabled|added|built)\b/i, why: 'no live chat / chatbot — the Help Center is async forms + curated articles only' },
+  { re: /\b(ai|auto|automatic\w*)[-\s]?(generated|answered|written)\s+(product\s+)?(questions?|answers?|q\s*&\s*a)\s+(are\s+|is\s+)?(implemented|generated|live|enabled|available)\b/i, why: 'no AI/auto-answered questions — product Q&A answers are written manually by an admin' },
+  { re: /\b(24[-\s]?hour|24h|temporary|product)\s+(reservation|hold)s?\s+(are\s+|is\s+)?(implemented|available|live|enabled|supported|built|added|offered)\b/i, why: 'the 24-hour reservation/hold is NOT implemented (deferred — see SPEC 78A)' },
+  { re: /\breserve\s+(for\s+)?24\s*(h|hours)\b\s*(is\s+|are\s+)?(implemented|available|live|enabled|offered|supported)\b/i, why: 'no "reserve for 24 hours" feature — reservation/hold is deferred' },
+  { re: /\b(guaranteed|paid)\s+reservations?\s+(are\s+|is\s+)?(implemented|available|offered|supported|live|enabled)\b/i, why: 'no guaranteed/paid reservation — reservation/hold is deferred and never a paid guarantee' },
+  { re: /\b(stock|inventory)\s+(reservation|reserve|hold)s?\s+(are\s+|is\s+)?(implemented|available|live|enabled|supported)\b/i, why: 'no stock/inventory reservation — availability interest never reserves or holds stock' },
 ]
 
 const NEGATION = /❌|\bno\b|\bnot\b|\bnever\b|\bwithout\b|\bmust not\b|\binstead of\b|\bisn'?t\b|\baren'?t\b|\bplaceholder\b|\bdeferred\b|\bnot yet\b|\bnothing\b|\bplanning only\b|\bdemo only\b|\bno real\b/i

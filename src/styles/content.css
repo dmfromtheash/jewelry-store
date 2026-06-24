@@ -147,3 +147,76 @@
     padding: 20px 18px;
   }
 }
+
+/* ─── Этап 79A — Help Center (search, category chips, articles, ask form) ─── */
+.au-help-search {
+  display: flex;
+  gap: 10px;
+  margin: 18px 0 14px;
+}
+.au-help-search input[type='search'] {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--au-line);
+  border-radius: var(--au-radius);
+  font: 400 14.5px/1.4 var(--au-font-ui);
+  color: var(--au-ink);
+  background: var(--au-surface);
+}
+.au-help-cats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.au-help-cat {
+  padding: 6px 14px;
+  border: 1px solid var(--au-line);
+  border-radius: 999px;
+  font: 400 13px/1.4 var(--au-font-ui);
+  color: var(--au-ink-soft);
+  text-decoration: none;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.au-help-cat:hover {
+  border-color: var(--au-gold-soft);
+  color: var(--au-ink);
+}
+.au-help-cat.is-active {
+  border-color: var(--au-gold);
+  background: var(--au-gold-tint);
+  color: var(--au-gold);
+}
+.au-help-empty {
+  padding: 22px 18px;
+  border: 1px solid var(--au-line);
+  border-radius: var(--au-radius-lg);
+  background: var(--au-surface-2);
+  margin-bottom: 22px;
+}
+.au-help-articles {
+  margin-bottom: 26px;
+}
+.au-help-form {
+  margin-top: 8px;
+}
+.au-help-consent label {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 6px;
+  font: 400 13.5px/1.5 var(--au-font-ui);
+  color: var(--au-ink-soft);
+}
+.au-help-consent input[type='checkbox'] {
+  width: auto;
+  margin-top: 3px;
+}
+/* Visually-hidden honeypot (mirrors product-page.css). */
+.au-help-form .au-hp,
+.au-info-page .au-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}

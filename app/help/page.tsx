@@ -1,10 +1,13 @@
+import '../../src/styles/content.css'
 import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
-import InfoPageLayout from '../../src/components/content/InfoPageLayout'
+import HelpCenter from '../../src/components/help/HelpCenter'
+import { searchHelp } from '../../src/lib/help/search'
 import { getInfoPageForPublic } from '../../src/lib/site-pages/server'
 
-// Этап 46E: content now comes from the DB (SitePage) with a static fallback to
-// src/data/info-pages.ts on missing/unpublished/invalid/DB-error. Markup unchanged.
+// Этап 79A: the Help route is now a real Help Center — curated static categories/articles
+// (src/lib/help/content.ts) with search (?q=) + category filter (?category=) + an
+// "ask a question" form (DB-backed HelpQuestion). The page intro/SEO still come from the
+// SitePage CMS (Этап 46E) with the static info-pages.ts fallback, so it can never hard-fail.
 const SLUG = 'help'
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -12,8 +15,12 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: page?.metaTitle, description: page?.metaDescription }
 }
 
-export default async function HelpPage() {
-  const page = await getInfoPageForPublic(SLUG)
-  if (!page) notFound()
-  return <InfoPageLayout page={page} />
+export default async function HelpPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string; q?: string }>
+}) {
+  const [params, page] = await Promise.all([searchParams, getInfoPageForPublic(SLUG)])
+  const result = searchHelp({ category: params.category ?? null, query: params.q ?? null })
+  return <HelpCenter result={result} intro={page?.intro} />
 }
