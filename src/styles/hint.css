@@ -154,26 +154,3 @@
   align-items: center;
   gap: 6px;
 }
-
-/* Highlighted entry block at the top of the Вопросы / Ответы page. */
-.au-help-hero {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin: 6px 0 18px;
-  padding: 16px 18px;
-  border: 1px solid var(--au-line);
-  border-radius: var(--au-radius-lg);
-  background: var(--au-gold-tint);
-}
-.au-help-hero-text {
-  font: 400 14px/1.5 var(--au-font-ui);
-  color: var(--au-ink-soft);
-  margin: 0;
-  max-width: 64ch;
-}
-.au-help-hero .au-hint {
-  margin-left: 4px;
-}

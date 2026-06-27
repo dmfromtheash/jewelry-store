@@ -1,18 +1,26 @@
 /**
- * AURELIA — HelpCenter (server component) — Этап 79A
+ * AURELIA — HelpCenter (server component) — Этап 79A, decluttered Этап 87A
  *
- * The real Help Center body: intro, a search field (GET form, ?q=), category filter chips
- * (?category=), the filtered FAQ/article list with an honest empty state, and the
- * "Поставити запитання" form. Content is the curated STATIC Help content (no fake claims);
- * the form is the DB-backed part. Reuses the existing info-page + checkout form classes plus
- * a small, isolated au-help-* block in content.css — no global/card/gallery changes.
+ * The real «Вопросы / Ответы» body: a slim header, a search field promoted to the primary
+ * entry (GET form, ?q=), secondary category chips (?category=), the filtered FAQ/article list
+ * with an honest empty state, a subtle product-Q&A cross-link, and a contained
+ * "Не знайшли відповідь?" CTA that reveals the ask-a-question form.
+ *
+ * Этап 87A cleanup: merged the duplicated intro + hero into one line, made search visually
+ * primary, removed the three page-level InfoHints (hero/search/categories — they restated
+ * visible copy) and added a clearer answers heading/result summary. Content is the curated
+ * STATIC Help content (no fake claims); the form is the DB-backed part. Reuses existing
+ * au-info-* / au-help-* / au-co-* classes only — no global/card/gallery changes.
  */
 
 import Link from 'next/link'
 import Breadcrumbs from '../ui/Breadcrumbs'
-import InfoHint from '../ui/InfoHint'
 import HelpQuestionForm from './HelpQuestionForm'
 import type { HelpSearchResult } from '../../lib/help/search'
+
+const DEFAULT_INTRO =
+  'Питання, відповіді та підказки покупцю: оплата, доставка, розміри й догляд за прикрасами. ' +
+  'Скористайтесь пошуком або оберіть тему — не знайшли відповідь, поставте запитання.'
 
 function buildHref(category: string | null, query: string): string {
   const params = new URLSearchParams()
@@ -30,50 +38,48 @@ export default function HelpCenter({
   intro?: string
 }) {
   const { categories, activeCategory, query, articles } = result
+  const activeCat = activeCategory ? categories.find((c) => c.slug === activeCategory) : undefined
+
+  // Answers-area heading + a short, plain-language summary of the current state.
+  const answersTitle = query ? 'Результати пошуку' : activeCat ? activeCat.name : 'Часті запитання'
+  const summary =
+    articles.length === 0
+      ? null
+      : query
+        ? `За запитом «${query}» — ${articles.length}`
+        : activeCat
+          ? `Питань у темі: ${articles.length}`
+          : null
 
   return (
     <div className="au-info-page">
       <div className="au-container au-info-inner">
         <Breadcrumbs items={[{ label: 'Головна', href: '/' }, { label: 'Вопросы / Ответы' }]} />
 
+        {/* Slim header — one intro line (CMS intro or a sensible default). */}
         <h1 className="au-info-title">Вопросы / Ответы</h1>
-        {intro && <p className="au-info-intro">{intro}</p>}
+        <p className="au-info-intro">{intro || DEFAULT_INTRO}</p>
 
-        {/* Highlighted entry block — makes clear this is where to read answers and
-            ask about a purchase. Subtle, single block (no loud banner). */}
-        <div className="au-help-hero">
-          <p className="au-help-hero-text">
-            Тут зібрані питання, відповіді та підказки покупцю: оплата, доставка, розміри,
-            догляд за прикрасами. Не знайшли відповідь — поставте запитання нижче.
-          </p>
-          <InfoHint
-            text="Питання, відповіді та підказки покупцю."
-            label="Про розділ «Вопросы / Ответы»"
-            place="left"
-          />
+        {/* Search — promoted to the primary entry point in its own labelled panel. */}
+        <div className="au-help-search-block">
+          <p className="au-help-search-label">Знайти відповідь</p>
+          <form className="au-help-search" action="/help" method="get" role="search">
+            {activeCategory && <input type="hidden" name="category" value={activeCategory} />}
+            <input
+              type="search"
+              name="q"
+              defaultValue={query}
+              placeholder="Введіть слово або тему — напр. «доставка», «розмір»…"
+              aria-label="Пошук у розділі «Вопросы / Ответы»"
+            />
+            <button className="au-btn au-btn--primary" type="submit">
+              Знайти
+            </button>
+          </form>
         </div>
 
-        {/* Search (GET — keeps the page statically cacheable per query). */}
-        <form className="au-help-search" action="/help" method="get" role="search">
-          {activeCategory && <input type="hidden" name="category" value={activeCategory} />}
-          <input
-            type="search"
-            name="q"
-            defaultValue={query}
-            placeholder="Пошук у довідці…"
-            aria-label="Пошук у довідці"
-          />
-          <InfoHint text="Знайдіть відповідь за словом або темою." label="Як шукати у розділі" place="bottom" />
-          <button className="au-btn au-btn--primary" type="submit">
-            Знайти
-          </button>
-        </form>
-
-        {/* Category filter chips. */}
-        <nav className="au-help-cats" aria-label="Категорії довідки">
-          <span className="au-help-cats-hint">
-            <InfoHint text="Оберіть тему, щоб звузити список питань." label="Про категорії" place="right" />
-          </span>
+        {/* Category chips — clearly secondary navigation. */}
+        <nav className="au-help-cats" aria-label="Категорії">
           <Link
             href={buildHref(null, query)}
             className={`au-help-cat${activeCategory ? '' : ' is-active'}`}
@@ -91,11 +97,17 @@ export default function HelpCenter({
           ))}
         </nav>
 
-        {/* Article list / empty state. */}
+        {/* Answers area — the primary content. */}
+        <div className="au-help-answers-head">
+          <h2 className="au-help-answers-title">{answersTitle}</h2>
+          {summary && <span className="au-help-result">{summary}</span>}
+        </div>
+
         {articles.length === 0 ? (
           <div className="au-help-empty">
             <p className="au-info-p">
-              За вашим запитом нічого не знайдено. Спробуйте інші слова або поставте запитання нижче.
+              За вашим запитом нічого не знайдено. Спробуйте інші слова, оберіть іншу тему або
+              поставте запитання нижче.
             </p>
             <p>
               <Link className="au-info-link" href={buildHref(null, '')}>
@@ -114,7 +126,13 @@ export default function HelpCenter({
           </div>
         )}
 
-        {/* Ask a question. */}
+        {/* Product-specific questions live on the product page — quiet cross-link. */}
+        <p className="au-help-xlink">
+          Питання про конкретну прикрасу? Запитайте прямо на сторінці товару — у блоці «Запитання
+          про товар».
+        </p>
+
+        {/* Contained ask-a-question CTA → reveals the form. */}
         <HelpQuestionForm categories={categories} defaultCategory={activeCategory ?? undefined} />
       </div>
     </div>

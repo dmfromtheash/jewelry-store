@@ -31,6 +31,15 @@
 > user's own Help/product questions + answers and a unified "waiting" list, plus a search-first
 > `/help` cleanup). That SPEC does **not** touch the §E reservation lifecycle.
 >
+> **UX cleanup (Этап 87A).** The `/help` («Вопросы / Ответы») page was decluttered per 85A §F:
+> slim header (the 84A `au-help-hero` block was merged into one intro line and removed), search
+> promoted to a labelled primary panel, secondary category chips, an answers heading + result
+> summary, a subtle product-Q&A cross-link, and a contained "Не знайшли відповідь?" CTA that
+> reveals the existing ask form. The three page-level InfoHints were removed (the form is unchanged
+> in behaviour). **Presentation only** — no schema/migration, no change to validation/honeypot/
+> throttle/consent, still **no** real email sending and **no** reservation/hold. Route + pinned
+> `<title>` unchanged.
+>
 > This document is a *plan*. The reservation parts below are not implemented yet. It proposes how to upgrade the
 > current decorative **«Допомога»** page into a real **Help Center**, and to add **product
 > questions (pre-sale Q&A)**, **back-in-stock availability notifications**, and a **short-term

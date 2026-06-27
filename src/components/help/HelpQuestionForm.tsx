@@ -1,17 +1,20 @@
 'use client'
 
 /**
- * AURELIA — HelpQuestionForm (client) — Этап 79A
+ * AURELIA — HelpQuestionForm (client) — Этап 79A, contained CTA Этап 87A
  *
  * The public "Поставити запитання" form for the Help Center. Submits to the server action,
  * which validates + stores the question as `new` for admin triage (never auto-published).
  * HONEST by design: the success copy says answers are handled manually and that automatic
  * emails are not sent. Reuses ONLY existing form classes (au-co-section / au-field / au-btn /
  * au-co-note / au-field-error) — no new design system. Includes a hidden honeypot field.
+ *
+ * Этап 87A: the form starts collapsed behind a contained "Не знайшли відповідь?" CTA so the
+ * page no longer ends in a wall of always-open inputs. Clicking «Поставити запитання» reveals
+ * the same form — validation, honeypot, throttle, consent and no-send copy are unchanged.
  */
 
 import { useState } from 'react'
-import InfoHint from '../ui/InfoHint'
 import { submitHelpQuestion } from '../../lib/help/question-actions'
 import { validateHelpQuestion, hasHelpQuestionErrors } from '../../lib/help/question-validate'
 import type { HelpQuestionFieldErrors } from '../../lib/help/question-types'
@@ -35,6 +38,7 @@ export default function HelpQuestionForm({
   const [generalError, setGeneralError] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
   const [done, setDone] = useState(false)
+  const [revealed, setRevealed] = useState(false)
 
   if (done) {
     return (
@@ -74,18 +78,29 @@ export default function HelpQuestionForm({
     }
   }
 
+  // Collapsed by default: a calm, contained CTA instead of an always-open form.
+  if (!revealed) {
+    return (
+      <section className="au-help-ask" aria-label="Поставити запитання">
+        <h3 className="au-help-ask-title">Не знайшли відповідь?</h3>
+        <p className="au-help-ask-text">
+          Поставте запитання — ми відповідаємо вручну. Автоматичні листи поки не надсилаються
+          (поштовий сервіс не підключено).
+        </p>
+        <button
+          className="au-btn au-btn--primary"
+          type="button"
+          onClick={() => setRevealed(true)}
+        >
+          Поставити запитання
+        </button>
+      </section>
+    )
+  }
+
   return (
     <form className="au-co-section au-help-form" onSubmit={handleSubmit} noValidate>
-      <h3 className="au-co-section-title">
-        <span className="au-hint-label">
-          Поставити запитання
-          <InfoHint
-            text="Відповідаємо вручну. Авто-листи поки не надсилаються."
-            label="Як працює форма запитання"
-            place="right"
-          />
-        </span>
-      </h3>
+      <h3 className="au-co-section-title">Поставити запитання</h3>
 
       <div className="au-field">
         <label htmlFor="hq-cat">Категорія</label>

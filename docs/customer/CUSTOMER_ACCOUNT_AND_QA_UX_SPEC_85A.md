@@ -1,6 +1,6 @@
 # AURELIA — Customer Account & «Вопросы / Ответы» UX Redesign — SPEC (Этап 85A)
 
-**Status:** SPEC / UX PLAN. 85A was plan-only. **Stage 86A (Customer Account Dashboard Upgrade) is now IMPLEMENTED** — see §H Stage 86A for the shipped scope. 87A (`/help` UX cleanup) and 88A (integration polish) remain planned; the 24h reservation/hold lifecycle stays deferred.
+**Status:** SPEC / UX PLAN. 85A was plan-only. **Stage 86A (Customer Account Dashboard Upgrade) and Stage 87A («Вопросы / Ответы» page UX cleanup) are now IMPLEMENTED** — see §H for shipped scope. 88A (integration polish) remains planned; the 24h reservation/hold lifecycle stays deferred.
 **Author stage:** 85A · **Baseline HEAD:** `7de3b9c` · **Branch:** `main`
 
 > This document is a *plan*. It analyses the current customer account (`/account`) and the public
@@ -411,8 +411,23 @@ Three safe stages. **No 24h reservation work in any of them.** Each is one commi
 - **Rollback:** revert the single commit; no migration to undo.
 - **Commit:** `feat: customer account dashboard upgrade (overview, my Q&A, unified waiting)`
 
-### Stage 87A — «Вопросы / Ответы» Page UX Cleanup
-- **Scope:** restructure `/help` per Section F — slim header (merge intro+hero), search as primary
+### Stage 87A — «Вопросы / Ответы» Page UX Cleanup — ✅ IMPLEMENTED
+- **Shipped:** `/help` restructured per Section F — slim header (CMS intro + `au-help-hero`
+  merged into one intro line; hero block removed), **search promoted to a labelled primary
+  panel** (`au-help-search-block`) with a clearer placeholder, category chips kept as secondary,
+  an **answers heading + result-summary line** (`au-help-answers-head` / `au-help-result`), a
+  subtle **product-Q&A cross-link** (`au-help-xlink`), and a **contained "Не знайшли відповідь?"
+  CTA** that reveals the existing ask form. The three page-level InfoHints (hero/search/categories)
+  and the form-title hint were removed (Section G) — the `/help` body now carries **0** hints
+  (the global header hint is unchanged). **No change** to form behaviour: validation, honeypot,
+  durable throttle, consent-gating, generic success and no-send copy are all untouched. Reused
+  existing `au-info-*` / `au-help-*` / `au-co-*` / `au-btn` classes; CSS added only to
+  `src/styles/content.css`, unused `au-help-hero*` rules removed from `src/styles/hint.css`.
+  **No schema / no migration.** `app/help/page.tsx` route + pinned title (84A) unchanged. Checks:
+  `typecheck`, `prisma validate` + `migrate status`, `smoke:routes` (34, incl. `/help`,
+  `/help?category=`, `/help?q=`), `smoke:admin` (19), `build`, and `db:verify` for
+  help-center / product-questions / availability-interests / customer-account-dashboard — all green.
+- **Scope (original plan):** restructure `/help` per Section F — slim header (merge intro+hero), search as primary
   entry, chips as secondary, cleaner answers area (cards/accordion via existing classes), contained
   ask-question CTA → revealed form, product-Q&A cross-link, and the hint cleanup from Section G.
   **No change to form behaviour, validation, throttle, honeypot, or no-send copy semantics.**
