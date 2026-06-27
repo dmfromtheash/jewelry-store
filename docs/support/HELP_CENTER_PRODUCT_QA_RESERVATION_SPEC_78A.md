@@ -25,6 +25,12 @@
 > sending also remains owner/provider-gated. Account-page integration (§G) is deferred. See
 > `docs/sale/FEATURES_AND_LIMITS.md` §1/79A.
 >
+> **UX redesign SPEC (Этап 85A).** The deferred account integration (§G) and a cleaner
+> «Вопросы / Ответы» page are now planned in
+> `docs/customer/CUSTOMER_ACCOUNT_AND_QA_UX_SPEC_85A.md` (a customer dashboard surfacing the
+> user's own Help/product questions + answers and a unified "waiting" list, plus a search-first
+> `/help` cleanup). That SPEC does **not** touch the §E reservation lifecycle.
+>
 > This document is a *plan*. The reservation parts below are not implemented yet. It proposes how to upgrade the
 > current decorative **«Допомога»** page into a real **Help Center**, and to add **product
 > questions (pre-sale Q&A)**, **back-in-stock availability notifications**, and a **short-term
