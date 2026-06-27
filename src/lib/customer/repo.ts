@@ -251,3 +251,48 @@ export async function getCustomerOrderByCode(
     select: CUSTOMER_ORDER_DETAIL_SELECT,
   })
 }
+
+export interface CustomerReviewItem {
+  id: string
+  rating: number
+  body: string
+  status: string
+  createdAt: Date
+  productName: string
+  productSlug: string
+  /** Whether the reviewed product is still published (drives whether we link to the PDP). */
+  productPublished: boolean
+}
+
+/**
+ * The customer's OWN reviews (newest first), HARD-SCOPED by `customerId` (Этап 86A). Only
+ * the customer's own content + moderation STATUS is returned — never another user's review
+ * and never an admin moderation note/actor (no such field is selected). The product
+ * name/slug/published flag lets the account link to the PDP when it is still public.
+ */
+export async function getCustomerReviews(customerId: string): Promise<CustomerReviewItem[]> {
+  if (!customerId) return []
+  const rows = await prisma.productReview.findMany({
+    where: { customerId },
+    orderBy: { createdAt: 'desc' },
+    take: 100,
+    select: {
+      id: true,
+      rating: true,
+      body: true,
+      status: true,
+      createdAt: true,
+      product: { select: { name: true, slug: true, isPublished: true } },
+    },
+  })
+  return rows.map((r) => ({
+    id: r.id,
+    rating: r.rating,
+    body: r.body,
+    status: r.status,
+    createdAt: r.createdAt,
+    productName: r.product.name,
+    productSlug: r.product.slug,
+    productPublished: r.product.isPublished,
+  }))
+}

@@ -1,6 +1,6 @@
 # AURELIA — Customer Account & «Вопросы / Ответы» UX Redesign — SPEC (Этап 85A)
 
-**Status:** SPEC / UX PLAN only. **No code, no schema, no migration, no CSS/design change, no push in 85A.**
+**Status:** SPEC / UX PLAN. 85A was plan-only. **Stage 86A (Customer Account Dashboard Upgrade) is now IMPLEMENTED** — see §H Stage 86A for the shipped scope. 87A (`/help` UX cleanup) and 88A (integration polish) remain planned; the 24h reservation/hold lifecycle stays deferred.
 **Author stage:** 85A · **Baseline HEAD:** `7de3b9c` · **Branch:** `main`
 
 > This document is a *plan*. It analyses the current customer account (`/account`) and the public
@@ -376,8 +376,20 @@ isn't already visible. On `/help` most weren't; in the header/checkout they are.
 
 Three safe stages. **No 24h reservation work in any of them.** Each is one commit.
 
-### Stage 86A — Customer Account Dashboard Upgrade
-- **Scope:** turn `/account` into a dashboard shell with an **Огляд** landing (greeting + status
+### Stage 86A — Customer Account Dashboard Upgrade — ✅ IMPLEMENTED
+- **Shipped:** `/account` is now a URL-driven dashboard (`?tab=…`) with sections Огляд / Замовлення /
+  Обране / Вопросы / Ответы / Очікування товарів / Збережені пошуки / Відгуки / Профіль і безпека.
+  Overview shows greeting + status cards + recent orders + Q&A digest + quick actions. New scoped
+  reads surface the customer's OWN Help questions (`src/lib/help/question-account.ts`), product
+  questions (`src/lib/product-qa/account.ts`), email-based availability interests
+  (`src/lib/availability/account.ts` + self-cancel action `account-actions.ts`) and reviews list
+  (`getCustomerReviews` in `src/lib/customer/repo.ts`); pure labels in
+  `src/lib/customer/account-qa.ts`; aggregator extended in `account-dashboard.ts`. Account-only CSS
+  `src/styles/account.css`. **No schema change / no migration.** Checks: `npm run typecheck`,
+  `db:verify:customer-account-dashboard` (30 checks), `smoke:routes`, `build` — all green.
+  Owner decisions resolved as recommended (UA labels kept, self-cancel enabled, full order history,
+  reviews list shown, `?tab=` mechanism). Guest→account question linking remains deferred.
+- **Scope (original plan):** turn `/account` into a dashboard shell with an **Огляд** landing (greeting + status
   cards + recent activity + quick actions) and clear sections; add **My Questions/Answers** (Help +
   product, scoped), **unify waiting** (login interests + email-based availability interests), **full
   order history**, and a **reviews list** (not just counts). All reads scoped by `customerId`. No

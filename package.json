@@ -58,6 +58,7 @@
     "db:verify:help-center": "tsx prisma/verify-help-center.ts",
     "db:verify:product-questions": "tsx prisma/verify-product-questions.ts",
     "db:verify:availability-interests": "tsx prisma/verify-availability-interests.ts",
+    "db:verify:customer-account-dashboard": "tsx prisma/verify-customer-account-dashboard.ts",
     "email:process:stub": "tsx prisma/email-process.ts",
     "smoke:routes": "node scripts/smoke/route-smoke.mjs",
     "smoke:admin": "node scripts/smoke/admin-smoke.mjs",

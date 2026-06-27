@@ -1,0 +1,214 @@
+/* ============================================================
+   AURELIA — Customer account dashboard styles (Этап 86A)
+   Account-specific layout ONLY: greeting, tab navigation, status
+   cards, status badges, and Q&A answer blocks. Plain CSS, reuses the
+   design tokens + the existing .au-co-* checkout/account classes for
+   lists and sections. NO product-card / gallery / placeholder / design-
+   system change. Imported globally via globals.css.
+   ============================================================ */
+
+/* ---- Header / greeting ---- */
+.au-acc-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 16px;
+  margin: 0 0 20px;
+}
+.au-acc-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border: 1px solid var(--au-line-strong);
+  border-radius: 999px;
+  font: 600 11.5px/1 var(--au-font-ui);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--au-ink-soft);
+  background: var(--au-surface-2);
+}
+.au-acc-sub {
+  margin: 0 0 24px;
+  font: 400 14px/1.6 var(--au-font-ui);
+  color: var(--au-muted);
+}
+
+/* ---- Tab navigation ---- */
+.au-acc-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 28px;
+  padding: 0 0 16px;
+  border-bottom: 1px solid var(--au-line);
+}
+.au-acc-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid var(--au-line-strong);
+  border-radius: 999px;
+  font: 500 13px/1 var(--au-font-ui);
+  color: var(--au-ink-soft);
+  text-decoration: none;
+  background: #fff;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.au-acc-tab:hover {
+  border-color: var(--au-gold);
+  color: var(--au-ink);
+}
+.au-acc-tab.is-active {
+  border-color: var(--au-gold);
+  background: var(--au-gold);
+  color: #fff;
+}
+.au-acc-tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--au-surface-2);
+  color: var(--au-ink-soft);
+  font: 700 10px/1 var(--au-font-ui);
+}
+.au-acc-tab.is-active .au-acc-tab-count {
+  background: rgba(255, 255, 255, 0.28);
+  color: #fff;
+}
+
+/* ---- Status cards (overview) ---- */
+.au-acc-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px;
+  margin: 0 0 28px;
+}
+.au-acc-card {
+  display: block;
+  padding: 16px 18px;
+  border: 1px solid var(--au-line);
+  border-radius: var(--au-radius-lg);
+  background: var(--au-surface-2);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s;
+}
+a.au-acc-card:hover {
+  border-color: var(--au-gold);
+}
+.au-acc-card-val {
+  font: 700 26px/1 var(--au-font-ui);
+  color: var(--au-ink);
+}
+.au-acc-card-label {
+  margin: 6px 0 0;
+  font: 500 12px/1.3 var(--au-font-ui);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--au-muted);
+}
+.au-acc-card-sub {
+  margin: 4px 0 0;
+  font: 400 11.5px/1.4 var(--au-font-ui);
+  color: var(--au-gold-soft);
+}
+
+/* ---- Quick actions ---- */
+.au-acc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 4px 0 0;
+}
+
+/* ---- Status badges (Q&A / waiting / reviews) ---- */
+.au-acc-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font: 600 10.5px/1.5 var(--au-font-ui);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  background: var(--au-surface-2);
+  color: var(--au-ink-soft);
+  border: 1px solid var(--au-line-strong);
+}
+.au-acc-badge.is-answered {
+  background: rgba(34, 139, 87, 0.1);
+  color: #1f7a4d;
+  border-color: rgba(34, 139, 87, 0.35);
+}
+.au-acc-badge.is-pending {
+  background: rgba(176, 132, 28, 0.1);
+  color: #8a6410;
+  border-color: rgba(176, 132, 28, 0.35);
+}
+.au-acc-badge.is-muted {
+  background: var(--au-surface-2);
+  color: var(--au-muted);
+}
+
+/* ---- Q&A item: question + admin answer ---- */
+.au-acc-qa {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--au-line);
+}
+.au-acc-qa:last-child {
+  border-bottom: none;
+}
+.au-acc-qa-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 0 0 6px;
+}
+.au-acc-qa-title {
+  margin: 0;
+  font: 600 14px/1.35 var(--au-font-ui);
+  color: var(--au-ink);
+}
+.au-acc-qa-body {
+  margin: 0 0 4px;
+  font: 400 13px/1.55 var(--au-font-ui);
+  color: var(--au-ink-soft);
+}
+.au-acc-qa-meta {
+  margin: 0;
+  font: 400 11.5px/1.4 var(--au-font-ui);
+  color: var(--au-muted);
+}
+.au-acc-answer {
+  margin: 10px 0 0;
+  padding: 12px 14px;
+  border-left: 2px solid var(--au-gold);
+  border-radius: 0 var(--au-radius) var(--au-radius) 0;
+  background: var(--au-surface-2);
+}
+.au-acc-answer-label {
+  margin: 0 0 4px;
+  font: 600 10.5px/1 var(--au-font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--au-gold-soft);
+}
+.au-acc-answer-text {
+  margin: 0;
+  font: 400 13px/1.55 var(--au-font-ui);
+  color: var(--au-ink);
+  white-space: pre-wrap;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 520px) {
+  .au-acc-cards {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+}
